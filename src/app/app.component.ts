@@ -6,5 +6,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'dw';
+  title = 'DW - Lot 0';
+
+  diviseChartsSegment(){
+    console.log("On veut diviser ici");
+    let chartContainer = document.getElementById('chartContainer');
+  }
 }

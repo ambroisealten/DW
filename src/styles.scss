@@ -1,1 +1,63 @@
 /* You can add global styles to this file, and also import other style files */
+
+body{
+    background-color: black;
+    color: white;
+    margin: auto;
+}
+
+
+header{
+    background-color: #353535;
+    color: lightgrey;
+    width: 100%;
+    position: fixed;
+    max-height: 50px;
+    top:0;
+    padding-left: 1%;
+}
+
+figure{
+    margin: .5% auto;
+}
+
+figcaption{
+    display: inline-block;
+    margin-bottom: 1%;
+    font-size: 35px;
+}
+
+
+header img{
+    width: 1.5%;
+}
+
+main{
+    padding-top: 4%;
+    display: grid;
+    grid-template-columns: 1fr 4fr 1fr;
+}
+
+main div{
+    height: 90vh;
+    border-left: 1px solid grey;
+    border-right: 1px solid grey;
+}
+
+main nav{
+    padding-left: 2%;
+}
+
+.charts{
+    border: 2px dotted rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    margin: auto;
+    background-image: url("./assets/images/barChart.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .5;
+}
+
+main aside{
+    padding-left: 2%;
+}

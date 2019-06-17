@@ -1,7 +1,18 @@
-<h1>Données</h1>
-<ul *ngFor="let data of datas">
-  {{ data.name }}
-  <li draggable="true" *ngFor="let field of data.fields" (dragend)="onDragField(field)">
-    {{ field }}
-  </li>
-</ul>
+<main>
+  <nav>
+    <h1>Données</h1>
+    <ul *ngFor="let data of datas">
+      {{ data.name }}
+      <li draggable="true" *ngFor="let field of data.fields" (dragend)="onDragField(field)">
+        {{ field }}
+      </li>
+    </ul>
+  </nav>
+  <div id="chartContainer">
+    <div class='charts' (click)="diviseChartsSegment()">
+    </div>
+  </div>
+  <aside>
+    Droite
+  </aside>
+</main>

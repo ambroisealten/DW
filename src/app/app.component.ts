@@ -8,7 +8,7 @@ import { DataService } from './services/dataService';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'dw';
+  title = 'DW - Lot 0';
 
   constructor(private dataService: DataService) { }
 
@@ -16,5 +16,10 @@ export class AppComponent {
 
   onDragField(field: string) {
     console.log(field);
+  }
+
+  diviseChartsSegment() {
+    console.log('On veut diviser ici');
+    const chartContainer = document.getElementById('chartContainer');
   }
 }

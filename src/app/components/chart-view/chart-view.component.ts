@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { ViewService } from 'src/app/services/viewService';
-import { DataSet } from 'src/app/models/dataSet';
 
 @Component({
   selector: 'app-chart-view',
@@ -9,15 +8,11 @@ import { DataSet } from 'src/app/models/dataSet';
 })
 export class ChartViewComponent implements OnInit {
 
-  viewService : ViewService;
-  @Input() instanceNumber : number;
+  viewService: ViewService;
+  @Input() instanceNumber: number;
 
-  constructor(private cd: ChangeDetectorRef) {
+  constructor() {
     this.viewService = ViewService.getInstance(this.instanceNumber);
-  }
-
-  recheckValues(){
-    this.cd.detectChanges();
   }
 
   ngOnInit() {

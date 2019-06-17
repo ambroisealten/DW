@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { DataSet } from '../models/dataSet';
 
 @Injectable()
 export class ViewService {
@@ -10,10 +9,12 @@ export class ViewService {
     private static instance4: ViewService = null;
 
     type: string;
-    dataSet: DataSet;
+    dataSet: string[];
     options: string[];
 
-    constructor() { }
+    constructor() {
+        this.dataSet = [];
+    }
 
     // Return the instance of the service
     public static getInstance(instanceNumber: number): ViewService {
@@ -39,5 +40,4 @@ export class ViewService {
         }
         return instance;
     }
-
 }

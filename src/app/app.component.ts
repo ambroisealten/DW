@@ -31,7 +31,7 @@ export class AppComponent implements OnInit {
   }
 
   onDragField(ev, field: string) {
-    ev.dataTransfer.setData('data', this.dataService.fetchData(field));
+    ev.dataTransfer.setData('data', field);
   }
 
   onDrop(ev) {
@@ -65,14 +65,13 @@ export class AppComponent implements OnInit {
 
     this.componentRef.instance.instanceNumber = instanceNumber;
     this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
-    this.componentRef.instance.viewService.dataSet = data;
 
-    this.componentRef.instance.recheckValues();
+    this.componentRef.instance.viewService.dataSet.push(data);
+    console.log(this.componentRef.instance);
 
-    if(this.containerRepeat > 2){
+    if (this.containerRepeat > 2) {
       target.setAttribute('class', 'chartContainedFour');
-    }
-    else{
+    } else {
       target.setAttribute('class', 'chartContained');
     }
 
@@ -93,7 +92,7 @@ export class AppComponent implements OnInit {
     if (this.containerRepeat > 4) {
       this.containerRepeat = 4;
     } else if (this.containerRepeat > 2) {
-      if (this.containerRepeat == 3) {
+      if (this.containerRepeat === 3) {
         this.resizeAllCharts();
       }
       const newDivForChart = document.createElement('div');
@@ -125,7 +124,7 @@ export class AppComponent implements OnInit {
     this.resizeContainedCharts();
   }
 
-  resizeContainedCharts(){
+  resizeContainedCharts() {
     const containedCharts = document.getElementsByClassName('chartContained');
 
     const arr = Array.from(containedCharts);
@@ -135,7 +134,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  resizeBlankCharts(){
+  resizeBlankCharts() {
     const blankCharts = document.getElementsByClassName('charts');
 
     const arr = Array.from(blankCharts);

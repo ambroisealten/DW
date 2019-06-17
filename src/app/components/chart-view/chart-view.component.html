@@ -1,12 +1,13 @@
-<p>
-  chart-view works! {{ instanceNumber }} 
-  dataSet = {{ viewService.dataSet }}
-</p>
-<table mat-table [dataSource]="viewService.dataSet">
-  <th mat-header-cell *matHeaderCellDef>
-    Test
-  </th>
-  <td mat-cell *matCellDef="let element">
-    {{element}}
-  </td>
+<h4>Nouveau tableau</h4>
+<table>
+  <tr>
+    <th>
+      Données
+    </th>
+  </tr>
+  <tr *ngFor="let element of viewService.dataSet.split(',')">
+    <td>
+      {{element}}
+    </td>
+  </tr>
 </table>

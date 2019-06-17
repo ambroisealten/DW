@@ -32,7 +32,7 @@ export class ViewService {
                 instance = this.instance4;
                 break;
             default:
-                return null;
+                break;
         }
         if (instance === null) {
             instance = new ViewService();

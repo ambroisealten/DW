@@ -50,19 +50,21 @@ main nav{
 }
 
 .chartContained{
+    overflow: auto;
     height: 90vh;
     width: 100%;
     margin: auto;
-    background-color: aqua;
-    opacity: 0.5;
+    color: white;
+    border: 1px dotted gray;
 }
 
 .chartContainedFour{
+    overflow: auto;
     height: 45vh;
     width: 100%;
     margin: auto;
-    background-color: aqua;
-    opacity: 0.5;
+    color: white;
+    border: 1px dotted gray;
 }
 
 .charts{

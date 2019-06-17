@@ -67,10 +67,15 @@ export class AppComponent implements OnInit {
     this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
     this.componentRef.instance.viewService.dataSet = data;
 
-    console.log(this.componentRef.instance);
+    this.componentRef.instance.recheckValues();
 
+    if(this.containerRepeat > 2){
+      target.setAttribute('class', 'chartContainedFour');
+    }
+    else{
+      target.setAttribute('class', 'chartContained');
+    }
 
-    target.setAttribute('class', 'chartContained');
     ev.preventDefault();
   }
 
@@ -85,8 +90,8 @@ export class AppComponent implements OnInit {
 
     this.containerRepeat += 1;
 
-    if (this.containerRepeat > 2) {
-      this.containerRepeat = 2;
+    if (this.containerRepeat > 4) {
+      this.containerRepeat = 4;
     } else if (this.containerRepeat > 2) {
       if (this.containerRepeat == 3) {
         this.resizeAllCharts();
@@ -116,12 +121,27 @@ export class AppComponent implements OnInit {
   }
 
   resizeAllCharts() {
-    const allCharts = document.getElementsByClassName('chartContained');
+    this.resizeBlankCharts();
+    this.resizeContainedCharts();
+  }
 
-    const arr = Array.from(allCharts);
+  resizeContainedCharts(){
+    const containedCharts = document.getElementsByClassName('chartContained');
+
+    const arr = Array.from(containedCharts);
 
     arr.forEach(chart => {
       chart.setAttribute('class', 'chartContainedFour');
+    });
+  }
+
+  resizeBlankCharts(){
+    const blankCharts = document.getElementsByClassName('charts');
+
+    const arr = Array.from(blankCharts);
+
+    arr.forEach(chart => {
+      chart.setAttribute('class', 'chartsFour');
     });
   }
 }

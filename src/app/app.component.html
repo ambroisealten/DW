@@ -1,7 +1,7 @@
 <h1>Données</h1>
 <ul *ngFor="let data of datas">
   {{ data.name }}
-  <li *ngFor="let field of data.fields">
+  <li draggable="true" *ngFor="let field of data.fields" (dragend)="onDragField(field)">
     {{ field }}
   </li>
 </ul>

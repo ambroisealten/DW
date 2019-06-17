@@ -13,4 +13,8 @@ export class AppComponent {
   constructor(private dataService: DataService) { }
 
   datas: Data[] = this.dataService.fetchDataScheme();
+
+  onDragField(field: string) {
+    console.log(field);
+  }
 }

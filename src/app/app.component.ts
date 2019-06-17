@@ -59,13 +59,6 @@ export class AppComponent implements OnInit {
         break;
     }
 
-    console.log(entryUsed);
-
-    try {
-      this.componentRef.destroy();
-    } catch (e) {
-
-    }
     entryUsed.clear();
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
     this.componentRef = entryUsed.createComponent(componentFactory);
@@ -78,6 +71,7 @@ export class AppComponent implements OnInit {
 
 
     target.setAttribute('class', 'chartContained');
+    ev.preventDefault();
   }
 
   allowDrop(ev) {
@@ -86,7 +80,8 @@ export class AppComponent implements OnInit {
 
 
   diviseChartsSegment() {
-    const chartContainer = document.getElementById('chartContainerSimple') == null ? document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
+    const chartContainer = document.getElementById('chartContainerSimple') == null ?
+      document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 
     this.containerRepeat += 1;
 
@@ -100,8 +95,9 @@ export class AppComponent implements OnInit {
       newDivForChart.setAttribute('class', 'chartsFour');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
-      let template = document.createElement('template');
-      newDivForChart.setAttribute('\\#chart' + this.containerRepeat + 'Host', null);
+      const template = document.getElementById('templates').firstChild;
+      document.getElementById('templates').removeChild(template);
+      newDivForChart.appendChild(template);
 
       chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
@@ -109,14 +105,14 @@ export class AppComponent implements OnInit {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'charts');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
-      newDivForChart.setAttribute('\\#chart' + this.containerRepeat + 'Host', null);
+
+      const template = document.getElementById('templates').firstChild;
+      document.getElementById('templates').removeChild(template);
+      newDivForChart.appendChild(template);
 
       chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
     }
-
-
-
   }
 
   resizeAllCharts() {

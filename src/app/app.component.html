@@ -3,16 +3,25 @@
     <h1>Données</h1>
     <ul *ngFor="let data of datas">
       {{ data.name }}
-      <li draggable="true" *ngFor="let field of data.fields" (dragend)="onDragField(field)">
+      <li draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field)">
         {{ field }}
       </li>
     </ul>
   </nav>
-  <div id="chartContainerSimple" (click)="diviseChartsSegment()">
-    <div class='charts'>
+  <div id="chartContainerSimple" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
+    <div class='charts' id='1'>
+        <template #chart1Host></template>
     </div>
   </div>
   <aside>
+    <button (click)="diviseChartsSegment()">
+      Ajouter un graphe
+    </button>
     Droite
   </aside>
 </main>
+<!--
+<div id='template'>
+  <template #chartHost></template>
+</div>
+-->

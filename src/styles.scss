@@ -38,17 +38,32 @@ main{
     grid-template-columns: 1fr 4fr 1fr;
 }
 
-main div{
-    height: 90vh;
-    border-left: 1px solid grey;
-    border-right: 1px solid grey;
+#chartContainerDouble{
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
 }
 
 main nav{
+    margin-right: 2%;
     padding-left: 2%;
+    border-right: 1px solid grey;
 }
 
 .charts{
+    height: 90vh;
+    width: 100%;
+    border: 2px dotted rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    margin: auto;
+    background-image: url("./assets/images/barChart.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .5;
+}
+
+.chartsFour{
+    height: 45vh;
+    width: 100%;
     border: 2px dotted rgba(255, 255, 255, 0.5);
     border-radius: 20px;
     margin: auto;
@@ -59,5 +74,7 @@ main nav{
 }
 
 main aside{
+    border-left: 1px solid grey;
     padding-left: 2%;
+    margin-left: 3%;
 }

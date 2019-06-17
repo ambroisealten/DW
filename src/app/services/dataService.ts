@@ -9,7 +9,6 @@ export class DataService {
         datasFetched.forEach(element => {
             datas.push(element as Data);
         });
-        console.log(datas);
         return datas;
     }
 

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Data } from './models/data';
 import { DataService } from './services/dataService';
+import { Data } from './models/data';
 
 @Component({
   selector: 'app-root',
@@ -15,11 +15,9 @@ export class AppComponent {
   datas: Data[] = this.dataService.fetchDataScheme();
 
   onDragField(field: string) {
-    console.log(field);
   }
 
   diviseChartsSegment() {
-    console.log('On veut diviser ici');
     const chartContainer = document.getElementById('chartContainer');
   }
 }

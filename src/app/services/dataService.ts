@@ -1,8 +1,14 @@
-import { DataScheme } from '../models/dataScheme';
+import { environment } from 'src/environments/environment.prod';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 export class DataService {
-    jsonData = '{"datas" : [{ "name": "nomTable1", "fields":[ "champ1", "champ2", "champ3" ]},{ "name": "nomTable2", "fields":[ "champ4", "champ5", "champ6", "champ7" ]},{ "name": "nomTable1", "fields":[ "champ8", "champ9" ]} ] }';
 
+    constructor(private httpClient: HttpClient) { }
+
+    //DEPRECATED
     data1: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 94, 444984, 84, 984, 984, 984, 984,
         98451, 54, 874, 6, 256, 84];
     data2: number[] = [0.1, 0.56895, 0.8976, 0.2357, 2357, 0, 1, 15563];
@@ -23,12 +29,10 @@ export class DataService {
     }
 
     fetchDataScheme() {
-        const datas: DataScheme[] = [];
-        const datasFetched = JSON.parse(this.jsonData)['datas'];
-        datasFetched.forEach(element => {
-            datas.push(element as DataScheme);
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
         });
-        return datas;
+        return this.httpClient.get<string>(environment.baseUrl + '/dataScheme', { headers });
     }
 
 }

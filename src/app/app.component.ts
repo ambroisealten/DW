@@ -25,9 +25,17 @@ export class AppComponent implements OnInit {
     private dataService: DataService,
     private componentFactoryResolver: ComponentFactoryResolver) { }
 
-  datas: DataScheme[] = this.dataService.fetchDataScheme();
+  datas: DataScheme[] = [];
 
-  ngOnInit(): void {
+  ngOnInit() {
+    this.dataService.fetchDataScheme().subscribe((response: string) => {
+      console.log(response);
+      // TODO Make that cutest as a puppy
+      const datasFetched = JSON.parse(JSON.stringify(response));
+      datasFetched.forEach(element => {
+        this.datas.push(element as DataScheme);
+      });
+    });
   }
 
   onDragField(ev, field: string) {

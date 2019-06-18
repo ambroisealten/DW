@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 import { DataService } from './services/dataService';
 import { ViewService } from './services/viewService';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,8 @@ import { ChartViewComponent } from './components/chart-view/chart-view.component
     ChartViewComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    HttpClientModule,
   ],
   providers: [
     DataService,

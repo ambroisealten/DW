@@ -4,6 +4,7 @@ body{
     background-color: black;
     color: white;
     margin: auto;
+    font-family: 'Verdana', sans-serif;
 }
 
 
@@ -12,19 +13,21 @@ header{
     color: lightgrey;
     width: 100%;
     position: fixed;
-    max-height: 50px;
+    max-height: 5vh;
     top:0;
     padding-left: 1%;
+    margin-bottom: 5%;
 }
 
 figure{
-    margin: .5% auto;
+    margin: 0 auto 0.5% auto;
+    padding-bottom: 1%;
 }
 
 figcaption{
     display: inline-block;
     margin-bottom: 1%;
-    font-size: 35px;
+    font-size: 4vh;
 }
 
 
@@ -89,6 +92,14 @@ main nav{
     background-position: center;
     background-repeat: no-repeat;
     opacity: .5;
+}
+
+ul{
+    list-style: none;
+}
+
+li{
+    padding-left: 15%;
 }
 
 main aside{

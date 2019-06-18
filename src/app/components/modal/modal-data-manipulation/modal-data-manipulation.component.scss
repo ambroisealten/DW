@@ -1,4 +1,22 @@
+.page {
+    display: grid;
+    grid-template-columns: 2fr 0.50fr 1fr;
+}
+
 .exclusion {
     align-content: center;
     margin:auto;
+    text-align: center;
+}
+
+.flow {
+    float: left;
+}
+
+.flow_text {
+    float: right;
+}
+
+.select {
+
 }

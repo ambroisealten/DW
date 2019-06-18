@@ -1,0 +1,25 @@
+<div class="page">
+  <div class="select">
+    <mat-selection-list #shoes>
+      <mat-list-option checkboxPosition="before">inf à</mat-list-option>
+      <mat-list-option checkboxPosition="before">inf égal à </mat-list-option>
+      <mat-list-option checkboxPosition="before">égal</mat-list-option>
+      <mat-list-option checkboxPosition="before">supérieur à </mat-list-option>
+      <mat-list-option checkboxPosition="before">supérieur égal à </mat-list-option>
+    </mat-selection-list>
+  </div>
+
+  <div class="exclusion">
+    exclure
+    <mat-slide-toggle>inclure</mat-slide-toggle>
+  </div>
+
+  <br>
+  <div>
+    <mat-label>First </mat-label>
+    <input matInput #first>
+    <mat-label>Last</mat-label>
+    <input matInput #last>
+  </div>
+
+</div>

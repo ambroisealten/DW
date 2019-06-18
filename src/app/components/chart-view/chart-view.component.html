@@ -1,13 +1,24 @@
-<h4>Nouveau tableau</h4>
-<table>
-  <tr>
-    <th>
-      Données
-    </th>
-  </tr>
-  <tr *ngFor="let element of viewService.dataSet.split(',')">
-    <td>
-      {{element}}
-    </td>
-  </tr>
-</table>
+<div class="container">
+  <p></p>
+  <ng-container *ngIf="isTabView">
+    <table>
+      <tr>
+        <th>
+          Données
+        </th>
+      </tr>
+      <tr *ngFor="let element of viewService.dataSet.split(',')">
+        <td>
+          {{element}}
+        </td>
+      </tr>
+    </table>
+  </ng-container>
+  <div>
+    <canvas #myCanvas width="250" height="250">{{chart}}
+    </canvas>
+  </div>
+  <div class="tasks">
+    <button *ngFor="let task of tasksList" (click)="changeChartView($event)">{{ task.name }}</button>
+  </div>
+</div>

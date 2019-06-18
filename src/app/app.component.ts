@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
   @ViewChild('chart3Host', { read: ViewContainerRef, static: false }) entry3: ViewContainerRef;
   @ViewChild('chart4Host', { read: ViewContainerRef, static: false }) entry4: ViewContainerRef;
 
+  allComponentRefs : any[] = [];
 
   componentRef: any;
 
@@ -69,10 +70,12 @@ export class AppComponent implements OnInit {
 
     this.componentRef.instance.recheckValues();
 
-    if(this.containerRepeat > 2){
+    this.allComponentRefs.push(this.componentRef);
+
+    if (this.containerRepeat > 2) {
       target.setAttribute('class', 'chartContainedFour');
     }
-    else{
+    else {
       target.setAttribute('class', 'chartContained');
     }
 
@@ -92,10 +95,8 @@ export class AppComponent implements OnInit {
 
     if (this.containerRepeat > 4) {
       this.containerRepeat = 4;
-    } else if (this.containerRepeat > 2) {
-      if (this.containerRepeat == 3) {
-        this.resizeAllCharts();
-      }
+    }
+    else if (this.containerRepeat > 2) {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'chartsFour');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
@@ -106,7 +107,12 @@ export class AppComponent implements OnInit {
 
       chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
-    } else {
+
+      if (this.containerRepeat == 3) {
+        this.resizeAllCharts();
+      }
+    }
+    else {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'charts');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
@@ -117,15 +123,39 @@ export class AppComponent implements OnInit {
 
       chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
+
+      this.resizeAllCanvas();
     }
+
   }
 
   resizeAllCharts() {
     this.resizeBlankCharts();
     this.resizeContainedCharts();
+    this.resizeAllCanvas();
   }
 
-  resizeContainedCharts(){
+  resizeAllCanvas() {
+    if (this.containerRepeat == 2 || this.containerRepeat == 3) {
+      const allCanvas = Array.from(document.getElementsByTagName('canvas'));
+
+      allCanvas.map( canvas => {
+        if(this.containerRepeat == 2){
+          this.allComponentRefs.map( componentRef => {
+            componentRef.instance.recheckValues();
+          });
+        }
+        else if (this.containerRepeat == 3){
+          this.allComponentRefs.map( componentRef => {
+            componentRef.instance.recheckValues();
+          });
+        }
+      });
+    }
+
+  }
+
+  resizeContainedCharts() {
     const containedCharts = document.getElementsByClassName('chartContained');
 
     const arr = Array.from(containedCharts);
@@ -135,7 +165,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  resizeBlankCharts(){
+  resizeBlankCharts() {
     const blankCharts = document.getElementsByClassName('charts');
 
     const arr = Array.from(blankCharts);

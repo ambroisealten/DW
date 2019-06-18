@@ -9,6 +9,8 @@ export class DataService {
     data3: number[] = [85, 98, 85, 51, 46, 79, 88, 80,
         898, 84, 876, 16, 162, 158, 56,
         21, 5.551055648, 0.18550506, 0.54984322068, 4, 94, 484];
+
+        
     fetchData(field: string): number[] {
         switch (field) {
             case 'champ1':

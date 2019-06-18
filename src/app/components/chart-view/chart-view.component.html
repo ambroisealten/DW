@@ -1,13 +1,13 @@
-<div class="container">
+<div class="container" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
   <p></p>
   <ng-container *ngIf="isTabView">
     <table>
       <tr>
         <th>
-          Données
+          {{ droppedText }}
         </th>
       </tr>
-      <tr *ngFor="let element of viewService.dataSet.split(',')">
+      <tr *ngFor="let element of viewService.dataSet.values.split(',')">
         <td>
           {{element}}
         </td>

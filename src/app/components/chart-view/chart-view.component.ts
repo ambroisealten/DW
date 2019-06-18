@@ -16,6 +16,8 @@ export class ChartViewComponent implements OnInit {
 
   currentType: string = "tab";
 
+  allDatas: DataSet[] = [];
+
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   public context: CanvasRenderingContext2D;
 
@@ -27,9 +29,32 @@ export class ChartViewComponent implements OnInit {
 
   viewService: ViewService;
   @Input() instanceNumber: number;
+  @Input() droppedText : string;
 
   constructor(private cd: ChangeDetectorRef) {
     this.viewService = ViewService.getInstance(this.instanceNumber);
+    
+  }
+
+  ngOnInit() {
+    this.myCanvas.nativeElement.style = "display : none";
+  }
+
+  ngAfterViewInit() {
+    this.allDatas.push(this.viewService.dataSet);
+
+    this.context = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
+
+    switch (document.getElementsByClassName('chartContainerDouble').length) {
+      case 0:
+        this.canvasFontSize = 14;
+        break;
+      default:
+        this.canvasFontSize = 10;
+        break;
+    }
+    this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetWidth - 150).toString();
+    this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetHeight - 50).toString();
   }
 
   recheckValues() {
@@ -44,23 +69,21 @@ export class ChartViewComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
-    this.myCanvas.nativeElement.style = "display : none";
+  onDrop(ev){
+    const data = ev.dataTransfer.getData('data');
+    const colName = ev.dataTransfer.getData('colName');
+
+    console.log(this.allDatas);
+
+    this.allDatas.push(new DataSet(colName,data));
+
+    console.log(this.allDatas);
+
+    ev.preventDefault();
   }
 
-  ngAfterViewInit() {
-    this.context = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
-
-    switch (document.getElementsByClassName('chartContainerDouble').length) {
-      case 0:
-        this.canvasFontSize = 14;
-        break;
-      default:
-        this.canvasFontSize = 10;
-        break;
-    }
-    this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetWidth - 150).toString();
-    this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetHeight - 50).toString();
+  allowDrop(ev) {
+    ev.preventDefault();
   }
 
   changeChartView(args) {

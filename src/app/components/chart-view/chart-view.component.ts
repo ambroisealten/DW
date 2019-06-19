@@ -16,6 +16,8 @@ export class ChartViewComponent implements OnInit {
 
   currentType: string = "tab";
 
+  allColors = ["blue","red","green","yellow","pink","cyan","orange","marroon","salmon","grey"];
+
   data: any[] = [];
 
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
@@ -116,6 +118,19 @@ export class ChartViewComponent implements OnInit {
       return this.droppedText + " : " + el.toString();
     });
 
+
+    let test = [];
+    let inter = 0;
+    for(let i =0; i <labels.length; i++){
+      if(i%this.allColors.length == 0){
+        inter = 0;
+      }
+      test.push(this.allColors[inter]);
+      inter++;
+    }
+
+    console.log(test);
+
     this.chart = new Chart(this.context, {
       type: chartType,
       data: {
@@ -123,15 +138,15 @@ export class ChartViewComponent implements OnInit {
         datasets: [
           {
             data: testData,
-            backgroundColor: "#3cba9f",
+            backgroundColor: test,
             borderColor: "#00000",
             fill: true
           }]
       },
       options: {
         legend: {
-          display: false,
-          position: "right",
+          display: true,
+          position: "bottom",
           labels: {
             fontSize: this.canvasFontSize
           }

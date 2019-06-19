@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {SelectionModel} from '@angular/cdk/collections';
-import {MatTableDataSource} from '@angular/material/table';
-import { MatDialogConfig, MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { ModalDataManipulationComponent } from '../modal/modal-data-manipulation/modal-data-manipulation.component';
-import { ModalStringManipulationComponent} from '../modal/modal-string-manipulation/modal-string-manipulation.component';
+import { MatDialogRef } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material';
+import { SelectionModel } from '@angular/cdk/collections';
 
 export interface PeriodicElement {
   name: string;
@@ -26,18 +24,17 @@ const ELEMENT_DATA: PeriodicElement[] = [
 ];
 
 @Component({
-  selector: 'app-param-view',
-  templateUrl: './param-view.component.html',
-  styleUrls: ['./param-view.component.scss']
+  selector: 'app-modal-string-manipulation',
+  templateUrl: './modal-string-manipulation.component.html',
+  styleUrls: ['./modal-string-manipulation.component.scss']
 })
-export class ParamViewComponent implements OnInit {
+export class ModalStringManipulationComponent implements OnInit {
 
-  
-  constructor(private dialog: MatDialog) { }
+  constructor(private dialogRef: MatDialogRef<ModalStringManipulationComponent>) { }
 
   ngOnInit() {
   }
-  
+
   displayedColumns: string[] = ['select', 'position', 'name', 'weight', 'symbol'];
   dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
   selection = new SelectionModel<PeriodicElement>(true, []);
@@ -63,35 +60,4 @@ export class ParamViewComponent implements OnInit {
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
   }
-
-  AddFilter() {
-    const dialogConfig = new MatDialogConfig();
-
-    dialogConfig.disableClose = false;
-    dialogConfig.autoFocus = true;
-    dialogConfig.hasBackdrop = true;
-    dialogConfig.direction = 'ltr';
-    dialogConfig.closeOnNavigation = true;
-
-    return this.dialog.open(ModalDataManipulationComponent, dialogConfig);
-  }
-
-  AddFilterString() {
-    const dialogConfig = new MatDialogConfig();
-
-    dialogConfig.disableClose = false;
-    dialogConfig.autoFocus = true;
-    dialogConfig.hasBackdrop = true;
-    dialogConfig.direction = 'ltr';
-    dialogConfig.closeOnNavigation = true;
-
-    return this.dialog.open(ModalStringManipulationComponent, dialogConfig);
-
-  }
-
-  openDialogSoftSkill() {
-    
-  }
-
-
 }

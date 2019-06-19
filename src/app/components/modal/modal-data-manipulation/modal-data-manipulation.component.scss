@@ -1,22 +1,47 @@
-.page {
-    display: grid;
-    grid-template-columns: 2fr 0.50fr 1fr;
+mat-dialog-content {
+    width: 95vw;
+    max-width: 95vw;
 }
 
-.exclusion {
-    align-content: center;
-    margin:auto;
+.dialogTitle {
+    background-color: blue;
+    color: white;
     text-align: center;
 }
 
-.flow {
-    float: left;
+.Panel {
+    align-content: center;
+
+    width: 100%;
+    border: 1px solid blue;
+    border-top: 5px solid blue;
 }
 
-.flow_text {
+.PanelDroite {
+    width: 100%;
+    border: 1px solid blue;
+    border-top: 5px solid blue;
+}
+
+.contentdialog {
+    width: 100vw;
+    max-width: 100vh !important;
+}
+
+.part2 {
+    margin-left: 15%;
+    padding-bottom: 2%;
+}
+
+.input {
+    margin-top: 2%;
     float: right;
 }
 
-.select {
+.saveButton {
+    margin-left: 40%;
+}
 
+.closeButton {
+    margin-left: 2%;
 }

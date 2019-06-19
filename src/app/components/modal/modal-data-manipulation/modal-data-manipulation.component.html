@@ -1,25 +1,40 @@
-<div class="page">
-  <div class="select">
-    <mat-selection-list #shoes>
-      <mat-list-option checkboxPosition="before" >inf à</mat-list-option> <input matInput>
+<h2 mat-dialog-title class="dialogTitle">New filter</h2>
+
+
+<mat-dialog-content class="contentdialog">
+
+  <div class="Panel">
+    <mat-selection-list class="floating" #data>
+      <input class="input" matInput>
+      <mat-list-option checkboxPosition="before">inf à</mat-list-option>
+      <input class="input" matInput>
       <mat-list-option checkboxPosition="before">inf égal à </mat-list-option>
+      <input class="input" matInput>
       <mat-list-option checkboxPosition="before">égal</mat-list-option>
+      <input class="input" matInput>
       <mat-list-option checkboxPosition="before">supérieur à </mat-list-option>
+      <input class="input" matInput>
       <mat-list-option checkboxPosition="before">supérieur égal à </mat-list-option>
     </mat-selection-list>
 
-  </div>
-
-  <br>
-  <div class="exclusion">
-        
-      exclure
-      <mat-slide-toggle>inclure</mat-slide-toggle>
+    <div class="part2">
       <br>
-    <mat-label>Premier </mat-label>
-    <input matInput #first>
-    <mat-label>Dernier</mat-label>
-    <input matInput #last>
+      compris entre<input matInput #first_text>
+      et<input matInput #last_text>
+      <br>
+      exclure
+      <mat-slide-toggle>
+        inclure
+      </mat-slide-toggle>
+      <br>
+      <mat-label>Premier </mat-label>
+      <input matInput #first>
+      <mat-label>Dernier</mat-label>
+      <input matInput #last>
+    </div>
   </div>
 
-</div>
+  <button type="button" class="btn btn-primary" color="primary" (click)="save()">Ajouter</button>
+  <button mat-raised-button class="closeButton" color="primary" (click)="close()">Fermer</button>
+
+</mat-dialog-content>

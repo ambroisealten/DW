@@ -9,6 +9,7 @@ import { ModalDataManipulationComponent } from './components/modal/modal-data-ma
 import { ParamViewComponent } from './components/param-view/param-view.component';
 import { MatTableModule, MatFormFieldModule, MatSlideToggleModule, MatCheckboxModule, MatTabsModule, MatDialogModule, MatSelectModule, MatSliderModule, MatListModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ModalStringManipulationComponent } from './components/modal/modal-string-manipulation/modal-string-manipulation.component';
 
 
 @NgModule({
@@ -17,6 +18,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     ChartViewComponent,
     ModalDataManipulationComponent,
     ParamViewComponent,
+    ModalStringManipulationComponent,
   ],
   imports: [
     BrowserModule,
@@ -37,7 +39,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   ],
   entryComponents: [
     ChartViewComponent,
-    ModalDataManipulationComponent
+    ModalDataManipulationComponent,
+    ModalStringManipulationComponent
   ],
   bootstrap: [AppComponent]
 })

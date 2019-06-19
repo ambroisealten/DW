@@ -8,12 +8,14 @@ import { ChartViewComponent } from './components/chart-view/chart-view.component
 import { HttpClientModule } from '@angular/common/http';
 import { MatExpansionModule } from '@angular/material/expansion';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { DisplayedColumnsComponent } from './displayed-columns/displayed-columns.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    ChartViewComponent
+    ChartViewComponent,
+    DisplayedColumnsComponent
   ],
   imports: [
     BrowserModule,

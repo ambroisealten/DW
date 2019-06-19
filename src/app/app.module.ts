@@ -1,14 +1,13 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-
+import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
+import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { DataService } from './services/dataService';
 import { ViewService } from './services/viewService';
-import { ChartViewComponent } from './components/chart-view/chart-view.component';
-import { HttpClientModule } from '@angular/common/http';
-import { MatExpansionModule } from '@angular/material/expansion';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-
 
 @NgModule({
   declarations: [
@@ -16,10 +15,11 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     ChartViewComponent
   ],
   imports: [
-    BrowserModule,
     HttpClientModule,
     MatExpansionModule,
-    BrowserAnimationsModule
+    BrowserModule,
+    BrowserAnimationsModule,
+    MatButtonModule
   ],
   providers: [
     DataService,

@@ -1,30 +1,34 @@
 <main>
   <nav>
-    <h1>Données</h1>
-    <hr size="1" color="lightgray">
-    <mat-accordion class="accordion-headers-align">
-      <mat-expansion-panel *ngFor="let data of datas">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <h4>{{data.name}}</h4>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <hr>
-        <h6 class="field" draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field)">
-          {{ field }} <span class="tooltiptext"> {{ field }}</span>
-        </h6>
-      </mat-expansion-panel>
-    </mat-accordion>
+    <div class="data">
+      <h1>Données</h1>
+      <hr size="1" color="lightgray">
+      <mat-accordion class="accordion-headers-align">
+        <mat-expansion-panel *ngFor="let data of datas">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <h4>{{data.name}}</h4>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <hr>
+          <h6 class="field" draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field)">
+            {{ field }}
+          </h6>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
   </nav>
   <div id="chartContainerSimple" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
     <div class='charts' id='1'>
       <template #chart1Host></template>
     </div>
+    <div class="fab">
+        <span class="fab-action-button">
+              <i class="fab-action-button__icon icon-material_add" (click)="diviseChartsSegment()"></i>
+          </span>
+      </div>
   </div>
   <aside>
-    <button (click)="diviseChartsSegment()">
-      Ajouter un graphe
-    </button>
     Droite
   </aside>
 </main>

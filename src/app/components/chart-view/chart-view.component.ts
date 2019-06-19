@@ -27,13 +27,10 @@ export class ChartViewComponent implements OnInit {
 
   isTabView: boolean = true;
 
-  viewService: ViewService;
   @Input() instanceNumber: number;
   @Input() droppedText: string;
 
   constructor() {
-    this.viewService = ViewService.getInstance(this.instanceNumber);
-
   }
 
   ngOnInit() {
@@ -51,6 +48,7 @@ export class ChartViewComponent implements OnInit {
         this.canvasFontSize = 10;
         break;
     }
+    this.myCanvas.nativeElement.style = "display : none";
     this.resetCanvasHeightAndWidth();
   }
 

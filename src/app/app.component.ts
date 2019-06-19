@@ -1,8 +1,9 @@
-import { Component, Directive, ViewContainerRef, ViewChild, ComponentFactoryResolver, OnInit, ViewChildren } from '@angular/core';
+import { Component, Directive, ViewContainerRef, ViewChild, ComponentFactoryResolver, OnInit, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { DataService } from './services/dataService';
 import { DataScheme } from './models/dataScheme';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { ViewService } from './services/viewService';
+import {environment} from 'src/environments/environment';
 import { DataSet } from './models/dataSet';
 
 @Component({
@@ -13,6 +14,11 @@ import { DataSet } from './models/dataSet';
 export class AppComponent implements OnInit {
   title = 'DW - Lot 0';
   containerRepeat = 1;
+
+  allTemplates = new Array(environment.maxTemplates);
+
+  @ViewChildren('chartHost', { read: ViewContainerRef }) entries: QueryList<ViewContainerRef>;
+  @ViewChildren('chartHost') templates : QueryList<ElementRef>;
 
   @ViewChild('chart1Host', { read: ViewContainerRef, static: true }) entry1: ViewContainerRef;
   @ViewChild('chart2Host', { read: ViewContainerRef, static: false }) entry2: ViewContainerRef;
@@ -40,15 +46,21 @@ export class AppComponent implements OnInit {
     });
   }
 
+
+  ngAfterViewInit(){
+    this.entries.changes.subscribe( () => {
+      console.log(this.entries.length);
+    })
+  }
+
+
   onDragField(ev, field: string) {
     ev.dataTransfer.setData('data', this.dataService.fetchData(field));
     ev.dataTransfer.setData('colName', field);
   }
 
   onDrop(ev) {
-    const data = ev.dataTransfer.getData('data').split(',').map( el => {
-      return parseFloat(el);
-    });
+    console.log(this.entries);
 
     const fieldName = ev.dataTransfer.getData('colName');
     const target = ev.target;
@@ -56,34 +68,21 @@ export class AppComponent implements OnInit {
     if (target.className == 'charts' || target.className == 'chartsFour') {
       const instanceNumber = parseInt(target.id, 10);
 
-      let entryUsed;
+      let entryUsed = this.entries.toArray()[target.id - 1];
 
-      switch (instanceNumber) {
-        case 1:
-          entryUsed = this.entry1;
-          break;
-        case 2:
-          entryUsed = this.entry2;
-          break;
-        case 3:
-          entryUsed = this.entry3;
-          break;
-        case 4:
-          entryUsed = this.entry4;
-          break;
-        default:
-          entryUsed = this.entry1;
-          break;
-      }
-      entryUsed.clear();
+      console.log("Celle utilisée");
+      console.log(entryUsed);
+      console.log("La première");
+      console.log(this.entries.first);
+
+      //this.recreateTemplate(entryUsed.nativeElement);
+
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
 
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
       this.componentRef.instance.droppedText = fieldName;
-
-      this.componentRef.instance.viewService.dataSet = new DataSet(fieldName, data);
 
       this.componentRef.instance.recheckValues();
 
@@ -95,6 +94,7 @@ export class AppComponent implements OnInit {
       else {
         target.setAttribute('class', 'chartContained');
       }
+
     }
     ev.preventDefault();
   }
@@ -103,6 +103,18 @@ export class AppComponent implements OnInit {
     ev.preventDefault();
   }
 
+  recreateTemplate(template) {
+    document.getElementById('templates').appendChild(template);
+  }
+
+  parseTemplateDiv(){
+    let container = document.getElementById('templates');
+    let test = container.firstChild;
+    while(test.nodeName != "TEMPLATE"){
+      test = test.nextSibling;
+    }
+    return test;
+  }
 
   diviseChartsSegment() {
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
@@ -110,15 +122,14 @@ export class AppComponent implements OnInit {
 
     this.containerRepeat += 1;
 
-    if (this.containerRepeat > 4) {
-      this.containerRepeat = 4;
-    } else if (this.containerRepeat > 2) {
+    if (this.containerRepeat > 2) {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'chartsFour');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
-      const template = document.getElementById('templates').firstChild;
-      document.getElementById('templates').removeChild(template);
+      
+      const template = this.parseTemplateDiv();
+      console.log(template);
       newDivForChart.appendChild(template);
 
       chartContainer.setAttribute('id', 'chartContainerDouble');
@@ -133,16 +144,16 @@ export class AppComponent implements OnInit {
       newDivForChart.setAttribute('class', 'charts');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
-      const template = document.getElementById('templates').firstChild;
-      document.getElementById('templates').removeChild(template);
+      const template = this.parseTemplateDiv();
+      console.log(template);
       newDivForChart.appendChild(template);
+
 
       chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
 
       this.resizeAllCanvas();
     }
-
   }
 
   resizeAllCharts() {

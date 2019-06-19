@@ -2,10 +2,55 @@
 
 <h2 mat-dialog-title class="dialogTitle">New String filter</h2>
 
-
 <mat-dialog-content class="contentdialog">
-  <div class="Panel">
+  <div class="leftTab">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <td mat-cell *matCellDef="let row">
+        </td>
+      </ng-container>
+
+      <!-- Position Column -->
+      <ng-container matColumnDef="position">
+        <th mat-header-cell *matHeaderCellDef> No. </th>
+        <td mat-cell *matCellDef="let element" (click)="clicked()"> {{element.position}} </td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Name </th>
+        <td mat-cell *matCellDef="let element" (click)="clicked()"> {{element.name}} </td>
+      </ng-container>
+
+      <!-- Weight Column -->
+      <ng-container matColumnDef="weight">
+        <th mat-header-cell *matHeaderCellDef> Weight </th>
+        <td mat-cell *matCellDef="let element" (click)="clicked()"> {{element.weight}} </td>
+      </ng-container>
+
+      <!-- Symbol Column -->
+      <ng-container matColumnDef="symbol">
+        <th mat-header-cell *matHeaderCellDef> Symbol </th>
+        <td mat-cell *matCellDef="let element" (click)="clicked()"> {{element.symbol}} </td>
+      </ng-container>
+
+      <!-- delete Column -->
+      <ng-container matColumnDef="delete">
+        <th mat-header-cell *matHeaderCellDef> Suprimer </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-icon (click)="toto()">delete_outline</mat-icon>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+      </tr>
+    </table>
+  </div>
+
+  <div class="rightTab">
+    <table mat-table [dataSource]="dataSources" class="mat-elevation-z8">
       <!-- Checkbox Column -->
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef>
@@ -48,7 +93,7 @@
       <ng-container matColumnDef="delete">
         <th mat-header-cell *matHeaderCellDef> Suprimer </th>
         <td mat-cell *matCellDef="let element">
-          <mat-icon (click)="toto()">delete_outline</mat-icon>
+          <mat-icon (click)="delete()">delete_outline</mat-icon>
         </td>
       </ng-container>
 
@@ -58,5 +103,8 @@
     </table>
 
   </div>
-
 </mat-dialog-content>
+
+
+<button type="button" class="btn btn-primary saveButton" color="primary" (click)="save()">Ajouter</button>
+<button type="button" class="btn btn-danger closeButton" color="primary" (click)="close()">Fermer</button>

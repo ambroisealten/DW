@@ -2,6 +2,7 @@ import { Component, OnInit, Input, ChangeDetectorRef, ElementRef, ViewChild } fr
 import { ViewService } from 'src/app/services/viewService';
 import { DataSet } from 'src/app/models/dataSet';
 import { Chart } from 'chart.js';
+import { DataService } from 'src/app/services/dataService';
 
 @Component({
   selector: 'app-chart-view',
@@ -17,6 +18,7 @@ export class ChartViewComponent implements OnInit {
   currentType: string = "tab";
 
   data: any[] = [];
+  tableDataSource: any[] = [];
 
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   public context: CanvasRenderingContext2D;
@@ -31,13 +33,22 @@ export class ChartViewComponent implements OnInit {
   @Input() instanceNumber: number;
   @Input() droppedText: string;
 
-  constructor() {
+  constructor(private dataService: DataService) {
     this.viewService = ViewService.getInstance(this.instanceNumber);
-
   }
 
   ngOnInit() {
-    this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
+    // this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
+    this.tableDataSource.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
+
+    this.dataService.fetchDataScheme().subscribe((response: string) => {
+      console.log(response);
+      // TODO Make that cutest as a puppy
+      const datasFetched = JSON.parse(JSON.stringify(response));
+      datasFetched.forEach(element => {
+        this.datas.push(element as DataScheme);
+      });
+    });
   }
 
   ngAfterViewInit() {

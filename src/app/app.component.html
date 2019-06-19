@@ -1,16 +1,24 @@
 <main>
   <nav>
     <h1>Données</h1>
-    <ul *ngFor="let data of datas">
-      {{ data.name }}
-      <li draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field)">
-        {{ field }}
-      </li>
-    </ul>
+    <hr size="1" color="lightgray">
+    <mat-accordion class="accordion-headers-align">
+      <mat-expansion-panel *ngFor="let data of datas">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <h4>{{data.name}}</h4>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <hr>
+        <h6 class="field" draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field)">
+          {{ field }} <span class="tooltiptext"> {{ field }}</span>
+        </h6>
+      </mat-expansion-panel>
+    </mat-accordion>
   </nav>
   <div id="chartContainerSimple" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
     <div class='charts' id='1'>
-        <template #chart1Host></template>
+      <template #chart1Host></template>
     </div>
   </div>
   <aside>

@@ -1,0 +1,68 @@
+.accordion-headers-align .mat-expansion-panel-header-title {
+  flex-basis: 0;
+  color: rgb(250, 250, 204);
+}
+
+main-expansion-panel{
+    width: 100%;
+    overflow: auto;
+    overflow-x: auto;
+}
+
+main nav{
+    max-height: 90vh;
+    overflow: auto;
+    width: 20vw;
+}
+
+.field{
+    margin-left: 10%;
+    margin-right: 50px;
+}
+
+h4 { 
+    display: block;
+    font-size: 0.85em;
+    margin-top: 1em;
+    margin-bottom: 1.33em;
+    margin-left: 0;
+    margin-right: 0;
+    font-weight: bold;
+}
+
+.field .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+  
+    /* Position the tooltip */
+    z-index: 50;
+  }
+  
+  .field:hover .tooltiptext {
+    visibility: visible;
+  }
+
+  /* width */
+::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888; 
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+  }

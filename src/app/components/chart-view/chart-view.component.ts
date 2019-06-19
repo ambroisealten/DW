@@ -1,6 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
-import { ViewService } from 'src/app/services/viewService';
-import { DataSet } from 'src/app/models/dataSet';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { Chart } from 'chart.js';
 
 @Component({
@@ -79,20 +77,20 @@ export class ChartViewComponent implements OnInit {
     ev.preventDefault();
   }
 
-  changeChartView(args) {
+  changeChartView(type: string) {
     this.resetChartView();
 
-    this.currentType = args.target.textContent.toLowerCase();
+    this.currentType = type.toLowerCase();
 
-    switch (args.target.textContent) {
-      case "Pie":
-      case "Doughnut":
-      case "Bar":
-      case "Line":
+    switch (this.currentType) {
+      case 'pie':
+      case 'doughnut':
+      case 'bar':
+      case 'line':
         this.isTabView = false;
 
         this.setCanvasSettings(true);
-        this.modifyChartView(args.target.textContent.toLowerCase());
+        this.modifyChartView(this.currentType);
         break;
       default:
         this.isTabView = true;

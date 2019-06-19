@@ -1,5 +1,4 @@
 <div class="container" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
-  <p></p>
   <ng-container *ngIf="isTabView">
     <table>
       <ng-container *ngFor="let dataset of data">
@@ -21,7 +20,36 @@
       {{chart}}
     </canvas>
   </div>
-  <div class="tasks">
-    <button *ngFor="let task of tasksList" (click)="changeChartView($event)">{{ task.name }}</button>
-  </div>
 </div>
+<div class="fab">
+    <span class="fab-action-button">
+          <i class="fab-action-button__icon icon-material_renew"></i>
+      </span>
+    <ul class="fab-buttons">
+      <li class="fab-buttons__item">
+        <a (click)="changeChartView('pie')" href="#" class="fab-buttons__link" data-tooltip="Pie">
+          <i class="icon-material icon-material_pie"></i>
+        </a>
+      </li>
+      <li class="fab-buttons__item">
+        <a (click)="changeChartView('doughnut')" href="#" class="fab-buttons__link" data-tooltip="Doughnut">
+          <i class="icon-material icon-material_doughnut"></i>
+        </a>
+      </li>
+      <li class="fab-buttons__item">
+        <a (click)="changeChartView('bar')" href="#" class="fab-buttons__link" data-tooltip="Bar">
+          <i class="icon-material icon-material_bar"></i>
+        </a>
+      </li>
+      <li class="fab-buttons__item">
+          <a (click)="changeChartView('line')" href="#" class="fab-buttons__link" data-tooltip="Line">
+            <i class="icon-material icon-material_line"></i>
+          </a>
+        </li>
+        <li class="fab-buttons__item">
+            <a (click)="changeChartView('tab')" href="#" class="fab-buttons__link" data-tooltip="Tab">
+              <i class="icon-material icon-material_tab"></i>
+            </a>
+          </li>
+    </ul>
+  </div>

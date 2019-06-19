@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material';
+import { MatTableDataSource, MatIconModule } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
 
 export interface PeriodicElement {
@@ -35,7 +35,7 @@ export class ModalStringManipulationComponent implements OnInit {
   ngOnInit() {
   }
 
-  displayedColumns: string[] = ['select', 'position', 'name', 'weight', 'symbol'];
+  displayedColumns: string[] = ['select', 'position', 'name', 'weight', 'symbol', 'delete'];
   dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
   selection = new SelectionModel<PeriodicElement>(true, []);
 
@@ -59,5 +59,9 @@ export class ModalStringManipulationComponent implements OnInit {
       return `${this.isAllSelected() ? 'select' : 'deselect'} all`;
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
+  }
+
+  toto() {
+    console.log("ok");
   }
 }

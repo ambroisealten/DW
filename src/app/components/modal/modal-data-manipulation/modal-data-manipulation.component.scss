@@ -1,6 +1,7 @@
 mat-dialog-content {
     width: 95vw;
     max-width: 95vw;
+    height: 80vh;
 }
 
 .dialogTitle {
@@ -29,19 +30,25 @@ mat-dialog-content {
 }
 
 .part2 {
-    margin-left: 15%;
     padding-bottom: 2%;
 }
 
 .input {
     margin-top: 2%;
     float: right;
+    margin-right: 3% !important;
 }
 
 .saveButton {
-    margin-left: 40%;
+    margin-top: 1%;
+    margin-left: 35% !important;
 }
 
 .closeButton {
-    margin-left: 2%;
+    margin-top: 1%;
+    margin-left: 2% !important;
+}
+
+.ban {
+    margin-left: 35%;
 }

@@ -8,6 +8,7 @@ import { ChartViewComponent } from './components/chart-view/chart-view.component
 import { ModalDataManipulationComponent } from './components/modal/modal-data-manipulation/modal-data-manipulation.component';
 import { ParamViewComponent } from './components/param-view/param-view.component';
 import { MatTableModule, MatFormFieldModule, MatSlideToggleModule, MatCheckboxModule, MatTabsModule, MatDialogModule, MatSelectModule, MatSliderModule, MatListModule } from '@angular/material';
+import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ModalStringManipulationComponent } from './components/modal/modal-string-manipulation/modal-string-manipulation.component';
 
@@ -31,7 +32,8 @@ import { ModalStringManipulationComponent } from './components/modal/modal-strin
     MatListModule,
     MatSliderModule,
     MatSlideToggleModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatIconModule
   ],
   providers: [
     DataService,

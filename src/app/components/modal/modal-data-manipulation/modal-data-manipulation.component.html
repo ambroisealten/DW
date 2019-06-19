@@ -19,22 +19,23 @@
 
     <div class="part2">
       <br>
-      compris entre<input matInput #first_text>
-      et<input matInput #last_text>
+      Compris entre <input matInput #first_text>
+      et  <input matInput #last_text>
       <br>
-      exclure
-      <mat-slide-toggle>
-        inclure
-      </mat-slide-toggle>
-      <br>
-      <mat-label>Premier </mat-label>
+      <div class="ban">
+        exclure
+        <mat-slide-toggle>
+          inclure
+        </mat-slide-toggle>
+      </div>
+      <mat-label> Premier </mat-label>
       <input matInput #first>
-      <mat-label>Dernier</mat-label>
+      <mat-label> Dernier </mat-label>
       <input matInput #last>
     </div>
   </div>
 
-  <button type="button" class="btn btn-primary" color="primary" (click)="save()">Ajouter</button>
-  <button mat-raised-button class="closeButton" color="primary" (click)="close()">Fermer</button>
+  <button type="button" class="btn btn-primary saveButton" color="primary" (click)="save()">Ajouter</button>
+  <button type="button" class="btn btn-danger closeButton" color="primary" (click)="close()">Fermer</button>
 
 </mat-dialog-content>

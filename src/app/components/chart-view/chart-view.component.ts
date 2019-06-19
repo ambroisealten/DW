@@ -16,7 +16,7 @@ export class ChartViewComponent implements OnInit {
 
   currentType: string = "tab";
 
-  allDatas: DataSet[] = [];
+  data: any[] = [];
 
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   public context: CanvasRenderingContext2D;
@@ -29,20 +29,18 @@ export class ChartViewComponent implements OnInit {
 
   viewService: ViewService;
   @Input() instanceNumber: number;
-  @Input() droppedText : string;
+  @Input() droppedText: string;
 
   constructor() {
     this.viewService = ViewService.getInstance(this.instanceNumber);
-    
+
   }
 
   ngOnInit() {
-    this.myCanvas.nativeElement.style = "display : none";
+    this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
   }
 
   ngAfterViewInit() {
-    this.allDatas.push(this.viewService.dataSet);
-
     this.context = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
 
     switch (document.getElementsByClassName('chartContainerDouble').length) {
@@ -53,31 +51,26 @@ export class ChartViewComponent implements OnInit {
         this.canvasFontSize = 10;
         break;
     }
-    this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetWidth - 150).toString();
-    this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetHeight - 50).toString();
+    this.resetCanvasHeightAndWidth();
   }
 
   recheckValues() {
-    this.cd.detectChanges();
-
     if (this.currentType != "tab") {
       this.resetChartView();
 
-      this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetWidth - 150).toString();
-      this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetHeight - 50).toString();
+      this.resetCanvasHeightAndWidth();
       this.modifyChartView(this.currentType);
     }
   }
 
-  onDrop(ev){
+  resetCanvasHeightAndWidth(){
+    this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetWidth - 150).toString();
+    this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetHeight - 50).toString();
+  }
+
+  onDrop(ev) {
     const data = ev.dataTransfer.getData('data');
     const colName = ev.dataTransfer.getData('colName');
-
-    console.log(this.allDatas);
-
-    this.allDatas.push(new DataSet(colName,data));
-
-    console.log(this.allDatas);
 
     ev.preventDefault();
   }
@@ -114,15 +107,16 @@ export class ChartViewComponent implements OnInit {
     if (display) this.myCanvas.nativeElement.style = "display : inline-block";
 
     this.context = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
+
+    this.resetCanvasHeightAndWidth();
   }
 
   modifyChartView(chartType: string) {
-    let test = this.viewService.dataSet.values;
+    let testData = this.data[0].vls;
 
-    let labels = test.map(el => {
-      return el.toString();
+    let labels = testData.map(el => {
+      return this.droppedText + " : " + el.toString();
     });
-
 
     this.chart = new Chart(this.context, {
       type: chartType,
@@ -130,14 +124,15 @@ export class ChartViewComponent implements OnInit {
         labels: labels,
         datasets: [
           {
-            data: test,
-            borderColor: "#3cba9f",
+            data: testData,
+            backgroundColor: "#3cba9f",
+            borderColor: "#00000",
             fill: true
           }]
       },
       options: {
         legend: {
-          display: true,
+          display: false,
           position: "right",
           labels: {
             fontSize: this.canvasFontSize

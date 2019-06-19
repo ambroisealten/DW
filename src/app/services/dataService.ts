@@ -1,6 +1,5 @@
-import { environment } from 'src/environments/environment.prod';
+import { environment } from "src/environments/environment"; 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 
 @Injectable()
@@ -34,6 +33,7 @@ export class DataService {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
         });
+
         return this.httpClient.get<string>(environment.baseUrl + '/dataScheme', { headers });
     }
 

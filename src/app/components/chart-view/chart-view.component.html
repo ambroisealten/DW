@@ -2,20 +2,23 @@
   <p></p>
   <ng-container *ngIf="isTabView">
     <table>
-      <tr>
-        <th>
-          {{ droppedText }}
-        </th>
-      </tr>
-      <tr *ngFor="let element of viewService.dataSet.values">
-        <td>
-          {{element}}
-        </td>
-      </tr>
+      <ng-container *ngFor="let dataset of data">
+        <tr>
+          <th>
+            {{ dataset.name }}
+          </th>
+        </tr>
+        <tr *ngFor="let value of dataset.vls">
+          <td>
+            {{value}}
+          </td>
+        </tr>
+      </ng-container>
     </table>
   </ng-container>
   <div>
-    <canvas #myCanvas width="250" height="250">{{chart}}
+    <canvas #myCanvas width="0" height="0">
+      {{chart}}
     </canvas>
   </div>
   <div class="tasks">

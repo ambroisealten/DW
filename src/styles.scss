@@ -41,8 +41,10 @@ main{
 }
 
 #chartContainerDouble{
+    overflow: auto;
     display: grid;
     grid-template-columns: repeat(2,1fr);
+    max-height: 91vh;
 }
 
 main nav{
@@ -54,8 +56,6 @@ main nav{
 .chartContained{
     overflow: auto;
     height: 90vh;
-    width: 100%;
-    margin: auto;
     color: white;
     border: 1px dotted gray;
     border-radius: 20px;
@@ -64,8 +64,6 @@ main nav{
 .chartContainedFour{
     overflow: auto;
     height: 45vh;
-    width: 100%;
-    margin: auto;
     color: white;
     border: 1px dotted gray;
     border-radius: 20px;
@@ -73,10 +71,8 @@ main nav{
 
 .charts{
     height: 90vh;
-    width: 100%;
     border: 2px dotted rgba(255, 255, 255, 0.5);
     border-radius: 20px;
-    margin: auto;
     background-image: url("./assets/images/barChart.png");
     background-position: center;
     background-repeat: no-repeat;
@@ -85,10 +81,8 @@ main nav{
 
 .chartsFour{
     height: 45vh;
-    width: 100%;
     border: 2px dotted rgba(255, 255, 255, 0.5);
     border-radius: 20px;
-    margin: auto;
     background-image: url("./assets/images/barChart.png");
     background-position: center;
     background-repeat: no-repeat;

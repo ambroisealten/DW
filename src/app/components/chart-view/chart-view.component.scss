@@ -1,0 +1,13 @@
+.container{
+    position: relative;
+}
+
+.tasks{
+    display: grid;
+    grid-template-columns: repeat(1,1fr);
+    width: 5%;
+    margin-right: 5%;
+    top: 1vh;
+    right: 5vh;
+    position: absolute;
+}

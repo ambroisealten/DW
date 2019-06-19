@@ -34,11 +34,14 @@ export class AppComponent implements OnInit {
 
   onDragField(ev, field: string) {
     ev.dataTransfer.setData('data', this.dataService.fetchData(field));
-    ev.dataTransfer.setData('colName',field);
+    ev.dataTransfer.setData('colName', field);
   }
 
   onDrop(ev) {
-    const data = ev.dataTransfer.getData('data');
+    const data = ev.dataTransfer.getData('data').split(',').map( el => {
+      return parseFloat(el);
+    });
+
     const fieldName = ev.dataTransfer.getData('colName');
     const target = ev.target;
 
@@ -72,7 +75,7 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
       this.componentRef.instance.droppedText = fieldName;
 
-      this.componentRef.instance.viewService.dataSet = new DataSet(fieldName,data);
+      this.componentRef.instance.viewService.dataSet = new DataSet(fieldName, data);
 
       this.componentRef.instance.recheckValues();
 

@@ -117,12 +117,17 @@ export class ChartViewComponent implements OnInit {
   }
 
   modifyChartView(chartType: string) {
-    let test = this.viewService.dataSet.toString().split(',').map(el => parseFloat(el));
+    let test = this.viewService.dataSet.values;
+
+    let labels = test.map(el => {
+      return el.toString();
+    });
+
 
     this.chart = new Chart(this.context, {
       type: chartType,
       data: {
-        labels: test.map(el => el.toString()),
+        labels: labels,
         datasets: [
           {
             data: test,

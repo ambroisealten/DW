@@ -33,6 +33,8 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class ParamViewComponent implements OnInit, OnDestroy {
 
+  booleanString: boolean;
+
   displayedColumns: string[] = ['select', 'name'];
   columns: string[] = ['position', 'name', 'weight', 'symbol'];
   column;
@@ -56,8 +58,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     this.toggleFilter();
   }
 
-  ngOnDestroy(){
-    this.dialog.closeAll() ; 
+  ngOnDestroy() {
+    this.dialog.closeAll();
   }
 
   changeColumn() {
@@ -65,8 +67,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     this.selectionTri.clear();
     this.toggleFilter();
     this.setDatasourceGpmt();
-    this.selectionGpmt.clear() ; 
-    this.toggleFilterGpmt() ;
+    this.selectionGpmt.clear();
+    this.toggleFilterGpmt();
   }
 
   /**************************************************************************************************\
@@ -136,7 +138,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     if (this.isAllSelected()) {
       this.selectionTri.clear();
       this.dataSource.data.forEach(row => {
-        this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(row[this.displayedColumns[1]]) ;
+        this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(row[this.displayedColumns[1]]);
       })
     } else {
       this.dataSource.data.forEach(row => {
@@ -191,6 +193,10 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.direction = 'ltr';
     dialogConfig.closeOnNavigation = true;
 
+    dialogConfig.data = {
+      bool: false
+    }
+
     return this.dialog.open(ModalDataManipulationComponent, dialogConfig);
   }
 
@@ -202,6 +208,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.hasBackdrop = true;
     dialogConfig.direction = 'ltr';
     dialogConfig.closeOnNavigation = true;
+
+
 
     return this.dialog.open(ModalStringManipulationComponent, dialogConfig);
 

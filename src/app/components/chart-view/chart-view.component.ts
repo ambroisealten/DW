@@ -127,8 +127,6 @@ export class ChartViewComponent implements OnInit {
       inter++;
     }
 
-    console.log(test);
-
     this.chart = new Chart(this.context, {
       type: chartType,
       data: {

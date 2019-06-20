@@ -37,7 +37,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.dataService.fetchDataScheme().subscribe((response: string) => {
-      console.log(response);
       // TODO Make that cutest as a puppy
       const datasFetched = JSON.parse(JSON.stringify(response));
       datasFetched.forEach(element => {
@@ -47,20 +46,12 @@ export class AppComponent implements OnInit {
   }
 
 
-  ngAfterViewInit(){
-    this.entries.changes.subscribe( () => {
-      console.log(this.entries.length);
-    })
-  }
-
-
   onDragField(ev, field: string) {
     ev.dataTransfer.setData('data', this.dataService.fetchData(field));
     ev.dataTransfer.setData('colName', field);
   }
 
   onDrop(ev) {
-    console.log(this.entries);
 
     const fieldName = ev.dataTransfer.getData('colName');
     const target = ev.target;
@@ -69,13 +60,6 @@ export class AppComponent implements OnInit {
       const instanceNumber = parseInt(target.id, 10);
 
       let entryUsed = this.entries.toArray()[target.id - 1];
-
-      console.log("Celle utilisée");
-      console.log(entryUsed);
-      console.log("La première");
-      console.log(this.entries.first);
-
-      //this.recreateTemplate(entryUsed.nativeElement);
 
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
@@ -103,10 +87,6 @@ export class AppComponent implements OnInit {
     ev.preventDefault();
   }
 
-  recreateTemplate(template) {
-    document.getElementById('templates').appendChild(template);
-  }
-
   parseTemplateDiv(){
     let container = document.getElementById('templates');
     let test = container.firstChild;
@@ -129,7 +109,6 @@ export class AppComponent implements OnInit {
 
       
       const template = this.parseTemplateDiv();
-      console.log(template);
       newDivForChart.appendChild(template);
 
       chartContainer.setAttribute('id', 'chartContainerDouble');
@@ -145,7 +124,6 @@ export class AppComponent implements OnInit {
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
       const template = this.parseTemplateDiv();
-      console.log(template);
       newDivForChart.appendChild(template);
 
 

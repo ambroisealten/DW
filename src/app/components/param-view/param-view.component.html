@@ -31,7 +31,7 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="setActifInactif(row)">
       </tr>
     </table>
     <button class="addButton" mat-icon-button (click)="AddFilterString()">+</button>
@@ -64,7 +64,7 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="excludeOrInclude(row)">
       </tr>
     </table>
     <button class="addButton" mat-icon-button (click)="AddFilter()">+</button>

@@ -12,7 +12,13 @@
     position: absolute;
 }
 
+.fabWrapper {
+    position: absolute;
+    top: 0;
+    right: 4vw;
+}
+
 .fab{
-    right: 0;
-    position: inherit;
+    z-index:100;
+    position: fixed;
 }

@@ -108,9 +108,6 @@ main aside{
 
 .fab {
     position: fixed;
-    width: 56px;
-    right: 20%;
-    bottom: 15px;
   }
   
   .fab:hover .fab-buttons {
@@ -119,7 +116,7 @@ main aside{
   }
   
   .fab:hover .fab-buttons__link {
-    transform: scaleY(1) scaleX(1) translateY(-16px) translateX(0px);
+    transform: scaleY(1) scaleX(1) translateY(16px) translateX(0px);
   }
   
   .fab-action-button:hover + .fab-buttons .fab-buttons__link:before {
@@ -131,27 +128,28 @@ main aside{
   }
   
   .fab-action-button {
-    position: absolute;
+    position: relative;
     bottom: 0;
     display: block;
     width: 56px;
     height: 56px;
-    background-color: #29B6F6;
+    background-color:ivory;
     border-radius: 50%;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
   }
   
   .fab-buttons {
-    position: absolute;
+    position: relative;
+    width: 50%;
     left: 0;
     right: 0;
-    bottom: 50px;
     list-style: none;
     margin: 0;
     padding: 0;
     opacity: 0;
     visibility: hidden;
     transition: 0.2s;
+    z-index: 10;
   }
   
   .fab-action-button__icon {

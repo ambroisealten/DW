@@ -23,7 +23,9 @@ const ELEMENT_DATA: PeriodicElement[] = [
   { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
 ];
 
-const ELEMENT_DATAS: PeriodicElement[] = [];
+const ELEMENT_DATAS: PeriodicElement[] = [
+  { position: 1, name: 'Non', weight: 1.0079, symbol: 'H' },
+];
 
 @Component({
   selector: 'app-modal-string-manipulation',
@@ -37,7 +39,8 @@ export class ModalStringManipulationComponent implements OnInit {
   ngOnInit() {
   }
 
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol', 'delete'];
+  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
+  displayedColumnsright: string[] = ['position', 'name', 'weight', 'symbol', 'delete'];
   dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
   dataSources = new MatTableDataSource<PeriodicElement>(ELEMENT_DATAS);
 
@@ -45,7 +48,7 @@ export class ModalStringManipulationComponent implements OnInit {
 
   clicked() {
     let toto: PeriodicElement;
-    toto.position = 8;
+    //toto.position = 8;
     toto.name = "Henry";
     toto.symbol = "MMA";
     toto.weight = 1;

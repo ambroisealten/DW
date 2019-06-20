@@ -10,8 +10,32 @@
 }
 
 .mat-elevation-z8 {
-    margin-left: 15%;
+    margin-left: 10%;
+    background-color: black;
+    color: white;
+    width: 80%;
 }
+
+.mat-tab {
+    color: white;
+}
+
+.mat-header-cell {
+    color: white; 
+    background-color: #696969;
+}
+
+.mat-cell {
+    color: white;
+}
+
+.mat-row:nth-child(even){
+    background-color: #696969;
+    }
+
+.mat-row:nth-child(odd){
+    background-color:#808080;
+    }
 
 .select_param {
     background-color: grey;

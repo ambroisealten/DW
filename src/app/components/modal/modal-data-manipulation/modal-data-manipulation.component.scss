@@ -1,54 +1,79 @@
 mat-dialog-content {
-    width: 95vw;
-    max-width: 95vw;
-    height: 80vh;
+  width: 95vw;
+  max-width: 95vw;
+  height: 80vh;
 }
 
 .dialogTitle {
-    background-color: blue;
-    color: white;
-    text-align: center;
+  border-bottom: 2px solid #888;
+  color: white;
+  text-align: center;
 }
 
 .Panel {
-    align-content: center;
-
-    width: 100%;
-    border: 1px solid blue;
-    border-top: 5px solid blue;
+  color: white;
+  display: grid; 
+  grid-template-columns: repeat(2,1fr);
 }
 
 .PanelDroite {
-    width: 100%;
-    border: 1px solid blue;
-    border-top: 5px solid blue;
+  width: 100%;
 }
 
 .contentdialog {
-    width: 100vw;
-    max-width: 100vh !important;
+  width: 100vw;
+  max-width: 100vh !important;
 }
 
 .part2 {
-    padding-bottom: 2%;
+  padding-bottom: 2%;
+  color: white;
 }
 
 .input {
-    margin-top: 2%;
-    float: right;
-    margin-right: 3% !important;
+  margin-top: 2%;
+  float: right;
+  margin-right: 3% !important;
 }
 
 .saveButton {
-    margin-top: 1%;
-    margin-left: 35% !important;
+  margin-top: 1%;
+  margin-left: 35% !important;
 }
 
 .closeButton {
-    margin-top: 1%;
-    margin-left: 2% !important;
+  margin-top: 1%;
+  margin-left: 2% !important;
 }
 
 .ban {
-    margin-left: 35%;
+  margin-left: 35%;
+}
+
+.text_check {
+  color: white !important;
+}
+
+.mat-checkbox .mat-checkbox-frame {
+  border-color: white !important;
+  color: white !important;
+}
+
+.mat-list-option {
+  border: 2px solid #696969;
+}
+
+.mat-list-option.mat-pseudo-checkbox {
+  color: white !important;
+}
+
+.matInput {
+    margin-top: 30%;
+}
+
+.floating {
+  width: 50%;
+}
+
+.mat-label {
 }

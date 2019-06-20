@@ -4,35 +4,35 @@
 <mat-dialog-content class="contentdialog">
 
   <div class="Panel">
-    <mat-selection-list class="floating" #data>
-      <input class="input" matInput>
-      <mat-list-option checkboxPosition="before">inf à</mat-list-option>
-      <input class="input" matInput>
-      <mat-list-option checkboxPosition="before">inf égal à </mat-list-option>
-      <input class="input" matInput>
-      <mat-list-option checkboxPosition="before">égal</mat-list-option>
-      <input class="input" matInput>
-      <mat-list-option checkboxPosition="before">supérieur à </mat-list-option>
-      <input class="input" matInput>
-      <mat-list-option checkboxPosition="before">supérieur égal à </mat-list-option>
-    </mat-selection-list>
+    <div class="matLabel">
+      <mat-selection-list class="floating" #data>
+        <mat-list-option class="text_check" checkboxPosition="before">inf à</mat-list-option>
+        <mat-list-option class="text_check" checkboxPosition="before">inf égal à </mat-list-option>
+        <mat-list-option class="text_check" checkboxPosition="before">égal</mat-list-option>
+        <mat-list-option class="text_check" checkboxPosition="before">supérieur à </mat-list-option>
+        <mat-list-option class="text_check" checkboxPosition="before">supérieur égal à </mat-list-option>
+      </mat-selection-list>
 
-    <div class="part2">
-      <br>
-      Compris entre <input matInput #first_text>
-      et  <input matInput #last_text>
-      <br>
-      <div class="ban">
-        exclure
-        <mat-slide-toggle>
-          inclure
-        </mat-slide-toggle>
-      </div>
-      <mat-label> Premier </mat-label>
-      <input matInput #first>
-      <mat-label> Dernier </mat-label>
-      <input matInput #last>
     </div>
+    <div class="input">
+      Valeur : 
+      <input class="matInput" matInput>
+    </div>
+
+  </div>
+
+
+  <div class="part2">
+    <br>
+    <div class="ban">
+      exclure
+      <mat-slide-toggle>
+        inclure
+      </mat-slide-toggle>
+    </div>
+    Compris entre <input matInput #first_text>
+    et <input matInput #last_text>
+    <br>
   </div>
 
   <button type="button" class="btn btn-primary saveButton" color="primary" (click)="save()">Ajouter</button>

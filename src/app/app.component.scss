@@ -3,36 +3,35 @@
   color: ivory;
 }
 
-main-expansion-panel{
-    width: 100%;
+main-expansion-panel {
+  width: 100%;
 }
 
-.mat-expansion-panel-header, .mat-expansion-panel-body{
-    padding-right: 5px;
-    padding-left: 10px;
+.mat-expansion-panel-header,
+.mat-expansion-panel-body {
+  padding-right: 5px;
+  padding-left: 10px;
 }
 
-main nav{
-    direction: rtl;
-    max-height: 90vh;
-    overflow-y: auto;
-    z-index: 10;
+main nav {
+  direction: rtl;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 10;
 }
 
-
-.data{
-    direction: ltr;
+.data {
+  direction: ltr;
 }
 
-.field{
-    margin-left: 7%;
-    margin-right: 50px;
+.field {
+  margin-left: 7%;
+  margin-right: 50px;
 }
 
-h4 { 
-    font-size: 0.85em;
+h4 {
+  font-size: 0.85em;
 }
-
 
 .fab {
   position: fixed;
@@ -40,25 +39,25 @@ h4 {
   bottom: 15px;
 }
 
-  /* width */
+/* width */
 ::-webkit-scrollbar {
-    width: 12px;
-  }
-  
-  /* Track */
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    box-shadow: inset 0 0 5px grey; 
-    border-radius: 10px; 
-  }
-  
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: #888; 
-    border-radius: 10px;
-  }
-  
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555; 
-  }
+  width: 12px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  box-shadow: inset 0 0 5px grey;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

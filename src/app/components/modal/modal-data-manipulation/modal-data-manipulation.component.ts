@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -30,6 +30,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class ModalDataManipulationComponent implements OnInit {
 
+  @Output() public addFilter = new EventEmitter();
   isString: boolean;
 
   constructor(private dialogRef: MatDialogRef<ModalDataManipulationComponent>, @Inject(MAT_DIALOG_DATA) public data) {
@@ -64,6 +65,10 @@ export class ModalDataManipulationComponent implements OnInit {
       return `${this.isAllSelected() ? 'select' : 'deselect'} all`;
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
+  }
+
+  onSave() {
+    this.addFilter.emit();
   }
 
   close() {

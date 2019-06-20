@@ -184,6 +184,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   *                                        MODAL
   * 
   \**************************************************************************************************/
+
   AddFilter() {
     const dialogConfig = new MatDialogConfig();
 
@@ -194,10 +195,16 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.closeOnNavigation = true;
 
     dialogConfig.data = {
-      bool: false
+      bool: false,
     }
 
-    return this.dialog.open(ModalDataManipulationComponent, dialogConfig);
+    let dialogRef = this.dialog.open(ModalDataManipulationComponent, dialogConfig);
+    const sub = dialogRef.componentInstance.addFilter.subscribe(data => {
+      this.newFilter(data);
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      sub.unsubscribe();
+    });
   }
 
   AddFilterString() {
@@ -209,9 +216,11 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.direction = 'ltr';
     dialogConfig.closeOnNavigation = true;
 
-
-
     return this.dialog.open(ModalStringManipulationComponent, dialogConfig);
+
+  }
+
+  newFilter(data) {
 
   }
 

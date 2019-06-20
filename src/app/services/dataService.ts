@@ -37,4 +37,8 @@ export class DataService {
         return this.httpClient.get<string>(environment.baseUrl + '/dataScheme', { headers });
     }
 
+    getData() {
+        return this.httpClient.get('assets/data_count_study.json')
+    }
+
 }

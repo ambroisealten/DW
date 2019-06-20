@@ -217,7 +217,13 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       bool: istri
     }
 
-    return this.dialog.open(ModalDataManipulationComponent, dialogConfig);
+    let dialogRef = this.dialog.open(ModalDataManipulationComponent, dialogConfig);
+    const sub = dialogRef.componentInstance.addFilter.subscribe(data => {
+      this.newFilter(data);
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      sub.unsubscribe();
+    });
   }
 
   AddFilterString(istri) {
@@ -231,7 +237,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
     dialogConfig.data = {
       bool: istri, 
-      data: this.dataSource
+      data: this.dataSource,
+      displayedColumns: [this.displayedColumns[1]]
     }
 
     let dialogRef = this.dialog.open(ModalStringManipulationComponent, dialogConfig);
@@ -242,6 +249,10 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(() => {
       sub.unsubscribe() ; 
     });
+
+  }
+
+  newFilter(data) {
 
   }
 

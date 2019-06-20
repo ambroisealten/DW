@@ -46,6 +46,7 @@ export class ModalStringManipulationComponent implements OnInit {
   constructor(private dialogRef: MatDialogRef<ModalStringManipulationComponent>, @Inject(MAT_DIALOG_DATA) public data) { 
     this.isString = data.bool ; 
     this.dataSources = data.data ; 
+    this.displayedColumns = data.displayedColumns;
   }
 
   ngOnInit() {
@@ -82,6 +83,11 @@ export class ModalStringManipulationComponent implements OnInit {
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
   }
+
+  onSave() {
+    this.addFilter.emit();
+  }
+
   delete() {
 
   }

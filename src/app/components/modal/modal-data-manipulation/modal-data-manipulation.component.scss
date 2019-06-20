@@ -12,26 +12,24 @@ mat-dialog-content {
 
 .Panel {
   color: white;
-  display: grid; 
-  grid-template-columns: repeat(2,1fr);
-}
-
-.PanelDroite {
-  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border: 2px solid #696969;
 }
 
 .contentdialog {
-  width: 100vw;
-  max-width: 100vh !important;
+  width: 65vw;
+  max-width: 100vw !important;
 }
 
 .part2 {
+  padding-left: 2.5%;
   padding-bottom: 2%;
   color: white;
 }
 
 .input {
-  margin-top: 2%;
+  margin-left: 25%;
   float: right;
   margin-right: 3% !important;
 }
@@ -60,20 +58,30 @@ mat-dialog-content {
 }
 
 .mat-list-option {
-  border: 2px solid #696969;
 }
 
-.mat-list-option.mat-pseudo-checkbox {
+.matLabel {
   color: white !important;
+  border-right: 2px solid #696969;
 }
 
 .matInput {
-    margin-top: 30%;
+  margin-top: 32%;
 }
 
 .floating {
   width: 50%;
 }
 
-.mat-label {
+.dialogContainer {
+  background-color: black !important;
+}
+
+.mat-list-base .mat-list-item,
+.mat-list-base .mat-list-option {
+  width: 25vw;
+}
+
+.exclure {
+  margin-right: 2%;
 }

@@ -1,41 +1,49 @@
-<h2 mat-dialog-title class="dialogTitle">New filter</h2>
+<div class="dialogContainer">
+  <h2 mat-dialog-title class="dialogTitle">New filter</h2>
 
 
-<mat-dialog-content class="contentdialog">
+  <mat-dialog-content class="contentdialog">
 
-  <div class="Panel">
-    <div class="matLabel">
-      <mat-selection-list class="floating" #data>
-        <mat-list-option class="text_check" checkboxPosition="before">inf à</mat-list-option>
-        <mat-list-option class="text_check" checkboxPosition="before">inf égal à </mat-list-option>
-        <mat-list-option class="text_check" checkboxPosition="before">égal</mat-list-option>
-        <mat-list-option class="text_check" checkboxPosition="before">supérieur à </mat-list-option>
-        <mat-list-option class="text_check" checkboxPosition="before">supérieur égal à </mat-list-option>
-      </mat-selection-list>
+    <div class="Panel">
+      <div class="matLabel">
+        <mat-selection-list class="floating" #data>
+          <mat-list-option class="text_check" checkboxPosition="before">inf à</mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before">inf égal à </mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before">égal</mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before">supérieur à </mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before">supérieur égal à </mat-list-option>
+        </mat-selection-list>
+
+      </div>
+      <div class="input">
+        Valeur :
+        <mat-form-field>
+        <input type="number" class="matInput" matInput></mat-form-field>
+      </div>
 
     </div>
-    <div class="input">
-      Valeur : 
-      <input class="matInput" matInput>
+
+
+    <div class="part2">
+
+      <mat-checkbox>
+      </mat-checkbox>
+      Compris entre
+      <mat-form-field>
+        <input type="Number" matInput #first_text></mat-form-field>
+      et <mat-form-field><input type="Number" matInput #last_text></mat-form-field>
+
+      <div class="ban">
+
+        <mat-radio-group aria-label="Select an option">
+          <mat-radio-button value="1" class="exclure">exclure </mat-radio-button>
+          <mat-radio-button value="2"> inclure</mat-radio-button>
+        </mat-radio-group>
+      </div>
     </div>
 
-  </div>
+    <button type="button" class="btn btn-primary saveButton" color="primary" (click)="save()">Ajouter</button>
+    <button type="button" class="btn btn-danger closeButton" color="primary" (click)="close()">Fermer</button>
 
-
-  <div class="part2">
-    <br>
-    <div class="ban">
-      exclure
-      <mat-slide-toggle>
-        inclure
-      </mat-slide-toggle>
-    </div>
-    Compris entre <input matInput #first_text>
-    et <input matInput #last_text>
-    <br>
-  </div>
-
-  <button type="button" class="btn btn-primary saveButton" color="primary" (click)="save()">Ajouter</button>
-  <button type="button" class="btn btn-danger closeButton" color="primary" (click)="close()">Fermer</button>
-
-</mat-dialog-content>
+  </mat-dialog-content>
+</div>

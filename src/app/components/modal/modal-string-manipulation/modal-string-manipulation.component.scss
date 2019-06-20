@@ -4,14 +4,12 @@ mat-dialog-content {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-column-gap: 1px;
-  background-color: black;
   color: white;
 }
 
 .dialogTitle {
   text-align: center;
   border-bottom: 2px solid #888;
-  background-color: black;
   color: white;
   text-decoration: bold;
 }
@@ -20,10 +18,12 @@ mat-dialog-content {
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 50vh;
+  overflow: auto;
 }
 
 .rightTab {
-  margin-left: 10%;
+    margin-left: 5%;
 }
 
 .saveButton {
@@ -39,7 +39,6 @@ mat-dialog-content {
 .mat-elevation-z8 {
   width: 100%;
   text-align: center;
-  margin-left: 3%;
 }
 
 .mat-header-cell {
@@ -57,4 +56,8 @@ mat-dialog-content {
 
 .mat-row:nth-child(odd) {
   background-color: #808080;
+}
+
+.dialogContainer {
+  background: black !important;
 }

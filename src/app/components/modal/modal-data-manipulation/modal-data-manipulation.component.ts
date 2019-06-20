@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material';
+import { MatTableDataSource, MatSelectionList, MatSelectionListChange, MatCheckbox } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
 
 export interface PeriodicElement {
@@ -33,17 +33,20 @@ export class ModalDataManipulationComponent implements OnInit {
   @Output() public addFilter = new EventEmitter();
   isString: boolean;
 
+  @ViewChild('data', { static: true }) type: MatSelectionList;
+  @ViewChild('compris',{ static: true}) compris: MatCheckbox ;
   constructor(private dialogRef: MatDialogRef<ModalDataManipulationComponent>, @Inject(MAT_DIALOG_DATA) public data) {
     this.isString = data.bool;
     console.log(this.isString);
   }
 
   ngOnInit() {
+    this.type.selectionChange.subscribe((s: MatSelectionListChange) => {
+      this.type.deselectAll();
+      this.compris.checked = false ;
+      s.option.selected = true;
+    });
   }
-
-  displayedColumns: string[] = ['select', 'position', 'name', 'weight', 'symbol'];
-  dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
-  selection = new SelectionModel<PeriodicElement>(true, []);
 
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {

@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private dataService: DataService,
+    private dataDetailService: DataService,
     private componentFactoryResolver: ComponentFactoryResolver) { }
 
   datas: DataScheme[] = [];
@@ -38,12 +39,22 @@ export class AppComponent implements OnInit {
         this.datas.push(element as DataScheme);
       });
     });
+    this.dataDetailService.getData().subscribe((response: string) => {
+      console.log(response);
+      const datasFetched = JSON.parse(JSON.stringify(response));
+      datasFetched.forEach(element => {
+        this.datas.push(element);
+      });
+    });
   }
 
   onDragField(ev, field: string) {
     ev.dataTransfer.setData('data', this.dataService.fetchData(field));
     ev.dataTransfer.setData('colName', field);
+    ev.dataTransfer.setData('colNameDetail', field);
   }
+
+
 
   onDrop(ev) {
     const data = ev.dataTransfer.getData('data').split(',').map( el => {
@@ -51,6 +62,7 @@ export class AppComponent implements OnInit {
     });
 
     const fieldName = ev.dataTransfer.getData('colName');
+    console.log("FIELDNAME     :   " + fieldName);
     const target = ev.target;
 
     if (target.className == 'charts' || target.className == 'chartsFour') {
@@ -75,6 +87,11 @@ export class AppComponent implements OnInit {
           entryUsed = this.entry1;
           break;
       }
+
+      let test = this.dataDetailService.getData();
+
+      console.log(test);
+
       entryUsed.clear();
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
@@ -82,6 +99,9 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
       this.componentRef.instance.droppedText = fieldName;
+
+      this.componentRef.instance.displayedColumns = [fieldName];
+      this.componentRef.instance.dataSource = test;
 
       this.componentRef.instance.viewService.dataSet = new DataSet(fieldName, data);
 

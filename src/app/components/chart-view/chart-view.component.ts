@@ -2,6 +2,8 @@ import { Component, OnInit, Input, ChangeDetectorRef, ElementRef, ViewChild } fr
 import { ViewService } from 'src/app/services/viewService';
 import { DataSet } from 'src/app/models/dataSet';
 import { Chart } from 'chart.js';
+import { DataService } from 'src/app/services/dataService';
+import { DataScheme } from 'src/app/models/dataScheme';
 
 @Component({
   selector: 'app-chart-view',
@@ -17,7 +19,7 @@ export class ChartViewComponent implements OnInit {
   currentType: string = "tab";
 
   data: any[] = [];
-
+  
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   public context: CanvasRenderingContext2D;
 
@@ -30,14 +32,15 @@ export class ChartViewComponent implements OnInit {
   viewService: ViewService;
   @Input() instanceNumber: number;
   @Input() droppedText: string;
+  @Input() displayedColumns : string[];
+  @Input() dataSource: any[];
 
-  constructor() {
+  constructor(private dataService: DataService) {
     this.viewService = ViewService.getInstance(this.instanceNumber);
-
   }
 
   ngOnInit() {
-    this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
+     this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
   }
 
   ngAfterViewInit() {

@@ -44,6 +44,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     { filterColumn: "weight", filterType: "number", excludeValue: ["4.0026"], filters: [] },
   ];
 
+  selectedIndex: string ; 
+
   //Groupement 
   selectionGpmt = new SelectionModel<any>(true, []);
   dataSourceGpmt = new MatTableDataSource<any>();
@@ -185,7 +187,24 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   * 
   \**************************************************************************************************/
 
-  AddFilter() {
+  whichDialog(){
+    let dataType = typeof(this.dataSource[this.displayedColumns[1]]) ; 
+    switch(dataType){
+      case('number'): 
+        this.AddFilter(this.isTri()) ; 
+        break; 
+      case('string'):
+        this.AddFilterString(this.isTri()); 
+        break;
+    }
+
+  }
+
+  isTri():boolean{
+    return this.selectedIndex === "Tri" ; 
+  }
+
+  AddFilter(istri) {
     const dialogConfig = new MatDialogConfig();
 
     dialogConfig.disableClose = false;
@@ -195,7 +214,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.closeOnNavigation = true;
 
     dialogConfig.data = {
-      bool: false,
+      bool: istri
     }
 
     let dialogRef = this.dialog.open(ModalDataManipulationComponent, dialogConfig);
@@ -207,7 +226,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  AddFilterString() {
+  AddFilterString(istri) {
     const dialogConfig = new MatDialogConfig();
 
     dialogConfig.disableClose = false;
@@ -216,11 +235,19 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.direction = 'ltr';
     dialogConfig.closeOnNavigation = true;
 
-    return this.dialog.open(ModalStringManipulationComponent, dialogConfig);
+    dialogConfig.data = {
+      bool: istri, 
+      data: this.dataSource
+    }
 
-  }
+    let dialogRef = this.dialog.open(ModalStringManipulationComponent, dialogConfig);
+    const sub = dialogRef.componentInstance.addFilter.subscribe(data => {
 
-  newFilter(data) {
+    }); 
+
+    dialogRef.afterClosed().subscribe(() => {
+      sub.unsubscribe() ; 
+    });
 
   }
 

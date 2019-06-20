@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource, MatIconModule } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
 
@@ -34,17 +34,22 @@ const ELEMENT_DATAS: PeriodicElement[] = [
 })
 export class ModalStringManipulationComponent implements OnInit {
 
-  constructor(private dialogRef: MatDialogRef<ModalStringManipulationComponent>) { }
-
-  ngOnInit() {
-  }
-
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
   displayedColumnsright: string[] = ['position', 'name', 'weight', 'symbol', 'delete'];
   dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
   dataSources = new MatTableDataSource<PeriodicElement>(ELEMENT_DATAS);
-
   selection = new SelectionModel<PeriodicElement>(true, []);
+  
+  isString ; 
+  @Output() public addFilter = new EventEmitter() ; 
+
+  constructor(private dialogRef: MatDialogRef<ModalStringManipulationComponent>, @Inject(MAT_DIALOG_DATA) public data) { 
+    this.isString = data.bool ; 
+    this.dataSources = data.data ; 
+  }
+
+  ngOnInit() {
+  }
 
   clicked() {
     let toto: PeriodicElement;

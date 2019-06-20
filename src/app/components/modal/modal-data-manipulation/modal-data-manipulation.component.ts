@@ -33,11 +33,11 @@ export class ModalDataManipulationComponent implements OnInit {
   @Output() public addFilter = new EventEmitter();
   isString: boolean;
 
-  @ViewChild('data', { static: true }) type: MatSelectionList;
+  @ViewChild('type', { static: true }) type: MatSelectionList;
   @ViewChild('compris',{ static: true}) compris: MatCheckbox ;
+  
   constructor(private dialogRef: MatDialogRef<ModalDataManipulationComponent>, @Inject(MAT_DIALOG_DATA) public data) {
     this.isString = data.bool;
-    console.log(this.isString);
   }
 
   ngOnInit() {
@@ -48,30 +48,8 @@ export class ModalDataManipulationComponent implements OnInit {
     });
   }
 
-  /** Whether the number of selected elements matches the total number of rows. */
-  isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.data.length;
-    return numSelected === numRows;
-  }
-
-  /** Selects all rows if they are not all selected; otherwise clear selection. */
-  masterToggle() {
-    this.isAllSelected() ?
-      this.selection.clear() :
-      this.dataSource.data.forEach(row => this.selection.select(row));
-  }
-
-  /** The label for the checkbox on the passed row */
-  checkboxLabel(row?: PeriodicElement): string {
-    if (!row) {
-      return `${this.isAllSelected() ? 'select' : 'deselect'} all`;
-    }
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
-  }
-
-  onSave() {
-    this.addFilter.emit();
+  unselectOther(){
+    this.type.deselectAll() ;
   }
 
   close() {

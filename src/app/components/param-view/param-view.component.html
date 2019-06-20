@@ -1,45 +1,33 @@
-<br>
-<mat-label>Select a value</mat-label>
-<select matNativeControl required>
-  <option value="21">21</option>
-  <option value="11">211</option>
-  <option value="31">362</option>
-  <option value="41">145</option>
-</select>
+<mat-select class="select" [(value)]="column" (selectionChange)="changeColumn()">
+  <mat-option *ngFor="let column of columns" [value]="column">
+    {{column}}
+  </mat-option>
+</mat-select>
 
 <mat-tab-group [(selectedIndex)]="selectedIndex">
   <mat-tab label="Groupement" class="titre_tab">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSourceGpmt" class="mat-elevation-z8">
       <!-- Checkbox Column -->
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef>
-          <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()"
-            [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+          <mat-checkbox (change)="$event ? masterToggleGpmt() : null" [checked]="selectionGpmt.hasValue() && isAllSelectedGpmt()"
+            [indeterminate]="selectionGpmt.hasValue() && !isAllSelectedGpmt()" [aria-label]="checkboxLabelGpmt()">
           </mat-checkbox>
         </th>
         <td mat-cell *matCellDef="let row">
-          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
-            [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? setActifInactif(row) : null"
+            [checked]="selectionGpmt.isSelected(row)" [aria-label]="checkboxLabelGpmt(row)">
           </mat-checkbox>
         </td>
       </ng-container>
 
-      <!-- Name Column -->
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Name </th>
-        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-      </ng-container>
-
-      <!-- Weight Column -->
-      <ng-container matColumnDef="weight">
-        <th mat-header-cell *matHeaderCellDef> Weight </th>
-        <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
-      </ng-container>
-
-      <!-- Symbol Column -->
-      <ng-container matColumnDef="symbol">
-        <th mat-header-cell *matHeaderCellDef> Symbol </th>
-        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+      <ng-container *ngFor="let column of displayedColumns">
+        <ng-container *ngIf='column != "select"'>
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef> {{ column }} </th>
+            <td mat-cell *matCellDef="let element"> {{element[name]}} </td>
+          </ng-container>
+        </ng-container>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -52,42 +40,27 @@
 
   <mat-tab label="Tri">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-      <!-- Checkbox Column -->
+
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef>
-          <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()"
-            [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+          <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selectionTri.hasValue() && isAllSelected()"
+            [indeterminate]="selectionTri.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
           </mat-checkbox>
         </th>
         <td mat-cell *matCellDef="let row">
-          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
-            [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? excludeOrInclude(row) : null"
+            [checked]="selectionTri.isSelected(row)" [aria-label]="checkboxLabel(row)">
           </mat-checkbox>
         </td>
       </ng-container>
 
-      <!-- Position Column -->
-      <ng-container matColumnDef="position">
-        <th mat-header-cell *matHeaderCellDef> No. </th>
-        <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+      <ng-container *ngFor="let column of displayedColumns">
+        <ng-container *ngIf="column != 'select'">
+        <ng-container [matColumnDef]="column">
+          <th mat-header-cell *matHeaderCellDef> {{ column }} </th>
+          <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
+        </ng-container>
       </ng-container>
-
-      <!-- Name Column -->
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Name </th>
-        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-      </ng-container>
-
-      <!-- Weight Column -->
-      <ng-container matColumnDef="weight">
-        <th mat-header-cell *matHeaderCellDef> Weight </th>
-        <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
-      </ng-container>
-
-      <!-- Symbol Column -->
-      <ng-container matColumnDef="symbol">
-        <th mat-header-cell *matHeaderCellDef> Symbol </th>
-        <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

@@ -14,7 +14,7 @@ export class ChartViewComponent implements OnInit {
 
   currentType: string = "tab";
 
-  allColors = ["blue","red","green","yellow","pink","cyan","orange","marroon","salmon","grey"];
+  allColors = ["blue","red","green","yellow","pink","cyan","orange","white","salmon","grey"];
 
   data: any[] = [];
 
@@ -143,7 +143,7 @@ export class ChartViewComponent implements OnInit {
       },
       options: {
         legend: {
-          display: true,
+          display: false,
           position: "bottom",
           labels: {
             fontSize: this.canvasFontSize

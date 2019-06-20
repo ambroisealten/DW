@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, OnInit, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
 
@@ -30,7 +30,12 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class ModalDataManipulationComponent implements OnInit {
 
-  constructor(private dialogRef: MatDialogRef<ModalDataManipulationComponent>, ) { }
+  isString: boolean;
+
+  constructor(private dialogRef: MatDialogRef<ModalDataManipulationComponent>, @Inject(MAT_DIALOG_DATA) public data) {
+    this.isString = data.bool;
+    console.log(this.isString);
+  }
 
   ngOnInit() {
   }

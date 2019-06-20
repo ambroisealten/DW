@@ -18,7 +18,7 @@
       <div class="input">
         Valeur :
         <mat-form-field>
-        <input type="number" class="matInput" matInput></mat-form-field>
+          <input type="number" class="matInput" matInput></mat-form-field>
       </div>
 
     </div>
@@ -33,7 +33,7 @@
         <input type="Number" matInput #first_text></mat-form-field>
       et <mat-form-field><input type="Number" matInput #last_text></mat-form-field>
 
-      <div class="ban">
+      <div class="ban" *ngIf="isString">
 
         <mat-radio-group aria-label="Select an option">
           <mat-radio-button value="1" class="exclure">exclure </mat-radio-button>

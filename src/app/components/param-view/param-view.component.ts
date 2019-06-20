@@ -237,7 +237,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
     dialogConfig.data = {
       bool: istri, 
-      data: this.dataSource
+      data: this.dataSource,
+      displayedColumns: [this.displayedColumns[1]]
     }
 
     let dialogRef = this.dialog.open(ModalStringManipulationComponent, dialogConfig);
@@ -248,6 +249,10 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(() => {
       sub.unsubscribe() ; 
     });
+
+  }
+
+  newFilter(data) {
 
   }
 

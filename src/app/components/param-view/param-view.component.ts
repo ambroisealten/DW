@@ -155,7 +155,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       if (!this.isExclude(row)) {
         this.selectionTri.select(row)
       } else {
-        this.selectionTri.deselect(row) ; 
+        this.selectionTri.deselect(row);
       }
     });
   }
@@ -226,7 +226,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.excludeOrIncludeFromFilter(newFilter);
       } else {
         this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.push(newFilter);
-        this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters); 
+        this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
         console.log(newFilter);
         this.toggleFilterGpmt();
       }
@@ -253,7 +253,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
     let dialogRef = this.dialog.open(ModalStringManipulationComponent, dialogConfig);
     const sub = dialogRef.componentInstance.addFilter.subscribe(data => {
-
+      this.dataSourceGpmt.data = data
+      this.dataSourceGpmt = new MatTableDataSource<any>(this.dataSourceGpmt.data)
     });
 
     dialogRef.afterClosed().subscribe(() => {
@@ -265,14 +266,14 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   excludeOrIncludeFromFilter(filter) {
     if (filter['excludeValue'] == 'exclure') {
       this.dataSource.data.forEach(element => {
-        if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max']) &&  this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]]+"") == -1) {
-          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]+"");
+        if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max']) && this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1) {
+          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]] + "");
         }
-      }); 
+      });
     } else if (filter['excludeValue'] == 'inclure') {
       this.dataSource.data.forEach(element => {
         if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max'])) {
-          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(""+element[this.displayedColumns[1]]);
+          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf("" + element[this.displayedColumns[1]]);
           if (index != -1) {
             this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
           }
@@ -281,17 +282,17 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     } else if (filter['excludeValue'] == "n'inclure que") {
       this.dataSource.data.forEach(element => {
         if (this.isFiltered(+element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max'])) {
-          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(""+element[this.displayedColumns[1]]);
+          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf("" + element[this.displayedColumns[1]]);
           if (index != -1) {
             this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
           }
-        } else if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]]+"") ==-1){
-          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]+"");
+        } else if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1) {
+          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]] + "");
         }
       });
     }
     console.log(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue)
-    this.toggleFilter() ; 
+    this.toggleFilter();
   }
 
   isFiltered(value, type, comparatorMin, comparatorMax) {

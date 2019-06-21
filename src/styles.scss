@@ -89,10 +89,6 @@ ul {
   list-style: none;
 }
 
-li {
-  padding-left: 15%;
-}
-
 main aside {
   border-left: 1px solid grey;
   padding-left: 2%;
@@ -129,21 +125,22 @@ main aside {
   position: fixed;
 }
 
-.fab:hover .fab-buttons {
+.fab-action-button:hover + .fab-buttons {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  transform-origin: right center 0;
+  transition-delay: 0.3s;
+  height: inherit;
+}
+
+.fab-buttons:hover{
   opacity: 1;
   visibility: visible;
 }
 
 .fab:hover .fab-buttons__link {
-  transform: scaleY(1) scaleX(1) translateY(16px) translateX(0px);
-}
-
-.fab-action-button:hover + .fab-buttons .fab-buttons__link:before {
-  visibility: visible;
-  opacity: 1;
-  transform: scale(1);
-  transform-origin: right center 0;
-  transition-delay: 0.3s;
+  transform: scaleY(1) scaleX(1) translateY(8px) translateX(0px);
 }
 
 .fab-action-button {
@@ -159,7 +156,6 @@ main aside {
 
 .fab-buttons {
   position: relative;
-  width: 50%;
   left: 0;
   right: 0;
   list-style: none;
@@ -168,10 +164,14 @@ main aside {
   opacity: 0;
   visibility: hidden;
   transition: 0.2s;
-  z-index: 10;
+  height: 0;
 }
 
-.fab-action-button__icon {
+.fab-buttons-line, .fab-buttons-line li{
+  display: inline;
+}
+
+.fab-action-button_icon {
   display: inline-block;
   width: 50px;
   height: 50px;
@@ -180,7 +180,7 @@ main aside {
 .fab-buttons__item {
   display: block;
   text-align: center;
-  margin: 12px 0;
+  margin: 1.2% 0;
 }
 
 .fab-buttons__link {

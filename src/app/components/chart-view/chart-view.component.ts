@@ -4,6 +4,7 @@ import { DataSet } from 'src/app/models/dataSet';
 import { Chart } from 'chart.js';
 import { DataService } from 'src/app/services/dataService';
 import { DataScheme } from 'src/app/models/dataScheme';
+import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-chart-view',
@@ -35,12 +36,22 @@ export class ChartViewComponent implements OnInit {
   @Input() displayedColumns : string[];
   @Input() dataSource: any[];
 
+  columns: any[] = [];
+  datas: DataScheme[] = [];
+
   constructor(private dataService: DataService) {
     this.viewService = ViewService.getInstance(this.instanceNumber);
   }
 
   ngOnInit() {
      this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
+     this.dataService.getData().subscribe((response: string) => {
+      console.log(response);
+      const datasFetched = JSON.parse(JSON.stringify(response));
+      datasFetched.forEach(element => {
+        this.datas.push(element);
+      });
+    });
   }
 
   ngAfterViewInit() {
@@ -72,8 +83,14 @@ export class ChartViewComponent implements OnInit {
   }
 
   onDrop(ev) {
+    console.log("CHART VIEW §§§§§§§§§§§§§§     ");
+
     const data = ev.dataTransfer.getData('data');
     const colName = ev.dataTransfer.getData('colName');
+
+    this.displayedColumns.push(colName);
+    
+    console.log(this.displayedColumns);
 
     ev.preventDefault();
   }

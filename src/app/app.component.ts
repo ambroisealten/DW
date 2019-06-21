@@ -28,7 +28,8 @@ export class AppComponent implements OnInit {
     private dataDetailService: DataService,
     private componentFactoryResolver: ComponentFactoryResolver) { }
 
-  datas: DataScheme[] = [];
+    datas: DataScheme[] = [];
+    datasDetails: DataScheme[] = [];
 
   ngOnInit() {
     this.dataService.fetchDataScheme().subscribe((response: string) => {
@@ -43,13 +44,12 @@ export class AppComponent implements OnInit {
       console.log(response);
       const datasFetched = JSON.parse(JSON.stringify(response));
       datasFetched.forEach(element => {
-        this.datas.push(element);
+        this.datasDetails.push(element);
       });
     });
   }
 
   onDragField(ev, field: string) {
-    ev.dataTransfer.setData('data', this.dataService.fetchData(field));
     ev.dataTransfer.setData('colName', field);
     ev.dataTransfer.setData('colNameDetail', field);
   }
@@ -88,10 +88,6 @@ export class AppComponent implements OnInit {
           break;
       }
 
-      let test = this.dataDetailService.getData();
-
-      console.log(test);
-
       entryUsed.clear();
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
@@ -101,7 +97,7 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.droppedText = fieldName;
 
       this.componentRef.instance.displayedColumns = [fieldName];
-      this.componentRef.instance.dataSource = test;
+      this.componentRef.instance.datas = this.datasDetails;
 
       this.componentRef.instance.viewService.dataSet = new DataSet(fieldName, data);
 

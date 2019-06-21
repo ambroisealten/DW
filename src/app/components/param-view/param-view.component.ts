@@ -188,7 +188,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   \**************************************************************************************************/
 
   whichDialog() {
-    let dataType = typeof (this.dataSource[this.displayedColumns[1]]);
+    let dataType = typeof (this.dataSource.data[0][this.displayedColumns[1]]);
     switch (dataType) {
       case ('number'):
         this.AddFilter(this.isTri());

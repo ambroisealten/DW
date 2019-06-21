@@ -11,6 +11,7 @@ import { MatTableModule, MatRadioModule, MatFormFieldModule, MatSlideToggleModul
 import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ModalStringManipulationComponent } from './components/modal/modal-string-manipulation/modal-string-manipulation.component';
+import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import { ModalStringManipulationComponent } from './components/modal/modal-strin
     MatFormFieldModule,
     MatIconModule,
     MatRadioModule,
-    MatInputModule
+    MatInputModule,
+    FormsModule
   ],
   providers: [
     DataService,

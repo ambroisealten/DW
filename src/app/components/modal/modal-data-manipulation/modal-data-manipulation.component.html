@@ -8,17 +8,20 @@
       <div class="matLabel">
         <mat-selection-list class="floating" #type>
           <mat-list-option class="text_check" checkboxPosition="before" value="inf à">inf. à</mat-list-option>
-          <mat-list-option class="text_check" checkboxPosition="before" value="inf égal à">inf. égal à </mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="inf égal à">inf. égal à
+          </mat-list-option>
           <mat-list-option class="text_check" checkboxPosition="before" value="égal">égal</mat-list-option>
           <mat-list-option class="text_check" checkboxPosition="before" value="sup à">sup. à </mat-list-option>
-          <mat-list-option class="text_check" checkboxPosition="before" value="sup égal à">sup. égal à </mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="sup égal à">sup. égal à
+          </mat-list-option>
         </mat-selection-list>
 
       </div>
       <div class="input">
         Valeur :
         <mat-form-field>
-          <input type="number" class="matInput" matInput></mat-form-field>
+          <input matInput type="number" class="matInput" [(ngModel)]="valueSolo" >
+        </mat-form-field>
       </div>
 
     </div>
@@ -31,14 +34,19 @@
       </mat-checkbox>
 
       <mat-form-field>
-        <input type="Number" matInput #first_text></mat-form-field>
-      et <mat-form-field><input type="Number" matInput #last_text></mat-form-field>
+        <input type="Number" matInput #first_text>
+      </mat-form-field>
+      et
+      <mat-form-field>
+        <input type="Number" matInput #last_text>
+      </mat-form-field>
 
       <div class="ban" *ngIf="isString">
 
-        <mat-radio-group aria-label="Select an option">
-          <mat-radio-button value="1" class="exclure">exclure </mat-radio-button>
-          <mat-radio-button value="2"> inclure</mat-radio-button>
+        <mat-radio-group aria-label="Select an option" #excludeOption>
+          <mat-radio-button value="exclure" class="exclure">exclure </mat-radio-button>
+          <mat-radio-button value="inclure"> inclure</mat-radio-button>
+          <mat-radio-button value="n'inclure que"> n'inclure que</mat-radio-button>
         </mat-radio-group>
       </div>
     </div>

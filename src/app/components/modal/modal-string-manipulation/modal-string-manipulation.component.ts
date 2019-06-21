@@ -62,4 +62,9 @@ export class ModalStringManipulationComponent implements OnInit {
     this.dataSources = new MatTableDataSource<any>(this.dataSources.data)
     this.changeDetectorRefs.detectChanges();
   }
+
+  close() {
+    this.dialogRef.close();
+  }
+
 }

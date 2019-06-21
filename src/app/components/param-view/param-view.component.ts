@@ -262,10 +262,6 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
   }
 
-  openDialogSoftSkill() {
-
-  }
-
   excludeOrIncludeFromFilter(filter) {
     if (filter['excludeValue'] == 'exclure') {
       this.dataSource.data.forEach(element => {

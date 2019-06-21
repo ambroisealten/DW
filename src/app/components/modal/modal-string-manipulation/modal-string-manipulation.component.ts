@@ -43,12 +43,10 @@ export class ModalStringManipulationComponent implements OnInit {
     this.dataSources = new MatTableDataSource<any>(this.dataSources.data)
     let index = this.dataSource.data.indexOf(element) ; 
     this.dataSource.data.splice(index,1) ;
-
     this.dataSource = new MatTableDataSource<any>(this.dataSource.data)
     this.changeDetectorRefs.detectChanges();
   }
   
-
   onSave() {
     this.addFilter.emit();
   }
@@ -66,5 +64,4 @@ export class ModalStringManipulationComponent implements OnInit {
   close() {
     this.dialogRef.close();
   }
-
 }

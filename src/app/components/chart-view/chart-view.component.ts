@@ -106,7 +106,11 @@ export class ChartViewComponent implements OnInit {
     
     this.setDisplayedColumns();
     this.multipleSort();
-    
+    this.dataSource = this.datas;
+    this.spans = [];
+    for (let i = 0; i < this.displayedColumns.length; i++) {
+      this.cacheSpan(this.displayedColumns[i], i + 1);
+    }  
 
     ev.preventDefault();
   }
@@ -150,17 +154,17 @@ export class ChartViewComponent implements OnInit {
   }
 
   dragStarted(event: CdkDragStart, index: number) {
+    console.log("DRAGSTARTED §§§§§§§§§§§§§§     ");
     this.previousIndex = index;
   }
 
   dropListDropped(event: CdkDropList, index: number) {
+    console.log("DROPLISTDROPPED §§§§§§§§§§§§§§     ");
     if (event) {
       moveItemInArray(this.columns, this.previousIndex, index);
       this.setDisplayedColumns();
       this.multipleSort();
       this.dataSource = this.datas;
-      console.log("DATASOURCE §§§§§§§§§§§§§§     ");
-      console.log(this.dataSource); 
       this.spans = [];
       for (let i = 0; i < this.displayedColumns.length; i++) {
         this.cacheSpan(this.displayedColumns[i], i + 1);

@@ -1,27 +1,7 @@
 import { Component, OnInit, Inject, Output, EventEmitter, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatTableDataSource, MatSelectionList, MatSelectionListChange, MatCheckbox } from '@angular/material';
-import { SelectionModel } from '@angular/cdk/collections';
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
-];
+import { MatSelectionList, MatSelectionListChange, MatCheckbox, MatRadioGroup } from '@angular/material';
+import { Filter } from 'src/app/models/Filter';
 
 @Component({
   selector: 'app-modal-data-manipulation',
@@ -30,14 +10,21 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class ModalDataManipulationComponent implements OnInit {
 
-  @Output() public addFilter = new EventEmitter();
-  isString: boolean;
+  @Output() public addFilter: EventEmitter<any> = new EventEmitter<any>();
+  isTri: boolean;
+  filters: Filter[];
 
   @ViewChild('type', { static: true }) type: MatSelectionList;
   @ViewChild('compris', { static: true }) compris: MatCheckbox;
+  @ViewChild('excludeOption', {static: false}) excludeOption: MatRadioGroup ; 
+
+  valueSolo;
+  valueMin;
+  valueMax;
 
   constructor(private dialogRef: MatDialogRef<ModalDataManipulationComponent>, @Inject(MAT_DIALOG_DATA) public data) {
-    this.isString = data.bool;
+    this.isTri = data.bool;
+    this.filters = data.filters
   }
 
   ngOnInit() {
@@ -53,10 +40,86 @@ export class ModalDataManipulationComponent implements OnInit {
   }
 
   onSave() {
-    this.addFilter.emit();
+    let newFilter: Filter;
+    if (this.type.selectedOptions.selected.length > 0 && this.valueSolo != undefined) {
+      newFilter['type'] = this.type.selectedOptions.selected[0].value;
+      if (!this.isTri && this.isFiltered(this.valueSolo)) {
+        return;
+      }
+      newFilter['min'] = this.valueSolo;
+      newFilter['name'] = this.createName(newFilter['type'], newFilter['min']);
+    } else if (this.compris.checked && this.valueMin != undefined && this.valueMax != undefined) {
+      newFilter['type'] = 'compris';
+      if (!this.isTri && (this.isFiltered(this.valueMin) || this.isFiltered(this.valueMax))) {
+        return;
+      }
+      newFilter['min'] = this.valueMin;
+      newFilter['max'] = this.valueMax;
+      newFilter['name'] = '[' + this.valueMin + ',' + this.valueMax + ']';
+    } else {
+      return;
+    }
+    if(this.isTri){
+      newFilter['excludeValue'] = this.excludeOption.selected.value ; 
+    } 
+    this.addFilter.emit(newFilter) ; 
   }
 
   close() {
     this.dialogRef.close();
+  }
+
+  isFiltered(value) {
+    let bool: boolean = false;
+    this.filters.forEach(filter => {
+      if (!bool) {
+        switch (filter.type) {
+          case ('inf. à'):
+            bool = (value < filter.min);
+            break;
+          case ('inf. égal à'):
+            bool = (value <= filter.min);
+            break;
+          case ('égal'):
+            bool = (value == filter.min);
+            break;
+          case ('sup. à'):
+            bool = (value > filter.min);
+            break;
+          case ('sup. égal à'):
+            bool = (value >= filter.min);
+            break;
+          case ('compris'):
+            bool = ((value >= filter.min) || (value <= filter.max));
+            break;
+        }
+      } else {
+        return;
+      }
+
+    })
+    return bool;
+  }
+
+  createName(type, valueMin): string {
+    let name = "";
+    switch (type) {
+      case ('inf. à'):
+        name = "< " + valueMin;
+        break;
+      case ('inf. égal à'):
+        name = "<= " + valueMin;
+        break;
+      case ('égal'):
+        name = valueMin;
+        break;
+      case ('sup. à'):
+        name = "> " + valueMin;
+        break;
+      case ('sup. égal à'):
+        name = ">= " + valueMin;
+        break;
+    }
+    return name;
   }
 }

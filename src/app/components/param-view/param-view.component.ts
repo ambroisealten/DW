@@ -44,7 +44,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     { filterColumn: "weight", filterType: "number", excludeValue: ["4.0026"], filters: [] },
   ];
 
-  selectedIndex: string ; 
+  selectedIndex: string;
 
   //Groupement 
   selectionGpmt = new SelectionModel<any>(true, []);
@@ -187,21 +187,21 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   * 
   \**************************************************************************************************/
 
-  whichDialog(){
-    let dataType = typeof(this.dataSource[this.displayedColumns[1]]) ; 
-    switch(dataType){
-      case('number'): 
-        this.AddFilter(this.isTri()) ; 
-        break; 
-      case('string'):
-        this.AddFilterString(this.isTri()); 
+  whichDialog() {
+    let dataType = typeof (this.dataSource[this.displayedColumns[1]]);
+    switch (dataType) {
+      case ('number'):
+        this.AddFilter(this.isTri());
+        break;
+      case ('string'):
+        this.AddFilterString(this.isTri());
         break;
     }
 
   }
 
-  isTri():boolean{
-    return this.selectedIndex === "Tri" ; 
+  isTri(): boolean {
+    return this.selectedIndex === "Tri";
   }
 
   AddFilter(istri) {
@@ -214,12 +214,17 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.closeOnNavigation = true;
 
     dialogConfig.data = {
-      bool: istri
+      bool: istri,
+      filters: this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters
     }
 
     let dialogRef = this.dialog.open(ModalDataManipulationComponent, dialogConfig);
-    const sub = dialogRef.componentInstance.addFilter.subscribe(data => {
-      this.newFilter(data);
+    const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
+      if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
+        this.excludeOrIncludeFromFilter(newFilter);
+      } else {
+        this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.push(newFilter);
+      }
     });
     dialogRef.afterClosed().subscribe(() => {
       sub.unsubscribe();
@@ -236,7 +241,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.closeOnNavigation = true;
 
     dialogConfig.data = {
-      bool: istri, 
+      bool: istri,
       data: this.dataSource,
       displayedColumns: [this.displayedColumns[1]]
     }
@@ -244,15 +249,11 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     let dialogRef = this.dialog.open(ModalStringManipulationComponent, dialogConfig);
     const sub = dialogRef.componentInstance.addFilter.subscribe(data => {
 
-    }); 
-
-    dialogRef.afterClosed().subscribe(() => {
-      sub.unsubscribe() ; 
     });
 
-  }
-
-  newFilter(data) {
+    dialogRef.afterClosed().subscribe(() => {
+      sub.unsubscribe();
+    });
 
   }
 
@@ -260,4 +261,58 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
   }
 
+  excludeOrIncludeFromFilter(filter) {
+    if (filter['excludeValue'] == 'exclure') {
+      this.dataSource.data.forEach(element => {
+        if (this.isFiltered(element[this.displayedColumns[1]],filter['type'],filter['min'],filter['max'])) {
+          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]) ; 
+        }
+      });
+    } else if (filter['excludeValue'] == 'inclure') {
+      this.dataSource.data.forEach(element => {
+        if (this.isFiltered(element[this.displayedColumns[1]],filter['type'],filter['min'],filter['max'])) {
+          let index =  this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.findIndex(element[this.displayedColumns[1]]) ;
+          if(index != -1){
+            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index,1) ; 
+          }
+        }
+      });
+    } else if (filter['excludeValue'] == "n'inclure que") {
+      this.dataSource.data.forEach(element => {
+        if (this.isFiltered(element[this.displayedColumns[1]],filter['type'],filter['min'],filter['max'])) {
+          let index =  this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.findIndex(element[this.displayedColumns[1]]) ;
+          if(index != -1){
+            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index,1) ; 
+          }
+        } else {
+          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]) ; 
+        }
+      });
+    }
+  }
+
+  isFiltered(value, type, comparatorMin, comparatorMax) {
+    let bool: boolean = false;
+    switch (type) {
+      case ('inf. à'):
+        bool = (value < comparatorMin);
+        break;
+      case ('inf. égal à'):
+        bool = (value <= comparatorMin);
+        break;
+      case ('égal'):
+        bool = (value == comparatorMin);
+        break;
+      case ('sup. à'):
+        bool = (value > comparatorMin);
+        break;
+      case ('sup. égal à'):
+        bool = (value >= comparatorMin);
+        break;
+      case ('compris'):
+        bool = ((value >= comparatorMin) || (value <= comparatorMax));
+        break;
+    }
+    return bool;
+  }
 }

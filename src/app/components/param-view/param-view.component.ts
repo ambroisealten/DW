@@ -255,9 +255,4 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   newFilter(data) {
 
   }
-
-  openDialogSoftSkill() {
-
-  }
-
 }

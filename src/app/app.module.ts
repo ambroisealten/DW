@@ -9,6 +9,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatExpansionModule } from '@angular/material/expansion';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { MatTableModule } from '@angular/material';
+import { CdkTableModule } from '@angular/cdk/table';
+import { CdkTreeModule } from '@angular/cdk/tree';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -20,7 +23,10 @@ import { MatTableModule } from '@angular/material';
     HttpClientModule,
     MatExpansionModule,
     BrowserAnimationsModule,
-    MatTableModule
+    MatTableModule,
+    CdkTableModule,
+    CdkTreeModule,
+    DragDropModule
   ],
   providers: [
     DataService,

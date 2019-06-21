@@ -101,6 +101,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     this.dataSourceGpmt.data.forEach(row => {
       if (row['actif']) {
         this.selectionGpmt.select(row)
+      } else {
+        this.selectionGpmt.deselect(row) ;
       }
     });
   }
@@ -114,12 +116,65 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   }
 
   setActifInactif(row) {
+    if (!row['actif']) {
+      this.checkConflictGpmt(row.min, row.type);
+      this.checkConflictGpmt(row.max, row.type);
+    }
     row['actif'] = !row['actif'];
-    this.selectionGpmt.toggle(row);
+    this.toggleFilterGpmt() ;
   }
 
   setDatasourceGpmt() {
     this.dataSourceGpmt = new MatTableDataSource<any>(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters)
+  }
+
+  checkConflictGpmt(value, type) {
+    this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => {
+      let bool = false;
+      if (!bool) {
+        switch (filter.type) {
+          case ('inf. à'):
+            bool = (value < filter.min);
+            break;
+          case ('inf. égal à'):
+            bool = (value <= filter.min);
+            break;
+          case ('égal'):
+            bool = (value == filter.min);
+            break;
+          case ('sup. à'):
+            bool = (value > filter.min);
+            break;
+          case ('sup. égal à'):
+            bool = (value > filter.min);
+            break;
+          case ('compris'):
+            bool = ((value >= filter.min) && (value <= filter.max));
+            break;
+        }
+      }
+      if (!bool) {
+        switch (type) {
+          case ('inf. à'):
+            bool = (value > filter.min);
+            break;
+          case ('inf. égal à'):
+            bool = (value >= filter.min);
+            break;
+          case ('égal'):
+            bool = (value == filter.min);
+            break;
+          case ('sup. à'):
+            bool = (filter.min > value);
+            break;
+          case ('sup. égal à'):
+            bool = (filter.min >= value);
+            break;
+        }
+      }
+      if(bool)
+        filter['actif'] = false ;
+    })
   }
 
 
@@ -227,7 +282,6 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       } else {
         this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.push(newFilter);
         this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
-        console.log(newFilter);
         this.toggleFilterGpmt();
       }
     });
@@ -291,7 +345,6 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         }
       });
     }
-    console.log(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue)
     this.toggleFilter();
   }
 

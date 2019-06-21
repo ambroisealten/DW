@@ -201,7 +201,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   }
 
   isTri(): boolean {
-    return this.selectedIndex === "Tri";
+    console.log(this.selectedIndex);
+    return this.selectedIndex == "1";
   }
 
   AddFilter(istri) {
@@ -264,28 +265,28 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   excludeOrIncludeFromFilter(filter) {
     if (filter['excludeValue'] == 'exclure') {
       this.dataSource.data.forEach(element => {
-        if (this.isFiltered(element[this.displayedColumns[1]],filter['type'],filter['min'],filter['max'])) {
-          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]) ; 
+        if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max'])) {
+          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]);
         }
       });
     } else if (filter['excludeValue'] == 'inclure') {
       this.dataSource.data.forEach(element => {
-        if (this.isFiltered(element[this.displayedColumns[1]],filter['type'],filter['min'],filter['max'])) {
-          let index =  this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.findIndex(element[this.displayedColumns[1]]) ;
-          if(index != -1){
-            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index,1) ; 
+        if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max'])) {
+          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.findIndex(element[this.displayedColumns[1]]);
+          if (index != -1) {
+            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
           }
         }
       });
     } else if (filter['excludeValue'] == "n'inclure que") {
       this.dataSource.data.forEach(element => {
-        if (this.isFiltered(element[this.displayedColumns[1]],filter['type'],filter['min'],filter['max'])) {
-          let index =  this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.findIndex(element[this.displayedColumns[1]]) ;
-          if(index != -1){
-            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index,1) ; 
+        if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max'])) {
+          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.findIndex(element[this.displayedColumns[1]]);
+          if (index != -1) {
+            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
           }
         } else {
-          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]) ; 
+          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]);
         }
       });
     }

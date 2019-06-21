@@ -7,12 +7,12 @@
     <div class="Panel">
       <div class="matLabel">
         <mat-selection-list class="floating" #type>
-          <mat-list-option class="text_check" checkboxPosition="before" value="inf à">inf. à</mat-list-option>
-          <mat-list-option class="text_check" checkboxPosition="before" value="inf égal à">inf. égal à
+          <mat-list-option class="text_check" checkboxPosition="before" value="inf. à">inf. à</mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="inf. égal à">inf. égal à
           </mat-list-option>
           <mat-list-option class="text_check" checkboxPosition="before" value="égal">égal</mat-list-option>
-          <mat-list-option class="text_check" checkboxPosition="before" value="sup à">sup. à </mat-list-option>
-          <mat-list-option class="text_check" checkboxPosition="before" value="sup égal à">sup. égal à
+          <mat-list-option class="text_check" checkboxPosition="before" value="sup. à">sup. à </mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="sup. égal à">sup. égal à
           </mat-list-option>
         </mat-selection-list>
 
@@ -34,16 +34,15 @@
       </mat-checkbox>
 
       <mat-form-field>
-        <input type="Number" matInput #first_text>
+        <input type="Number" matInput [(ngModel)]="valueMin">
       </mat-form-field>
       et
       <mat-form-field>
-        <input type="Number" matInput #last_text>
+        <input type="Number" matInput [(ngModel)]="valueMax">
       </mat-form-field>
 
-      <div class="ban" *ngIf="isString">
-
-        <mat-radio-group aria-label="Select an option" #excludeOption>
+      <div class="ban" *ngIf="isTri">
+        <mat-radio-group [(ngModel)]="excludeOption" aria-label="Select an option" >
           <mat-radio-button value="exclure" class="exclure">exclure </mat-radio-button>
           <mat-radio-button value="inclure"> inclure</mat-radio-button>
           <mat-radio-button value="n'inclure que"> n'inclure que</mat-radio-button>

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Inject, Output, EventEmitter, ViewChild, Input } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSelectionList, MatSelectionListChange, MatCheckbox, MatRadioGroup } from '@angular/material';
 import { Filter } from 'src/app/models/Filter';
@@ -16,7 +16,7 @@ export class ModalDataManipulationComponent implements OnInit {
 
   @ViewChild('type', { static: true }) type: MatSelectionList;
   @ViewChild('compris', { static: true }) compris: MatCheckbox;
-  @ViewChild('excludeOption', {static: false}) excludeOption: MatRadioGroup ; 
+  excludeOption: string ; 
 
   valueSolo;
   valueMin;
@@ -40,17 +40,17 @@ export class ModalDataManipulationComponent implements OnInit {
   }
 
   onSave() {
-    let newFilter: Filter;
+    let newFilter: Filter = new Filter() ;
     if (this.type.selectedOptions.selected.length > 0 && this.valueSolo != undefined) {
       newFilter['type'] = this.type.selectedOptions.selected[0].value;
-      if (!this.isTri && this.isFiltered(this.valueSolo)) {
+      if (!this.isTri && this.isFiltered(this.valueSolo,newFilter['type'])) {
         return;
       }
       newFilter['min'] = this.valueSolo;
       newFilter['name'] = this.createName(newFilter['type'], newFilter['min']);
     } else if (this.compris.checked && this.valueMin != undefined && this.valueMax != undefined) {
       newFilter['type'] = 'compris';
-      if (!this.isTri && (this.isFiltered(this.valueMin) || this.isFiltered(this.valueMax))) {
+      if (!this.isTri && (this.isFiltered(this.valueMin,newFilter['type']) || this.isFiltered(this.valueMax,newFilter['type']))) {
         return;
       }
       newFilter['min'] = this.valueMin;
@@ -60,8 +60,12 @@ export class ModalDataManipulationComponent implements OnInit {
       return;
     }
     if(this.isTri){
-      newFilter['excludeValue'] = this.excludeOption.selected.value ; 
+      if(newFilter['excludeValue'] == undefined){
+        return ; 
+      }
+      newFilter['excludeValue'] = this.excludeOption ; 
     } 
+    newFilter['actif'] = true ; 
     this.addFilter.emit(newFilter) ; 
   }
 
@@ -69,7 +73,7 @@ export class ModalDataManipulationComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  isFiltered(value) {
+  isFiltered(value,type) {
     let bool: boolean = false;
     this.filters.forEach(filter => {
       if (!bool) {
@@ -84,13 +88,34 @@ export class ModalDataManipulationComponent implements OnInit {
             bool = (value == filter.min);
             break;
           case ('sup. à'):
-            bool = (value > filter.min);
+            bool = (value > filter.min );
             break;
           case ('sup. égal à'):
-            bool = (value >= filter.min);
+            bool = (value > filter.min);
             break;
           case ('compris'):
-            bool = ((value >= filter.min) || (value <= filter.max));
+            bool = ((value >= filter.min) && (value <= filter.max));
+            break;
+        }
+      } else {
+        return ; 
+      }
+      if(!bool){
+        switch(type){
+          case ('inf. à'):
+            bool = (value > filter.min);
+            break;
+          case ('inf. égal à'):
+            bool = (value >= filter.min);
+            break;
+          case ('égal'):
+            bool = (value == filter.min);
+            break;
+          case ('sup. à'):
+            bool = (filter.min > value );
+            break;
+          case ('sup. égal à'):
+            bool = (filter.min >= value);
             break;
         }
       } else {

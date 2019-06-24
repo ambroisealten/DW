@@ -6,7 +6,6 @@ import { ViewService } from './services/viewService';
 import {SelectionModel} from '@angular/cdk/collections';
 import {MatTableDataSource} from '@angular/material/table';
 import {environment} from 'src/environments/environment';
-import { DataSet } from './models/dataSet';
 
 export interface PeriodicElement {
   name: string;
@@ -121,20 +120,20 @@ export class AppComponent implements OnInit {
     ev.preventDefault();
   }
 
-  parseTemplateDiv(){
+  parseTemplateDiv(idNumber : string){
     let container = document.getElementById('templates');
     let test = container.firstChild;
-    while(test.nodeName != "TEMPLATE"){
+    while(test.nodeName != "TEMPLATE" && test.id != idNumber){
       test = test.nextSibling;
     }
     return test;
   }
-
+  
   diviseChartsSegment() {
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 
-    this.containerRepeat += 1;
+      this.containerRepeat += 1;
 
     if (this.containerRepeat > 2) {
       const newDivForChart = document.createElement('div');
@@ -142,22 +141,20 @@ export class AppComponent implements OnInit {
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
       
-      const template = this.parseTemplateDiv();
+      const template = this.parseTemplateDiv(this.containerRepeat.toString());
       newDivForChart.appendChild(template);
 
       chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
 
-      if (this.containerRepeat == 3) {
-        this.resizeAllCharts();
-      }
+      this.resizeAllCharts();
     }
     else {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'charts');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
-      const template = this.parseTemplateDiv();
+      const template = this.parseTemplateDiv(this.containerRepeat.toString());
       newDivForChart.appendChild(template);
 
 
@@ -166,6 +163,7 @@ export class AppComponent implements OnInit {
 
       this.resizeAllCanvas();
     }
+    
   }
 
   resizeAllCharts() {

@@ -18,10 +18,33 @@
   right: 3.7vw;
 }
 
+.closeWrapper{
+  position: absolute;
+  top: .5vh;
+  right: 7vw;
+}
+
 .fab {
   z-index: 100;
   position: fixed;
 }
+
+.closeIcon{
+  z-index: 100;
+  position: fixed;
+  border-radius: 50px;
+  height: 0;
+  visibility: hidden;
+  transition: linear .3s;
+}
+
+.closeIcon:hover, .fabWrapper:hover + .closeWrapper .closeIcon {
+  background-color: rgb(0, 255, 255);
+  visibility: visible;
+  height: inherit;
+  filter: invert(100%);
+}
+
 
 .fab-action-button {
   transition: linear 0.3s;

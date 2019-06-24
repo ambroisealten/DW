@@ -1,5 +1,8 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { Chart } from 'chart.js';
+import { DataService } from 'src/app/services/dataService';
+import { DataScheme } from 'src/app/models/dataScheme';
+import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-chart-view',
@@ -17,7 +20,7 @@ export class ChartViewComponent implements OnInit {
   allColors = ["blue","red","green","yellow","pink","cyan","orange","white","salmon","grey"];
 
   data: any[] = [];
-
+  
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   public context: CanvasRenderingContext2D;
 
@@ -27,14 +30,31 @@ export class ChartViewComponent implements OnInit {
 
   isTabView: boolean = true;
 
+  spans = [];
+
+  viewService: ViewService;
   @Input() instanceNumber: number;
   @Input() droppedText: string;
+  @Input() displayedColumns : string[];
+  @Input() dataSource: any[] = [];
+
+  datas: DataScheme[] = [];
+
+  previousIndex: number;
 
   constructor() {
   }
 
   ngOnInit() {
     this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
+
+    // this.setDisplayedColumns();
+    this.multipleSort();
+    this.dataSource = this.datas;
+    this.spans = [];
+    for (let i = 0; i < this.displayedColumns.length; i++) {
+      this.cacheSpan(this.displayedColumns[i], i + 1);
+    } 
   }
 
   ngAfterViewInit() {
@@ -70,7 +90,96 @@ export class ChartViewComponent implements OnInit {
     const data = ev.dataTransfer.getData('data');
     const colName = ev.dataTransfer.getData('colName');
 
+    this.displayedColumns.push(colName);
+    
+    // this.setDisplayedColumns();
+    this.multipleSort();
+    this.dataSource = this.datas;
+    this.spans = [];
+    for (let i = 0; i < this.displayedColumns.length; i++) {
+      this.cacheSpan(this.displayedColumns[i], i + 1);
+    }  
+
     ev.preventDefault();
+  }
+
+  /**
+   * Evaluated and store an evaluation of the rowspan for each row.
+   * The key determines the column it affects, and the accessor determines the
+   * value that should be checked for spanning.
+   */
+  cacheSpan(key, accessor) {
+    for (let i = 0; i < this.datas.length;) {
+      let currentValue = "";
+      for (let k = 0; k < accessor; k++) {
+        currentValue += this.transform(this.datas[i][this.displayedColumns[k]], this.displayedColumns[k]);
+      }
+      let count = 1;
+
+      // Iterate through the remaining rows to see how many match
+      // the current value as retrieved through the accessor.
+      for (let j = i + 1; j < this.datas.length; j++) {
+        let checkedValue = "";
+        for (let h = 0; h < accessor; h++) {
+          checkedValue += this.transform(this.datas[j][this.displayedColumns[h]], this.displayedColumns[h]);
+        }
+        if (currentValue != checkedValue) {
+          break;
+        }
+
+        count++;
+      }
+
+      if (!this.spans[i]) {
+        this.spans[i] = {};
+      }
+
+      // Store the number of similar values that were found (the span)
+      // and skip i to the next unique row.
+      this.spans[i][key] = count;
+      i += count;
+    }
+  }
+
+  dragStarted(event: CdkDragStart, index: number) {
+    this.previousIndex = index;
+  }
+
+  dropListDropped(event: CdkDropList, index: number) {
+    if (event) {
+      moveItemInArray(this.displayedColumns, this.previousIndex, index);
+      this.multipleSort();
+      this.dataSource = this.datas;
+      this.spans = [];
+      for (let i = 0; i < this.displayedColumns.length; i++) {
+        this.cacheSpan(this.displayedColumns[i], i + 1);
+      } 
+    }
+  }
+  
+  multipleSort() {
+    this.datas.sort((a, b) => {
+      for (let i = 0; i < this.displayedColumns.length; i++) {
+        if (this.transform(a[this.displayedColumns[i]],this.displayedColumns[i]) !== this.transform(b[this.displayedColumns[i]],this.displayedColumns[i])) {
+          return a[this.displayedColumns[i]] > b[this.displayedColumns[i]] ? 1 : -1;
+        }
+      }
+    })
+  }
+
+  getRowSpan(col, index) {
+    return this.spans[index] && this.spans[index][col];
+  }
+
+  transform(data, column) {
+    this.filter.forEach(filter => {
+      if (column === filter.filterColumn) {
+        if (data >= filter.min && data <= filter.max) {
+          data = '[' + filter.min + '-' + filter.max + ']';
+        }
+      }
+    })
+    return data;
   }
 
   allowDrop(ev) {

@@ -54,9 +54,11 @@ export class AppComponent implements OnInit {
 
   constructor(
     private dataService: DataService,
+    private dataDetailService: DataService,
     private componentFactoryResolver: ComponentFactoryResolver) { }
 
-  datas: DataScheme[] = [];
+    datas: DataScheme[] = [];
+    datasDetails: DataScheme[] = [];
 
   ngOnInit() {
     this.dataService.fetchDataScheme().subscribe((response: string) => {
@@ -66,13 +68,22 @@ export class AppComponent implements OnInit {
         this.datas.push(element as DataScheme);
       });
     });
+    this.dataDetailService.getData().subscribe((response: string) => {
+      console.log(response);
+      const datasFetched = JSON.parse(JSON.stringify(response));
+      datasFetched.forEach(element => {
+        this.datasDetails.push(element);
+      });
+    });
   }
 
 
   onDragField(ev, field: string) {
-    ev.dataTransfer.setData('data', this.dataService.fetchData(field));
     ev.dataTransfer.setData('colName', field);
+    ev.dataTransfer.setData('colNameDetail', field);
   }
+
+
 
   onDrop(ev) {
 

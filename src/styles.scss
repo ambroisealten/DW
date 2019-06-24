@@ -13,11 +13,9 @@ header {
   background-color: #353535;
   color: lightgrey;
   width: 100%;
-  position: fixed;
   max-height: 5vh;
   top: 0;
   padding-left: 1%;
-  margin-bottom: 5%;
 }
 
 header img {
@@ -97,7 +95,6 @@ figcaption {
 }
 
 main {
-  padding-top: 3%;
   position: absolute;
   display: grid;
   grid-template-columns: 1.5fr 6fr 1.5fr;

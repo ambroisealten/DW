@@ -26,12 +26,12 @@
 
 .fab {
   z-index: 100;
-  position: fixed;
+  position: absolute;
 }
 
 .closeIcon{
   z-index: 100;
-  position: fixed;
+  position: absolute;
   border-radius: 80px;
   height: 0;
   visibility: hidden;

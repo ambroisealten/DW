@@ -56,7 +56,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
 
-    // this.setDisplayedColumns();
     this.multipleSort();
     this.dataSource = this.datas;
     this.spans = [];

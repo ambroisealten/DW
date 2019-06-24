@@ -1,6 +1,8 @@
 .paramview {
   color: white;
-  position: static;
+  //direction: rtl;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .accordion-headers-align .mat-expansion-panel-header-title {

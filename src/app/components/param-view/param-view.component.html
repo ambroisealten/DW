@@ -1,4 +1,4 @@
-<mat-select class="select" [(value)]="column" (selectionChange)="changeColumn()">
+<mat-select class="select_param" [(value)]="column" (selectionChange)="changeColumn()">
   <mat-option *ngFor="let column of columns" [value]="column">
     {{column}}
   </mat-option>

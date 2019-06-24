@@ -1,9 +1,14 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-
+import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
+import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { DataService } from './services/dataService';
 import { ViewService } from './services/viewService';
+
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { ModalDataManipulationComponent } from './components/modal/modal-data-manipulation/modal-data-manipulation.component';
 import { ParamViewComponent } from './components/param-view/param-view.component';
@@ -12,7 +17,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ModalStringManipulationComponent } from './components/modal/modal-string-manipulation/modal-string-manipulation.component';
 import { FormsModule } from '@angular/forms';
-
 
 @NgModule({
   declarations: [
@@ -38,6 +42,11 @@ import { FormsModule } from '@angular/forms';
     MatRadioModule,
     MatInputModule,
     FormsModule
+    HttpClientModule,
+    MatExpansionModule,
+    BrowserModule,
+    BrowserAnimationsModule,
+    MatButtonModule
   ],
   providers: [
     DataService,

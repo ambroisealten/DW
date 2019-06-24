@@ -1,0 +1,40 @@
+.container {
+  position: relative;
+}
+
+.tasks {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  width: 5%;
+  margin-right: 10%;
+  top: 1vh;
+  right: 5vh;
+  position: absolute;
+}
+
+.fabWrapper {
+  position: absolute;
+  top: 0;
+  right: 3.7vw;
+}
+
+.fab {
+  z-index: 100;
+  position: fixed;
+}
+
+.fab-action-button {
+  transition: linear 0.3s;
+}
+
+.fab:hover .fab-action-button {
+  background-color: lightgrey;
+}
+
+.fab-action-button_icon{
+  transition: linear 0.3s;
+}
+
+.fab:hover .fab-action-button_icon {
+  transform: rotate(-180deg);
+}

@@ -1,13 +1,57 @@
-<h4>Nouveau tableau</h4>
-<table>
-  <tr>
-    <th>
-      Données
-    </th>
-  </tr>
-  <tr *ngFor="let element of viewService.dataSet.split(',')">
-    <td>
-      {{element}}
-    </td>
-  </tr>
-</table>
+<div class="container" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
+  <ng-container *ngIf="isTabView">
+    <table>
+      <ng-container *ngFor="let dataset of data">
+        <tr>
+          <th>
+            {{ dataset.name }}
+          </th>
+        </tr>
+        <tr *ngFor="let value of dataset.vls">
+          <td>
+            {{value}}
+          </td>
+        </tr>
+      </ng-container>
+    </table>
+  </ng-container>
+  <div>
+    <canvas #myCanvas width="0" height="0">
+      {{chart}}
+    </canvas>
+  </div>
+  <div class="fabWrapper">
+    <div class="fab">
+      <span class="fab-action-button">
+        <i class="fab-action-button_icon icon-material_renew"></i>
+      </span>
+      <ul class="fab-buttons">
+        <li class="fab-buttons__item">
+          <a (click)="changeChartView('pie')" href="#" class="fab-buttons__link" data-tooltip="Pie">
+            <i class="icon-material icon-material_pie"></i>
+          </a>
+        </li>
+        <li class="fab-buttons__item">
+          <a (click)="changeChartView('doughnut')" href="#" class="fab-buttons__link" data-tooltip="Doughnut">
+            <i class="icon-material icon-material_doughnut"></i>
+          </a>
+        </li>
+        <li class="fab-buttons__item">
+          <a (click)="changeChartView('bar')" href="#" class="fab-buttons__link" data-tooltip="Bar">
+            <i class="icon-material icon-material_bar"></i>
+          </a>
+        </li>
+        <li class="fab-buttons__item">
+          <a (click)="changeChartView('line')" href="#" class="fab-buttons__link" data-tooltip="Line">
+            <i class="icon-material icon-material_line"></i>
+          </a>
+        </li>
+        <li class="fab-buttons__item">
+          <a (click)="changeChartView('tab')" href="#" class="fab-buttons__link" data-tooltip="Tab">
+            <i class="icon-material icon-material_tab"></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

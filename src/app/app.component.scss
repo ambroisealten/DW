@@ -2,3 +2,44 @@
     color: white;
     position: static;
 }
+
+.accordion-headers-align .mat-expansion-panel-header-title {
+  flex-basis: 0;
+  color: ivory;
+}
+
+main-expansion-panel {
+  width: 100%;
+}
+
+.mat-expansion-panel-header,
+.mat-expansion-panel-body {
+  padding-right: 5px;
+  padding-left: 10px;
+}
+
+main nav {
+  direction: rtl;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.data {
+  direction: ltr;
+}
+
+.field {
+  margin-left: 7%;
+  margin-right: 50px;
+}
+
+h4 {
+  font-size: 0.85em;
+}
+
+.fab {
+  position: fixed;
+  right: 20%;
+  bottom: 15px;
+}

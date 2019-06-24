@@ -93,7 +93,7 @@ export class AppComponent implements OnInit {
     if (target.className == 'charts' || target.className == 'chartsFour') {
       const instanceNumber = parseInt(target.id, 10);
 
-      let entryUsed = this.entries.toArray()[target.id - 1];
+      const entryUsed = this.entries.toArray()[target.id - 1];
 
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
@@ -102,14 +102,18 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
       this.componentRef.instance.droppedText = fieldName;
 
+      this.componentRef.instance.displayedColumns = [fieldName];
+      this.componentRef.instance.datas = this.datasDetails;
+
+      this.componentRef.instance.viewService.dataSet = new DataSet(fieldName, data);
+
       this.componentRef.instance.recheckValues();
 
       this.allComponentRefs.push(this.componentRef);
 
       if (this.containerRepeat > 2) {
         target.setAttribute('class', 'chartContainedFour');
-      }
-      else {
+      } else {
         target.setAttribute('class', 'chartContained');
       }
 
@@ -121,10 +125,10 @@ export class AppComponent implements OnInit {
     ev.preventDefault();
   }
 
-  parseTemplateDiv(){
-    let container = document.getElementById('templates');
+  parseTemplateDiv() {
+    const container = document.getElementById('templates');
     let test = container.firstChild;
-    while(test.nodeName != "TEMPLATE"){
+    while(test.nodeName != 'TEMPLATE') {
       test = test.nextSibling;
     }
     return test;
@@ -151,8 +155,7 @@ export class AppComponent implements OnInit {
       if (this.containerRepeat == 3) {
         this.resizeAllCharts();
       }
-    }
-    else {
+    } else {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'charts');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
@@ -183,8 +186,7 @@ export class AppComponent implements OnInit {
           this.allComponentRefs.map(componentRef => {
             componentRef.instance.recheckValues();
           });
-        }
-        else if (this.containerRepeat == 3) {
+        } else if (this.containerRepeat == 3) {
           this.allComponentRefs.map(componentRef => {
             componentRef.instance.recheckValues();
           });

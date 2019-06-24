@@ -42,8 +42,8 @@ export class ModalStringManipulationComponent implements OnInit {
   }
 
   clicked(element) {
-    this.dataSources.data.push(element)
-    this.dataSources.data.sort((e1, e2) => e1 > e2 ? 1 : -1);
+    this.dataSources.data.push(element) ; 
+    this.dataSources.data = this.dataSources.data.sort((e1,e2) => e1 > e2 ? 1 : -1) ;
     this.dataSources = new MatTableDataSource<any>(this.dataSources.data)
     let index = this.dataSource.data.indexOf(element);
     this.dataSource.data.splice(index, 1);
@@ -53,7 +53,14 @@ export class ModalStringManipulationComponent implements OnInit {
 
   onSave() {
     let newFilter: Filter = new Filter() ; 
-    newFilter.listElem = this.dataSources.data ; 
+    newFilter['listElem'] = [] ; 
+    this.dataSources.data.forEach(element => {
+      newFilter['listElem'].push(element[this.displayedColumnsright[0]]) ;
+    })
+    if(newFilter['listElem'].length == 0){
+      return ; 
+    }
+    newFilter['name'] = this.createName(newFilter['listElem']) ; 
     newFilter.actif = true ; 
     if(this.isTri){
       if(this.excludeOption == undefined){
@@ -63,8 +70,16 @@ export class ModalStringManipulationComponent implements OnInit {
     } else {
       this.dataSources = new MatTableDataSource() ; 
     }
-    console.log(newFilter)
     this.addFilter.emit(newFilter);
+  }
+
+  createName(listElem: string[]):string{
+    let name = "[" ; 
+    for(let i = 0 ; i < listElem.length-1 ; i++){
+      name += listElem[i] + ","
+    }
+    name += listElem[listElem.length-1] + "]" ; 
+    return name ; 
   }
 
   delete(element) {

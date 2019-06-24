@@ -301,14 +301,20 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
     dialogConfig.data = {
       bool: istri,
-      data: this.dataSource,
+      data: this.filteredDataSource(),
       displayedColumns: [this.displayedColumns[1]]
     }
 
     let dialogRef = this.dialog.open(ModalStringManipulationComponent, dialogConfig);
-    const sub = dialogRef.componentInstance.addFilter.subscribe(data => {
-      this.dataSourceGpmt.data = data
-      this.dataSourceGpmt = new MatTableDataSource<any>(this.dataSourceGpmt.data)
+    const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
+      console.log(newFilter)
+      if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
+        this.excludeOrIncludeFromFilterString(newFilter);
+      } else {
+        this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.push(newFilter);
+        this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
+        this.toggleFilterGpmt();
+      }
     });
 
     dialogRef.afterClosed().subscribe(() => {
@@ -372,4 +378,55 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     }
     return bool;
   }
+
+  excludeOrIncludeFromFilterString(filter) {
+    if(filter['excludeValue'] == 'exclure'){
+      this.dataSource.data.forEach(element => {
+        if(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1 && filter['listElem'].includes(element[this.displayedColumns[1]])){
+          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]);
+        }
+      }); 
+    } else if (filter['excludeValue'] == 'inclure') {
+      this.dataSource.data.forEach(element => {
+        if(filter['listElem'].includes(element[this.displayedColumns[1]])){
+          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]]);
+          if(index != -1){
+            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index,1) ;
+          }
+        }
+      }); 
+    }else if (filter['excludeValue'] == "n'inclure que") { 
+      this.dataSource.data.forEach(element => {
+        if(filter['listElem'].includes(element[this.displayedColumns[1]])){
+          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]]);
+          if(index != -1){
+            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index,1) ;
+          }
+        } else if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1 ){
+          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]);
+        }
+      }); 
+    }
+    this.toggleFilter() ; 
+  }
+
+  filteredDataSource(){
+    if(this.isTri() || this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.length == 0){
+      return this.dataSource ; 
+    } 
+    let dialogDataSource = new MatTableDataSource() ; 
+    this.dataSource.data.forEach(data => {
+      let bool = false ; 
+      this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => {
+        if(filter.actif && !filter.listElem.includes(data[this.displayedColumns[1]])){
+          bool = true ; 
+        }
+      })
+      if(bool){
+        dialogDataSource.data.push(data) ;
+      }
+    })
+    return dialogDataSource ; 
+  }
+
 }

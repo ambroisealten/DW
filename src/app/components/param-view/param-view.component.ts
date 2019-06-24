@@ -65,7 +65,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.toggleFilter();
     this.dataSource.data.sort((e1, e2) => e1[this.displayedColumns[1]] > e2[this.displayedColumns[1]] ? 1 : -1);
-    this.parentObs.subscribe(dataParent => this.handleDataFromParent(dataParent)) ; 
+    this.parentSub = this.parentObs.subscribe(dataParent => this.handleDataFromParent(dataParent)) ; 
   }
 
   ngOnDestroy() {

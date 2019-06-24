@@ -12,8 +12,8 @@
         </ng-container>
       </tr>
     
-      <ng-container *ngFor="let data of datas; let j = index">
-      <!-- <ng-container *ngFor="let data of dataSource; let j = index"> -->
+      <!-- <ng-container *ngFor="let data of datas; let j = index"> -->
+      <ng-container *ngFor="let data of dataSource; let j = index">
         <tr>
           <ng-container *ngFor="let column of displayedColumns ; let i = index">
             <ng-container *ngIf="getRowSpan(column,j)">

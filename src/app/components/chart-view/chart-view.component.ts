@@ -38,7 +38,6 @@ export class ChartViewComponent implements OnInit {
   @Input() displayedColumns : string[];
   @Input() dataSource: any[] = [];
 
-  columns: any[] = [];
   datas: DataScheme[] = [];
 
   previousIndex: number;
@@ -52,19 +51,14 @@ export class ChartViewComponent implements OnInit {
 
   ngOnInit() {
     this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
-    // this.dataService.getData().subscribe((response: string) => {
-    //   console.log(response);
-    //   const datasFetched = JSON.parse(JSON.stringify(response));
-    //   datasFetched.forEach(element => {
-    //     this.datas.push(element);
-    //   });
-    // });
-        
+
+    // this.setDisplayedColumns();
+    this.multipleSort();
+    this.dataSource = this.datas;
+    this.spans = [];
     for (let i = 0; i < this.displayedColumns.length; i++) {
       this.cacheSpan(this.displayedColumns[i], i + 1);
-    }
-
-    this.setDisplayedColumns();
+    } 
   }
 
   ngAfterViewInit() {
@@ -101,10 +95,7 @@ export class ChartViewComponent implements OnInit {
 
     this.displayedColumns.push(colName);
     
-    console.log("DATAS §§§§§§§§§§§§§§     ");
-    console.log(this.dataSource);
-    
-    this.setDisplayedColumns();
+    // this.setDisplayedColumns();
     this.multipleSort();
     this.dataSource = this.datas;
     this.spans = [];
@@ -154,15 +145,12 @@ export class ChartViewComponent implements OnInit {
   }
 
   dragStarted(event: CdkDragStart, index: number) {
-    console.log("DRAGSTARTED §§§§§§§§§§§§§§     ");
     this.previousIndex = index;
   }
 
   dropListDropped(event: CdkDropList, index: number) {
-    console.log("DROPLISTDROPPED §§§§§§§§§§§§§§     ");
     if (event) {
-      moveItemInArray(this.columns, this.previousIndex, index);
-      this.setDisplayedColumns();
+      moveItemInArray(this.displayedColumns, this.previousIndex, index);
       this.multipleSort();
       this.dataSource = this.datas;
       this.spans = [];
@@ -184,13 +172,6 @@ export class ChartViewComponent implements OnInit {
 
   getRowSpan(col, index) {
     return this.spans[index] && this.spans[index][col];
-  }
-
-  setDisplayedColumns() {
-    this.columns.forEach((colunm, index) => {
-      colunm.index = index;
-      this.displayedColumns[index] = colunm.name;
-    });
   }
 
   transform(data, column) {

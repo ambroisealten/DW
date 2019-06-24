@@ -53,3 +53,10 @@ h4 {
   right: 20%;
   bottom: 15px;
 }
+
+.right_panel {
+  width: 97%;
+  height: 80vh !important;
+  max-height: 80vh !important;
+  overflow-y: auto;
+}

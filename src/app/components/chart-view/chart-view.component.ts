@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Chart } from 'chart.js';
 import { Observable } from 'rxjs';
 
@@ -9,13 +9,16 @@ import { Observable } from 'rxjs';
 })
 export class ChartViewComponent implements OnInit, OnDestroy {
 
+  //Data binding to Parent
+  @Output() public toParent: EventEmitter<string> = new EventEmitter();
+
   canvasWidth: number = 0;
   canvasHeight: number = 0;
   canvasFontSize: number;
 
   currentType: string = "tab";
 
-  allColors = ["blue","red","green","yellow","pink","cyan","orange","white","salmon","grey"];
+  allColors = ["blue", "red", "green", "yellow", "pink", "cyan", "orange", "white", "salmon", "grey"];
 
   data: any[] = [];
 
@@ -32,19 +35,19 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   @Input() droppedText: string;
 
   //Observable parents
-  @Input() parentObs: Observable<any> ; 
-  parentSub ;
+  @Input() parentObs: Observable<any>;
+  parentSub;
 
   constructor() {
   }
 
   ngOnInit() {
     this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
-  } 
+  }
 
-  ngOnDestroy(){
-    if(this.parentSub != undefined){
-      this.parentSub.unsubscribe() ;
+  ngOnDestroy() {
+    if (this.parentSub != undefined) {
+      this.parentSub.unsubscribe();
     }
   }
 
@@ -64,15 +67,21 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   recheckValues() {
+
     if (this.currentType != "tab") {
-      this.parentSub = this.parentObs.subscribe(data => this.handleData(data)) ; 
       this.resetChartView();
       this.resetCanvasHeightAndWidth();
       this.modifyChartView(this.currentType);
     }
   }
 
-  resetCanvasHeightAndWidth(){
+  setSubscription() {
+    if (this.parentSub != undefined) {
+      this.parentSub = this.parentObs.subscribe(data => this.handleData(data));
+    }
+  }
+
+  resetCanvasHeightAndWidth() {
     this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetWidth - 150).toString();
     this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetHeight - 50).toString();
   }
@@ -130,8 +139,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
     let test = [];
     let inter = 0;
-    for(let i =0; i <labels.length; i++){
-      if(i%this.allColors.length == 0){
+    for (let i = 0; i < labels.length; i++) {
+      if (i % this.allColors.length == 0) {
         inter = 0;
       }
       test.push(this.allColors[inter]);
@@ -169,7 +178,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     if (this.chart instanceof Chart) this.chart.destroy();
   }
 
-  handleData(data){
+  handleData(data) {
 
   }
 

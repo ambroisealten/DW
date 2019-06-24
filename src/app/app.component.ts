@@ -104,8 +104,6 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.displayedColumns = [fieldName];
       this.componentRef.instance.datas = this.datasDetails;
 
-      this.componentRef.instance.viewService.dataSet = new DataSet(fieldName, data);
-
       this.componentRef.instance.recheckValues();
 
       this.allComponentRefs.push(this.componentRef);

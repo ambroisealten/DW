@@ -3,6 +3,7 @@ import { Chart } from 'chart.js';
 import { DataService } from 'src/app/services/dataService';
 import { DataScheme } from 'src/app/models/dataScheme';
 import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ViewService } from 'src/app/services/viewService';
 
 @Component({
   selector: 'app-chart-view',
@@ -42,13 +43,15 @@ export class ChartViewComponent implements OnInit {
 
   previousIndex: number;
 
-  constructor() {
+  filter: any[] = [];
+
+  constructor(private dataService: DataService) {
+    this.viewService = ViewService.getInstance(this.instanceNumber);
   }
 
   ngOnInit() {
     this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
 
-    // this.setDisplayedColumns();
     this.multipleSort();
     this.dataSource = this.datas;
     this.spans = [];

@@ -6,26 +6,7 @@ import { ModalDataManipulationComponent } from '../modal/modal-data-manipulation
 import { ModalStringManipulationComponent } from '../modal/modal-string-manipulation/modal-string-manipulation.component';
 import { FilterList } from 'src/app/models/Filter';
 import { Observable } from 'rxjs';
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
-];
+import { filter } from 'minimatch';
 
 @Component({
   selector: 'app-param-view',
@@ -45,10 +26,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   columns: string[] = ['position', 'name', 'weight', 'symbol'];
   column;
 
-  filterList: FilterList[] = [
-    { filterColumn: "name", filterType: "string", excludeValue: ["Hydrogen"], filters: [] },
-    { filterColumn: "weight", filterType: "number", excludeValue: ["4.0026"], filters: [] },
-  ];
+  filterList: FilterList[] = [];
 
   selectedIndex: string;
 
@@ -57,14 +35,12 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   dataSourceGpmt = new MatTableDataSource<any>();
 
   //Tri
-  dataSource = new MatTableDataSource<any>(ELEMENT_DATA);
+  dataSource = new MatTableDataSource<any>();
   selectionTri = new SelectionModel<any>(true, []);
 
   constructor(private dialog: MatDialog) { }
 
   ngOnInit() {
-    this.toggleFilter();
-    this.dataSource.data.sort((e1, e2) => e1[this.displayedColumns[1]] > e2[this.displayedColumns[1]] ? 1 : -1);
     this.parentSub = this.parentObs.subscribe(dataParent => this.handleDataFromParent(dataParent)) ; 
   }
 
@@ -106,6 +82,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => filter.actif = true)
       });
     }
+    this.sendFilterList() ; 
   }
 
   toggleFilterGpmt() {
@@ -137,6 +114,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     }
     row['actif'] = !row['actif'];
     this.toggleFilterGpmt();
+    this.sendFilterList() ; 
   }
 
   setDatasourceGpmt() {
@@ -233,6 +211,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue = [];
       });
     }
+    this.sendFilterList() ; 
   }
 
   toggleFilter() {
@@ -266,6 +245,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
     }
     this.selectionTri.toggle(row);
+    this.sendFilterList() ; 
   }
 
   /**************************************************************************************************\
@@ -275,8 +255,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   \**************************************************************************************************/
 
   whichDialog() {
-    let dataType = typeof (this.dataSource.data[0][this.displayedColumns[1]]);
-    switch (dataType) {
+    
+    switch (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filterType) {
       case ('number'):
         this.AddFilter(this.isTri());
         break;
@@ -307,7 +287,6 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
     let dialogRef = this.dialog.open(ModalDataManipulationComponent, dialogConfig);
     const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
-      console.log(newFilter)
       if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
         this.excludeOrIncludeFromFilter(newFilter);
       } else {
@@ -315,6 +294,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
         this.toggleFilterGpmt();
       }
+      this.sendFilterList() ; 
     });
     dialogRef.afterClosed().subscribe(() => {
       sub.unsubscribe();
@@ -345,6 +325,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
         this.toggleFilterGpmt();
       }
+      this.sendFilterList() ; 
     });
 
     dialogRef.afterClosed().subscribe(() => {
@@ -381,7 +362,6 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         }
       });
     }
-    console.log(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue)
     this.toggleFilter();
   }
 
@@ -469,6 +449,35 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   \**************************************************************************************************/
 
   handleDataFromParent(data){
-    console.log(data) ; 
+    this.columns = [] ; 
+    this.filterList = [] ; 
+    this.dataSource = new MatTableDataSource() ; 
+    data.fields.forEach(element => {
+      this.columns.push(element.name) ; 
+      let filter = new FilterList() ; 
+      filter.filterColumn = element.name ; 
+      filter.excludeValue = [] ; 
+      filter.filters = [] ; 
+      if(this.isNumber(element.type)){ 
+        filter.filterType = "number"
+      } else if(element.type == "String") {
+        filter.filterType = "string"
+      } else {
+        filter.filterType = element.type ; 
+      }
+      this.filterList.push(filter) ; 
+    }); 
+    this.column = this.filterList[0].filterColumn ; 
+    this.changeColumn() ;  
+    this.sendFilterList() ;
+  }
+
+  isNumber(type): boolean{
+    let numberElement = ["Long","Double","Integer"]
+    return numberElement.includes(type) ;
+  }
+
+  sendFilterList(){
+    this.messageEvent.emit(this.filterList) ;
   }
 }

@@ -56,6 +56,9 @@ export class AppComponent implements OnInit {
 
   componentRef: any;
   datas: DataScheme[] = [];
+  datasDetails: DataScheme[] = [];
+
+  activeInstance: number ; 
 
   constructor(
     private dataService: DataService,
@@ -64,14 +67,12 @@ export class AppComponent implements OnInit {
     this.obsRightPanel = this.subjectRightPanel.asObservable();
   }
 
-    datasDetails: DataScheme[] = [];
-
   ngOnInit() {
     this.dataService.fetchDataScheme().subscribe(response => {
       (response as any[]).forEach(element => {
         let fields = [] ; 
         Object.keys(element.fields).forEach(field => {
-          fields.push({name: field, type: element[field]}); 
+          fields.push({name: field, type: element.fields[field]}); 
         })
         fields.sort((e1,e2) => e1.name > e2.name ? 1 : -1) ;
         this.datas.push({name: element.name, fields: fields});
@@ -86,7 +87,7 @@ export class AppComponent implements OnInit {
   }
 
 
-  onDragField(ev, field: string) {
+  onDragField(ev, field: string,name) {
     ev.dataTransfer.setData('colName', field);
     ev.dataTransfer.setData('colNameDetail', field);
     ev.dataTransfer.setData('tableName', name);
@@ -108,9 +109,9 @@ export class AppComponent implements OnInit {
       this.componentRef = entryUsed.createComponent(componentFactory);
 
       this.componentRef.instance.instanceNumber = instanceNumber;
+      this.activeInstance = instanceNumber ;
       this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
       this.componentRef.instance.droppedText = fieldName;
-      this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
 
       this.componentRef.instance.displayedColumns = [fieldName];
       this.componentRef.instance.datas = this.datasDetails;
@@ -122,7 +123,10 @@ export class AppComponent implements OnInit {
       //Observable
       let sub = new Subject<any>();
       this.componentRef.instance.parentObs = sub.asObservable();
-      this.allComponentsObs[instanceNumber] = sub;
+      this.componentRef.instance.setSubscription() ; 
+      this.allComponentsObs.push(sub);
+      
+      this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
 
       this.componentRef.instance.recheckValues();
 
@@ -143,7 +147,7 @@ export class AppComponent implements OnInit {
   }
 
   messageReceiveFromRightPanel($event) {
-
+    this.allComponentsObs[this.activeInstance-1].next($event) ; 
   }
 
   allowDrop(ev) {

@@ -4,6 +4,8 @@ import { DataService } from 'src/app/services/dataService';
 import { DataScheme } from 'src/app/models/dataScheme';
 import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Observable } from 'rxjs';
+import { FilterList } from './filterClass';
+import { filter } from 'minimatch';
 
 @Component({
   selector: 'app-chart-view',
@@ -24,7 +26,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   allColors = ["blue", "red", "green", "yellow", "pink", "cyan", "orange", "white", "salmon", "grey"];
 
   data: any[] = [];
-  
+
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   public context: CanvasRenderingContext2D;
 
@@ -35,11 +37,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   isTabView: boolean = true;
 
   spans = [];
-  filter = [] ; 
-  
+  filters: FilterList[] = [];
+
   @Input() instanceNumber: number;
   @Input() droppedText: string;
-  @Input() displayedColumns : string[];
+  @Input() displayedColumns: string[];
   @Input() dataSource: any[] = [];
 
   datas: DataScheme[] = [];
@@ -61,7 +63,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.spans = [];
     for (let i = 0; i < this.displayedColumns.length; i++) {
       this.cacheSpan(this.displayedColumns[i], i + 1);
-    } 
+    }
   }
 
   ngOnDestroy() {
@@ -95,7 +97,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   setSubscription() {
-    if (this.parentSub != undefined) {
+    if (this.parentSub == undefined) {
       this.parentSub = this.parentObs.subscribe(data => this.handleData(data));
     }
   }
@@ -110,14 +112,14 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     const colName = ev.dataTransfer.getData('colName');
 
     this.displayedColumns.push(colName);
-    
+
     // this.setDisplayedColumns();
     this.multipleSort();
     this.dataSource = this.datas;
     this.spans = [];
     for (let i = 0; i < this.displayedColumns.length; i++) {
       this.cacheSpan(this.displayedColumns[i], i + 1);
-    }  
+    }
 
     ev.preventDefault();
   }
@@ -172,14 +174,14 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       this.spans = [];
       for (let i = 0; i < this.displayedColumns.length; i++) {
         this.cacheSpan(this.displayedColumns[i], i + 1);
-      } 
+      }
     }
   }
-  
+
   multipleSort() {
     this.datas.sort((a, b) => {
       for (let i = 0; i < this.displayedColumns.length; i++) {
-        if (this.transform(a[this.displayedColumns[i]],this.displayedColumns[i]) !== this.transform(b[this.displayedColumns[i]],this.displayedColumns[i])) {
+        if (this.transform(a[this.displayedColumns[i]], this.displayedColumns[i]) !== this.transform(b[this.displayedColumns[i]], this.displayedColumns[i])) {
           return a[this.displayedColumns[i]] > b[this.displayedColumns[i]] ? 1 : -1;
         }
       }
@@ -191,14 +193,59 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   transform(data, column) {
-    this.filter.forEach(filter => {
-      if (column === filter.filterColumn) {
-        if (data >= filter.min && data <= filter.max) {
-          data = '[' + filter.min + '-' + filter.max + ']';
+    let actualFilter: FilterList = this.filters.find(filter => filter.filterColumn == column)
+    let bool = false;
+    let name = "";
+    if (actualFilter != undefined) {
+      if (actualFilter['filterType'] == 'number') {
+        for(let i = 0 ; i < actualFilter.filters.length ; i++){
+          if (actualFilter.filters[i].actif && !bool) {
+            if (this.agregateNumber(data, actualFilter.filters[i])) {
+              name = actualFilter.filters[i]['name'];
+              break ; 
+            }
+          } 
+        }
+      } else if (actualFilter['filterType'] == "string") {
+        for(let i = 0 ; i < actualFilter.filters.length ; i++){
+          if (actualFilter.filters[i].actif && !bool) {
+            if (actualFilter.filters[i].listElem.includes(data)) {
+              name = actualFilter.filters[i]['name'];
+              break ; 
+            }
+          } 
         }
       }
-    })
+      if(name != ""){
+        return name ;
+      }
+    }
     return data;
+  }
+
+  agregateNumber(value, filter) {
+    let bool: boolean = false;
+    switch (filter.type) {
+      case ('inf. à'):
+        bool = (value < filter.min);
+        break;
+      case ('inf. égal à'):
+        bool = (value <= filter.min);
+        break;
+      case ('égal'):
+        bool = (value == filter.min);
+        break;
+      case ('sup. à'):
+        bool = (value > filter.min);
+        break;
+      case ('sup. égal à'):
+        bool = (value > filter.min);
+        break;
+      case ('compris'):
+        bool = ((value >= filter.min) && (value <= filter.max));
+        break;
+    }
+    return bool;
   }
 
   allowDrop(ev) {
@@ -302,18 +349,28 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
       divContainer.parentNode.removeChild(divContainer);
 
-      if(chartsLength == 2){
+      if (chartsLength == 2) {
         let mainContainer = document.getElementById("chartContainerDouble");
-        mainContainer.setAttribute('id','chartContainerSimple');
+        mainContainer.setAttribute('id', 'chartContainerSimple');
       }
     }
-    else{
+    else {
       console.log("You can't destroy your one and only chart !");
     }
   }
 
   handleData(data) {
+    this.filters = data;
+    this.multipleSort();
+    this.dataSource = this.datas;
+    this.spans = [];
+    for (let i = 0; i < this.displayedColumns.length; i++) {
+      this.cacheSpan(this.displayedColumns[i], i + 1);
+    }
+  }
 
+  isNotExclude(data, column) {
+    return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + "");
   }
 
 }

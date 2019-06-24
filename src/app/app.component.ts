@@ -68,9 +68,15 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.dataService.fetchDataScheme().subscribe(response => {
       (response as any[]).forEach(element => {
-        this.datas.push(element as DataScheme);
+        let fields = [] ; 
+        Object.keys(element.fields).forEach(field => {
+          fields.push({name: field, type: element[field]}); 
+        })
+        fields.sort((e1,e2) => e1.name > e2.name ? 1 : -1) ;
+        this.datas.push({name: element.name, fields: fields});
       });
     });
+
   }
 
 
@@ -227,8 +233,5 @@ export class AppComponent implements OnInit {
     });
   }
 
-  getField(field){
-    return Object.keys(field)[0]
-  }
 }
 

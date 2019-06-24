@@ -12,7 +12,7 @@
           </mat-expansion-panel-header>
           <hr size="1" color="lightgray">
           <h6 class="field" draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field,data.name)">
-            {{ getField(field) }}
+            {{ field.name }}
           </h6>
         </mat-expansion-panel>
       </mat-accordion>

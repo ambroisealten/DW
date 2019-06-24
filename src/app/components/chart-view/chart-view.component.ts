@@ -1,12 +1,13 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Chart } from 'chart.js';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-chart-view',
   templateUrl: './chart-view.component.html',
   styleUrls: ['./chart-view.component.scss']
 })
-export class ChartViewComponent implements OnInit {
+export class ChartViewComponent implements OnInit, OnDestroy {
 
   canvasWidth: number = 0;
   canvasHeight: number = 0;
@@ -30,11 +31,21 @@ export class ChartViewComponent implements OnInit {
   @Input() instanceNumber: number;
   @Input() droppedText: string;
 
+  //Observable parents
+  @Input() parentObs: Observable<any> ; 
+  parentSub ;
+
   constructor() {
   }
 
   ngOnInit() {
     this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
+  } 
+
+  ngOnDestroy(){
+    if(this.parentSub != undefined){
+      this.parentSub.unsubscribe() ;
+    }
   }
 
   ngAfterViewInit() {
@@ -54,8 +65,8 @@ export class ChartViewComponent implements OnInit {
 
   recheckValues() {
     if (this.currentType != "tab") {
+      this.parentSub = this.parentObs.subscribe(data => this.handleData(data)) ; 
       this.resetChartView();
-
       this.resetCanvasHeightAndWidth();
       this.modifyChartView(this.currentType);
     }
@@ -156,6 +167,10 @@ export class ChartViewComponent implements OnInit {
 
   resetChartView() {
     if (this.chart instanceof Chart) this.chart.destroy();
+  }
+
+  handleData(data){
+
   }
 
 }

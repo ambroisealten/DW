@@ -7,6 +7,7 @@ import {SelectionModel} from '@angular/cdk/collections';
 import {MatTableDataSource} from '@angular/material/table';
 import {environment} from 'src/environments/environment';
 import { DataSet } from './models/dataSet';
+import { Subject } from 'rxjs';
 
 export interface PeriodicElement {
   name: string;
@@ -47,7 +48,7 @@ export class AppComponent implements OnInit {
   @ViewChild('chart3Host', { read: ViewContainerRef, static: false }) entry3: ViewContainerRef;
   @ViewChild('chart4Host', { read: ViewContainerRef, static: false }) entry4: ViewContainerRef;
 
-
+  allComponentsObs: Subject<any>[] = [] ; 
   allComponentRefs: any[] = [];
 
   componentRef: any;
@@ -90,6 +91,11 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
       this.componentRef.instance.droppedText = fieldName;
+
+      //Observable
+      let sub = new Subject<any>() ; 
+      this.componentRef.instance.parentObs = sub.asObservable() ; 
+      this.allComponentsObs[instanceNumber] = sub ; 
 
       this.componentRef.instance.recheckValues();
 

@@ -11,8 +11,8 @@
             </mat-panel-title>
           </mat-expansion-panel-header>
           <hr size="1" color="lightgray">
-          <h6 class="field" draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field)">
-            {{ field }}
+          <h6 class="field" draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field.name,data.name)">
+            {{ field.name }}
           </h6>
         </mat-expansion-panel>
       </mat-accordion>
@@ -30,7 +30,7 @@
       </div>
   </div>
   <aside>
-    <app-param-view class="paramview"></app-param-view>    
+    <app-param-view [parentObs]="obsRightPanel" (messageEvent)="receiveMessage($event)" class="paramview"></app-param-view>    
   </aside>
 </main>
 <div id='templates'>

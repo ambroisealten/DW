@@ -1,15 +1,19 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Chart } from 'chart.js';
 import { DataService } from 'src/app/services/dataService';
 import { DataScheme } from 'src/app/models/dataScheme';
 import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-chart-view',
   templateUrl: './chart-view.component.html',
   styleUrls: ['./chart-view.component.scss']
 })
-export class ChartViewComponent implements OnInit {
+export class ChartViewComponent implements OnInit, OnDestroy {
+
+  //Data binding to Parent
+  @Output() public toParent: EventEmitter<string> = new EventEmitter();
 
   canvasWidth: number = 0;
   canvasHeight: number = 0;
@@ -31,8 +35,8 @@ export class ChartViewComponent implements OnInit {
   isTabView: boolean = true;
 
   spans = [];
-
-  viewService: ViewService;
+  filter = [] ; 
+  
   @Input() instanceNumber: number;
   @Input() droppedText: string;
   @Input() displayedColumns : string[];
@@ -41,6 +45,10 @@ export class ChartViewComponent implements OnInit {
   datas: DataScheme[] = [];
 
   previousIndex: number;
+
+  //Observable parents
+  @Input() parentObs: Observable<any>;
+  parentSub;
 
   constructor() {
   }
@@ -55,6 +63,12 @@ export class ChartViewComponent implements OnInit {
     for (let i = 0; i < this.displayedColumns.length; i++) {
       this.cacheSpan(this.displayedColumns[i], i + 1);
     } 
+  }
+
+  ngOnDestroy() {
+    if (this.parentSub != undefined) {
+      this.parentSub.unsubscribe();
+    }
   }
 
   ngAfterViewInit() {
@@ -73,11 +87,17 @@ export class ChartViewComponent implements OnInit {
   }
 
   recheckValues() {
+
     if (this.currentType != "tab") {
       this.resetChartView();
-
       this.resetCanvasHeightAndWidth();
       this.modifyChartView(this.currentType);
+    }
+  }
+
+  setSubscription() {
+    if (this.parentSub != undefined) {
+      this.parentSub = this.parentObs.subscribe(data => this.handleData(data));
     }
   }
 
@@ -291,6 +311,10 @@ export class ChartViewComponent implements OnInit {
     else{
       console.log("You can't destroy your one and only chart !");
     }
+  }
+
+  handleData(data) {
+
   }
 
 }

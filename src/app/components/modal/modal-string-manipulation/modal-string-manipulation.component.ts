@@ -43,7 +43,7 @@ export class ModalStringManipulationComponent implements OnInit {
 
   clicked(element) {
     this.dataSources.data.push(element) ; 
-    this.dataSources.data = this.dataSources.data.sort((e1,e2) => e1 > e2 ? 1 : -1) ;
+    this.dataSources.data.sort((e1,e2) => e1[this.displayedColumns[0]] > e2[this.displayedColumns[0]] ? 1 : -1) ;
     this.dataSources = new MatTableDataSource<any>(this.dataSources.data)
     let index = this.dataSource.data.indexOf(element);
     this.dataSource.data.splice(index, 1);
@@ -76,7 +76,7 @@ export class ModalStringManipulationComponent implements OnInit {
   createName(listElem: string[]):string{
     let name = "[" ; 
     for(let i = 0 ; i < listElem.length-1 ; i++){
-      name += listElem[i] + ","
+      name += listElem[i] + ", "
     }
     name += listElem[listElem.length-1] + "]" ; 
     return name ; 
@@ -84,7 +84,7 @@ export class ModalStringManipulationComponent implements OnInit {
 
   delete(element) {
     this.dataSource.data.push(element);
-    this.dataSource.data.sort((e1, e2) => e1 > e2 ? 1 : -1);
+    this.dataSource.data.sort((e1, e2) => e1[this.displayedColumns[0]] > e2[this.displayedColumns[0]] ? 1 : -1);
     this.dataSource = new MatTableDataSource<any>(this.dataSource.data)
     let index = this.dataSources.data.indexOf(element);
     this.dataSources.data.splice(index, 1);

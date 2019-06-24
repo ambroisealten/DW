@@ -58,6 +58,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.toggleFilter();
+    this.dataSource.data.sort((e1, e2) => e1[this.displayedColumns[1]] > e2[this.displayedColumns[1]] ? 1 : -1);
   }
 
   ngOnDestroy() {
@@ -102,7 +103,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       if (row['actif']) {
         this.selectionGpmt.select(row)
       } else {
-        this.selectionGpmt.deselect(row) ;
+        this.selectionGpmt.deselect(row);
       }
     });
   }
@@ -117,18 +118,22 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
   setActifInactif(row) {
     if (!row['actif']) {
-      this.checkConflictGpmt(row.min, row.type);
-      this.checkConflictGpmt(row.max, row.type);
+      if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filterType == "number") {
+        this.checkConflictGpmtNumber(row.min, row.type);
+        this.checkConflictGpmtNumber(row.max, row.type);
+      } else {
+        this.checkConflictGpmtString(row.listElem) ; 
+      }
     }
     row['actif'] = !row['actif'];
-    this.toggleFilterGpmt() ;
+    this.toggleFilterGpmt();
   }
 
   setDatasourceGpmt() {
     this.dataSourceGpmt = new MatTableDataSource<any>(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters)
   }
 
-  checkConflictGpmt(value, type) {
+  checkConflictGpmtNumber(value, type) {
     this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => {
       let bool = false;
       if (!bool) {
@@ -172,8 +177,23 @@ export class ParamViewComponent implements OnInit, OnDestroy {
             break;
         }
       }
-      if(bool)
-        filter['actif'] = false ;
+      if (bool)
+        filter['actif'] = false;
+    })
+  }
+
+  checkConflictGpmtString(listElem) {
+    this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filtre => {
+      let bool = false ; 
+      listElem.forEach(element => {
+        if(filtre.listElem.includes(element)){
+          bool = true ; 
+          return ;  
+        }
+      })
+      if(bool){
+        filtre.actif = false ; 
+      } 
     })
   }
 
@@ -307,7 +327,6 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
     let dialogRef = this.dialog.open(ModalStringManipulationComponent, dialogConfig);
     const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
-      console.log(newFilter)
       if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
         this.excludeOrIncludeFromFilterString(newFilter);
       } else {
@@ -380,53 +399,55 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   }
 
   excludeOrIncludeFromFilterString(filter) {
-    if(filter['excludeValue'] == 'exclure'){
+    if (filter['excludeValue'] == 'exclure') {
       this.dataSource.data.forEach(element => {
-        if(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1 && filter['listElem'].includes(element[this.displayedColumns[1]])){
+        if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1 && filter['listElem'].includes(element[this.displayedColumns[1]])) {
           this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]);
         }
-      }); 
+      });
     } else if (filter['excludeValue'] == 'inclure') {
       this.dataSource.data.forEach(element => {
-        if(filter['listElem'].includes(element[this.displayedColumns[1]])){
+        if (filter['listElem'].includes(element[this.displayedColumns[1]])) {
           let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]]);
-          if(index != -1){
-            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index,1) ;
+          if (index != -1) {
+            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
           }
         }
-      }); 
-    }else if (filter['excludeValue'] == "n'inclure que") { 
+      });
+    } else if (filter['excludeValue'] == "n'inclure que") {
       this.dataSource.data.forEach(element => {
-        if(filter['listElem'].includes(element[this.displayedColumns[1]])){
+        if (filter['listElem'].includes(element[this.displayedColumns[1]])) {
           let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]]);
-          if(index != -1){
-            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index,1) ;
+          if (index != -1) {
+            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
           }
-        } else if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1 ){
+        } else if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1) {
           this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]);
         }
-      }); 
+      });
     }
-    this.toggleFilter() ; 
+    this.toggleFilter();
   }
 
-  filteredDataSource(){
-    if(this.isTri() || this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.length == 0){
-      return this.dataSource ; 
-    } 
-    let dialogDataSource = new MatTableDataSource() ; 
+  filteredDataSource() {
+    if (this.isTri() || this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.length == 0) {
+      return this.dataSource;
+    }
+    let dialogDataSource = new MatTableDataSource();
+    let excludes: any[] = [] ; 
     this.dataSource.data.forEach(data => {
-      let bool = false ; 
       this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => {
-        if(filter.actif && !filter.listElem.includes(data[this.displayedColumns[1]])){
-          bool = true ; 
-        }
+        if (filter.actif && filter.listElem.includes(data[this.displayedColumns[1]])) {
+          excludes.push(data) ; 
+        } 
       })
-      if(bool){
-        dialogDataSource.data.push(data) ;
+    })
+    this.dataSource.data.forEach(data => {
+      if(!excludes.includes(data)){
+        dialogDataSource.data.push(data) ; 
       }
     })
-    return dialogDataSource ; 
+    return dialogDataSource;
   }
 
 }

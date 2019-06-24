@@ -48,36 +48,36 @@ export class AppComponent implements OnInit {
   @ViewChild('chart3Host', { read: ViewContainerRef, static: false }) entry3: ViewContainerRef;
   @ViewChild('chart4Host', { read: ViewContainerRef, static: false }) entry4: ViewContainerRef;
 
-  subjectRightPanel: Subject<any> ; 
-  obsRightPanel: Observable<any> ; 
+  subjectRightPanel: Subject<any>;
+  obsRightPanel: Observable<any>;
 
   allComponentsObs: Subject<any>[] = [];
   allComponentRefs: any[] = [];
 
   componentRef: any;
+  datas: DataScheme[] = [];
 
   constructor(
     private dataService: DataService,
-    private componentFactoryResolver: ComponentFactoryResolver) { }
+    private componentFactoryResolver: ComponentFactoryResolver) {
+    this.subjectRightPanel = new Subject<any>();
+    this.obsRightPanel = this.subjectRightPanel.asObservable();
+  }
 
-  datas: DataScheme[] = [];
 
   ngOnInit() {
-    this.subjectRightPanel = new Subject<any>() ; 
-    this.obsRightPanel = this.subjectRightPanel.asObservable() ; 
-    this.dataService.fetchDataScheme().subscribe((response: string) => {
-      // TODO Make that cutest as a puppy
-      const datasFetched = JSON.parse(JSON.stringify(response));
-      datasFetched.forEach(element => {
+    this.dataService.fetchDataScheme().subscribe(response => {
+      (response as any[]).forEach(element => {
         this.datas.push(element as DataScheme);
       });
     });
   }
 
 
-  onDragField(ev, field: string) {
+  onDragField(ev, field: string, name) {
     ev.dataTransfer.setData('data', this.dataService.fetchData(field));
-    ev.dataTransfer.setData('colName', field);
+    ev.dataTransfer.setData('colName', Object.keys(field)[0]);
+    ev.dataTransfer.setData('tableName', name);
   }
 
   onDrop(ev) {
@@ -96,9 +96,10 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
       this.componentRef.instance.droppedText = fieldName;
+      this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
 
       //Child Event emit
-      const subChild: Subscription = this.componentRef.instance.whichChild.subscribe(message => this.handleMessageFromChild(message));
+      const subChild: Subscription = this.componentRef.instance.toParent.subscribe(message => this.handleMessageFromChild(message));
       this.componentRef.onDestroy(() => subChild.unsubscribe());
 
       //Observable
@@ -121,12 +122,12 @@ export class AppComponent implements OnInit {
     ev.preventDefault();
   }
 
-  handleMessageFromChild(message){
+  handleMessageFromChild(message) {
 
   }
 
   messageReceiveFromRightPanel($event) {
-    
+
   }
 
   allowDrop(ev) {
@@ -224,6 +225,10 @@ export class AppComponent implements OnInit {
     arr.forEach(chart => {
       chart.setAttribute('class', 'chartsFour');
     });
+  }
+
+  getField(field){
+    return Object.keys(field)[0]
   }
 }
 

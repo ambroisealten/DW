@@ -469,6 +469,6 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   \**************************************************************************************************/
 
   handleDataFromParent(data){
-
+    console.log(data) ; 
   }
 }

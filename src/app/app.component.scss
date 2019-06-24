@@ -16,6 +16,10 @@ main-expansion-panel {
   background: unset;
 }
 
+.mat-expansion-panel hr{
+  color: lightgrey;
+}
+
 .mat-expansion-panel-header,
 .mat-expansion-panel-body {
   padding-right: 5px;

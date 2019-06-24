@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialogConfig, MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ModalDataManipulationComponent } from '../modal/modal-data-manipulation/modal-data-manipulation.component';
 import { ModalStringManipulationComponent } from '../modal/modal-string-manipulation/modal-string-manipulation.component';
 import { FilterList } from 'src/app/models/Filter';
+import { Observable } from 'rxjs';
 
 export interface PeriodicElement {
   name: string;
@@ -33,6 +34,11 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class ParamViewComponent implements OnInit, OnDestroy {
 
+  @Input() parentObs: Observable<any> ; 
+  parentSub ; 
+
+  @Output() messageEvent = new EventEmitter<any>();
+
   booleanString: boolean;
 
   displayedColumns: string[] = ['select', 'name'];
@@ -59,10 +65,14 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.toggleFilter();
     this.dataSource.data.sort((e1, e2) => e1[this.displayedColumns[1]] > e2[this.displayedColumns[1]] ? 1 : -1);
+    this.parentObs.subscribe(dataParent => this.handleDataFromParent(dataParent)) ; 
   }
 
   ngOnDestroy() {
     this.dialog.closeAll();
+    if(this.parentSub != undefined){
+      this.parentSub.unsubscribe() ; 
+    }
   }
 
   changeColumn() {
@@ -452,4 +462,13 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     return dialogDataSource;
   }
 
+  /**************************************************************************************************\
+  * 
+  *                                        Data Exchange
+  * 
+  \**************************************************************************************************/
+
+  handleDataFromParent(data){
+
+  }
 }

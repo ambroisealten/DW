@@ -3,11 +3,11 @@ import { DataService } from './services/dataService';
 import { DataScheme } from './models/dataScheme';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { ViewService } from './services/viewService';
-import {SelectionModel} from '@angular/cdk/collections';
-import {MatTableDataSource} from '@angular/material/table';
-import {environment} from 'src/environments/environment';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MatTableDataSource } from '@angular/material/table';
+import { environment } from 'src/environments/environment';
 import { DataSet } from './models/dataSet';
-import { Subject } from 'rxjs';
+import { Subject, Subscription, Observable } from 'rxjs';
 
 export interface PeriodicElement {
   name: string;
@@ -17,16 +17,16 @@ export interface PeriodicElement {
 }
 
 const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
+  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
+  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
+  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
+  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
+  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
+  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
+  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
+  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
+  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
+  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
 ];
 
 @Component({
@@ -41,14 +41,17 @@ export class AppComponent implements OnInit {
   allTemplates = new Array(environment.maxTemplates);
 
   @ViewChildren('chartHost', { read: ViewContainerRef }) entries: QueryList<ViewContainerRef>;
-  @ViewChildren('chartHost') templates : QueryList<ElementRef>;
+  @ViewChildren('chartHost') templates: QueryList<ElementRef>;
 
   @ViewChild('chart1Host', { read: ViewContainerRef, static: true }) entry1: ViewContainerRef;
   @ViewChild('chart2Host', { read: ViewContainerRef, static: false }) entry2: ViewContainerRef;
   @ViewChild('chart3Host', { read: ViewContainerRef, static: false }) entry3: ViewContainerRef;
   @ViewChild('chart4Host', { read: ViewContainerRef, static: false }) entry4: ViewContainerRef;
 
-  allComponentsObs: Subject<any>[] = [] ; 
+  subjectRightPanel: Subject<any> ; 
+  obsRightPanel: Observable<any> ; 
+
+  allComponentsObs: Subject<any>[] = [];
   allComponentRefs: any[] = [];
 
   componentRef: any;
@@ -60,6 +63,8 @@ export class AppComponent implements OnInit {
   datas: DataScheme[] = [];
 
   ngOnInit() {
+    this.subjectRightPanel = new Subject<any>() ; 
+    this.obsRightPanel = this.subjectRightPanel.asObservable() ; 
     this.dataService.fetchDataScheme().subscribe((response: string) => {
       // TODO Make that cutest as a puppy
       const datasFetched = JSON.parse(JSON.stringify(response));
@@ -92,10 +97,14 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
       this.componentRef.instance.droppedText = fieldName;
 
+      //Child Event emit
+      const subChild: Subscription = this.componentRef.instance.whichChild.subscribe(message => this.handleMessageFromChild(message));
+      this.componentRef.onDestroy(() => subChild.unsubscribe());
+
       //Observable
-      let sub = new Subject<any>() ; 
-      this.componentRef.instance.parentObs = sub.asObservable() ; 
-      this.allComponentsObs[instanceNumber] = sub ; 
+      let sub = new Subject<any>();
+      this.componentRef.instance.parentObs = sub.asObservable();
+      this.allComponentsObs[instanceNumber] = sub;
 
       this.componentRef.instance.recheckValues();
 
@@ -112,14 +121,22 @@ export class AppComponent implements OnInit {
     ev.preventDefault();
   }
 
+  handleMessageFromChild(message){
+
+  }
+
+  messageReceiveFromRightPanel($event) {
+    
+  }
+
   allowDrop(ev) {
     ev.preventDefault();
   }
 
-  parseTemplateDiv(){
+  parseTemplateDiv() {
     let container = document.getElementById('templates');
     let test = container.firstChild;
-    while(test.nodeName != "TEMPLATE"){
+    while (test.nodeName != "TEMPLATE") {
       test = test.nextSibling;
     }
     return test;
@@ -136,7 +153,7 @@ export class AppComponent implements OnInit {
       newDivForChart.setAttribute('class', 'chartsFour');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
-      
+
       const template = this.parseTemplateDiv();
       newDivForChart.appendChild(template);
 

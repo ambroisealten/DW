@@ -3,10 +3,11 @@ import { DataService } from './services/dataService';
 import { DataScheme } from './models/dataScheme';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { ViewService } from './services/viewService';
-import {SelectionModel} from '@angular/cdk/collections';
-import {MatTableDataSource} from '@angular/material/table';
-import {environment} from 'src/environments/environment';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MatTableDataSource } from '@angular/material/table';
+import { environment } from 'src/environments/environment';
 import { DataSet } from './models/dataSet';
+import { Subject, Subscription, Observable } from 'rxjs';
 
 export interface PeriodicElement {
   name: string;
@@ -16,16 +17,16 @@ export interface PeriodicElement {
 }
 
 const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
+  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
+  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
+  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
+  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
+  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
+  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
+  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
+  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
+  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
+  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
 ];
 
 @Component({
@@ -40,39 +41,58 @@ export class AppComponent implements OnInit {
   allTemplates = new Array(environment.maxTemplates);
 
   @ViewChildren('chartHost', { read: ViewContainerRef }) entries: QueryList<ViewContainerRef>;
-  @ViewChildren('chartHost') templates : QueryList<ElementRef>;
+  @ViewChildren('chartHost') templates: QueryList<ElementRef>;
 
   @ViewChild('chart1Host', { read: ViewContainerRef, static: true }) entry1: ViewContainerRef;
   @ViewChild('chart2Host', { read: ViewContainerRef, static: false }) entry2: ViewContainerRef;
   @ViewChild('chart3Host', { read: ViewContainerRef, static: false }) entry3: ViewContainerRef;
   @ViewChild('chart4Host', { read: ViewContainerRef, static: false }) entry4: ViewContainerRef;
 
+  subjectRightPanel: Subject<any>;
+  obsRightPanel: Observable<any>;
 
+  allComponentsObs: Subject<any>[] = [];
   allComponentRefs: any[] = [];
 
   componentRef: any;
+  datas: DataScheme[] = [];
 
   constructor(
     private dataService: DataService,
-    private componentFactoryResolver: ComponentFactoryResolver) { }
+    private componentFactoryResolver: ComponentFactoryResolver) {
+    this.subjectRightPanel = new Subject<any>();
+    this.obsRightPanel = this.subjectRightPanel.asObservable();
+  }
 
-  datas: DataScheme[] = [];
+    datasDetails: DataScheme[] = [];
 
   ngOnInit() {
-    this.dataService.fetchDataScheme().subscribe((response: string) => {
-      // TODO Make that cutest as a puppy
-      const datasFetched = JSON.parse(JSON.stringify(response));
+    this.dataService.fetchDataScheme().subscribe(response => {
+      (response as any[]).forEach(element => {
+        let fields = [] ; 
+        Object.keys(element.fields).forEach(field => {
+          fields.push({name: field, type: element[field]}); 
+        })
+        fields.sort((e1,e2) => e1.name > e2.name ? 1 : -1) ;
+        this.datas.push({name: element.name, fields: fields});
+      });
+    });
+    this.dataService.getData().subscribe((response: any[]) => {
+      const datasFetched = response;
       datasFetched.forEach(element => {
-        this.datas.push(element as DataScheme);
+        this.datasDetails.push(element);
       });
     });
   }
 
 
   onDragField(ev, field: string) {
-    ev.dataTransfer.setData('data', this.dataService.fetchData(field));
     ev.dataTransfer.setData('colName', field);
+    ev.dataTransfer.setData('colNameDetail', field);
+    ev.dataTransfer.setData('tableName', name);
   }
+
+
 
   onDrop(ev) {
 
@@ -82,7 +102,7 @@ export class AppComponent implements OnInit {
     if (target.className == 'charts' || target.className == 'chartsFour') {
       const instanceNumber = parseInt(target.id, 10);
 
-      let entryUsed = this.entries.toArray()[target.id - 1];
+      const entryUsed = this.entries.toArray()[target.id - 1];
 
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
@@ -90,6 +110,19 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
       this.componentRef.instance.droppedText = fieldName;
+      this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
+
+      this.componentRef.instance.displayedColumns = [fieldName];
+      this.componentRef.instance.datas = this.datasDetails;
+
+      //Child Event emit
+      const subChild: Subscription = this.componentRef.instance.toParent.subscribe(message => this.handleMessageFromChild(message));
+      this.componentRef.onDestroy(() => subChild.unsubscribe());
+
+      //Observable
+      let sub = new Subject<any>();
+      this.componentRef.instance.parentObs = sub.asObservable();
+      this.allComponentsObs[instanceNumber] = sub;
 
       this.componentRef.instance.recheckValues();
 
@@ -97,8 +130,7 @@ export class AppComponent implements OnInit {
 
       if (this.containerRepeat > 2) {
         target.setAttribute('class', 'chartContainedFour');
-      }
-      else {
+      } else {
         target.setAttribute('class', 'chartContained');
       }
 
@@ -106,11 +138,19 @@ export class AppComponent implements OnInit {
     ev.preventDefault();
   }
 
+  handleMessageFromChild(message) {
+
+  }
+
+  messageReceiveFromRightPanel($event) {
+
+  }
+
   allowDrop(ev) {
     ev.preventDefault();
   }
 
-  parseTemplateDiv(){
+  parseTemplateDiv(idNumber : string){
     let container = document.getElementById('templates');
     let test = container.firstChild;
     while(test.nodeName != "TEMPLATE"){
@@ -118,12 +158,12 @@ export class AppComponent implements OnInit {
     }
     return test;
   }
-
+  
   diviseChartsSegment() {
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 
-    this.containerRepeat += 1;
+      this.containerRepeat += 1;
 
     if (this.containerRepeat > 2) {
       const newDivForChart = document.createElement('div');
@@ -131,22 +171,20 @@ export class AppComponent implements OnInit {
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
       
-      const template = this.parseTemplateDiv();
+      const template = this.parseTemplateDiv(this.containerRepeat.toString());
       newDivForChart.appendChild(template);
 
       chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
 
-      if (this.containerRepeat == 3) {
-        this.resizeAllCharts();
-      }
+      this.resizeAllCharts();
     }
     else {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'charts');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
-      const template = this.parseTemplateDiv();
+      const template = this.parseTemplateDiv(this.containerRepeat.toString());
       newDivForChart.appendChild(template);
 
 
@@ -155,6 +193,7 @@ export class AppComponent implements OnInit {
 
       this.resizeAllCanvas();
     }
+    
   }
 
   resizeAllCharts() {
@@ -172,8 +211,7 @@ export class AppComponent implements OnInit {
           this.allComponentRefs.map(componentRef => {
             componentRef.instance.recheckValues();
           });
-        }
-        else if (this.containerRepeat == 3) {
+        } else if (this.containerRepeat == 3) {
           this.allComponentRefs.map(componentRef => {
             componentRef.instance.recheckValues();
           });
@@ -202,5 +240,6 @@ export class AppComponent implements OnInit {
       chart.setAttribute('class', 'chartsFour');
     });
   }
+
 }
 

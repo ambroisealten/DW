@@ -1,4 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+@import "~@angular/material/prebuilt-themes/pink-bluegrey.css";
+@import "~bootstrap/dist/css/bootstrap.min.css";
 
 body {
   background-color: black;
@@ -11,6 +13,99 @@ header {
   background-color: #353535;
   color: lightgrey;
   width: 100%;
+  position: fixed;
+  max-height: 5vh;
+  top: 0;
+  padding-left: 1%;
+  margin-bottom: 5%;
+}
+
+figure {
+  margin: 0 auto 0.5% auto;
+}
+
+figcaption {
+  display: inline-block;
+  margin-bottom: 1%;
+  font-size: 4vh;
+}
+
+header img {
+  width: 1.5%;
+}
+
+main {
+  padding-top: 3%;
+  display: grid;
+  grid-template-columns: 1fr 4fr 1fr;
+}
+
+#chartContainerDouble {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+main nav {
+  margin-right: 2%;
+  padding-left: 2%;
+  border-right: 1px solid grey;
+}
+
+.chartContained {
+  overflow: auto;
+  height: 90vh;
+  width: 100%;
+  margin: auto;
+  color: white;
+  border: 1px dotted gray;
+}
+
+.chartContainedFour {
+  overflow: auto;
+  height: 45vh;
+  width: 100%;
+  margin: auto;
+  color: white;
+  border: 1px dotted gray;
+}
+
+.charts {
+  height: 90vh;
+  width: 100%;
+  border: 2px dotted rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  margin: auto;
+  background-image: url("./assets/images/barChart.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+}
+
+.chartsFour {
+  height: 45vh;
+  width: 100%;
+  border: 2px dotted rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  margin: auto;
+  background-image: url("./assets/images/barChart.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+}
+
+ul {
+  list-style: none;
+}
+
+li {
+  padding-left: 15%;
+}
+
+main aside {
+  border-left: 1px solid grey;
+  padding-left: 2%;
+  margin-left: 3%;
+}
   max-height: 5vh;
   top: 0;
   padding-left: 1%;

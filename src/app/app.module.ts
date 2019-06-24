@@ -9,12 +9,39 @@ import { ChartViewComponent } from './components/chart-view/chart-view.component
 import { DataService } from './services/dataService';
 import { ViewService } from './services/viewService';
 
+import { ChartViewComponent } from './components/chart-view/chart-view.component';
+import { ModalDataManipulationComponent } from './components/modal/modal-data-manipulation/modal-data-manipulation.component';
+import { ParamViewComponent } from './components/param-view/param-view.component';
+import { MatTableModule, MatRadioModule, MatFormFieldModule, MatSlideToggleModule, MatCheckboxModule, MatTabsModule, MatDialogModule, MatSelectModule, MatSliderModule, MatListModule, MatInputModule } from '@angular/material';
+import { MatIconModule } from '@angular/material/icon';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ModalStringManipulationComponent } from './components/modal/modal-string-manipulation/modal-string-manipulation.component';
+import { FormsModule } from '@angular/forms';
+
 @NgModule({
   declarations: [
     AppComponent,
-    ChartViewComponent
+    ChartViewComponent,
+    ModalDataManipulationComponent,
+    ParamViewComponent,
+    ModalStringManipulationComponent,
   ],
   imports: [
+    BrowserModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatTabsModule,
+    BrowserAnimationsModule,
+    MatDialogModule,
+    MatSelectModule,
+    MatListModule,
+    MatSliderModule,
+    MatSlideToggleModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatRadioModule,
+    MatInputModule,
+    FormsModule
     HttpClientModule,
     MatExpansionModule,
     BrowserModule,
@@ -26,7 +53,9 @@ import { ViewService } from './services/viewService';
     ViewService
   ],
   entryComponents: [
-    ChartViewComponent
+    ChartViewComponent,
+    ModalDataManipulationComponent,
+    ModalStringManipulationComponent
   ],
   bootstrap: [AppComponent]
 })

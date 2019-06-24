@@ -1,3 +1,8 @@
+.paramview {
+  color: white;
+  position: static;
+}
+
 .accordion-headers-align .mat-expansion-panel-header-title {
   flex-basis: 0;
   color: ivory;
@@ -5,6 +10,14 @@
 
 main-expansion-panel {
   width: 100%;
+}
+
+.mat-expansion-panel{
+  background: unset;
+}
+
+.mat-expansion-panel hr{
+  color: lightgrey;
 }
 
 .mat-expansion-panel-header,

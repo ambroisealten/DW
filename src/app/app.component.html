@@ -10,7 +10,7 @@
               <h4>{{data.name}}</h4>
             </mat-panel-title>
           </mat-expansion-panel-header>
-          <hr>
+          <hr size="1" color="lightgray">
           <h6 class="field" draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field)">
             {{ field }}
           </h6>
@@ -25,12 +25,12 @@
     </div>
     <div class="fab">
         <span class="fab-action-button">
-              <i class="fab-action-button__icon icon-material_add" (click)="diviseChartsSegment()"></i>
+              <i class="fab-action-button_icon icon-material_add" (click)="diviseChartsSegment()"></i>
           </span>
       </div>
   </div>
   <aside>
-    Droite
+    <app-param-view class="paramview"></app-param-view>    
   </aside>
 </main>
 <div id='templates'>

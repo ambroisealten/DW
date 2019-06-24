@@ -1,0 +1,59 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<div class="dialogContainer">
+  <h2 mat-dialog-title class="dialogTitle">Groupement</h2>
+
+  <mat-dialog-content class="contentdialog">
+
+    <div class="leftTab">
+      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+        <ng-container *ngFor="let column of displayedColumns">
+          <ng-container *ngIf="column != 'select'">
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef> {{ column }} </th>
+              <td mat-cell *matCellDef="let element" (click)="clicked(element)"> {{element[column]}} </td>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;">
+        </tr>
+      </table>
+    </div>
+
+    <div class="rightTab">
+      <table mat-table [dataSource]="dataSources" class="mat-elevation-z8">
+        <ng-container *ngFor="let columnright of displayedColumnsright">
+          <ng-container *ngIf="columnright != 'delete'">
+            <ng-container [matColumnDef]="columnright">
+              <th mat-header-cell *matHeaderCellDef> {{ columnright }} </th>
+              <td mat-cell *matCellDef="let element"> {{element[columnright]}} </td>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+        <ng-container matColumnDef="delete">
+          <th mat-header-cell *matHeaderCellDef> Supprimer </th>
+          <td mat-cell *matCellDef="let element">
+            <mat-icon (click)="delete(element)">delete_outline</mat-icon>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumnsright"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumnsright;"></tr>
+      </table>
+    </div>
+
+  </mat-dialog-content>
+
+  <div class="ban" *ngIf="isTri">
+    <mat-radio-group [(ngModel)]="excludeOption" aria-label="Select an option">
+      <mat-radio-button value="exclure" class="exclure">exclure </mat-radio-button>
+      <mat-radio-button value="inclure"> inclure</mat-radio-button>
+      <mat-radio-button value="n'inclure que"> n'inclure que</mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+  <div class="button_div">
+    <button type="button" class="btn btn-primary saveButton" color="primary" (click)="onSave()">Valider</button>
+    <button type="button" class="btn btn-danger closeButton" color="primary" (click)="close()">Fermer</button>
+  </div>
+
+</div>

@@ -62,7 +62,6 @@ export class AppComponent implements OnInit {
     });
 
     const fieldName = ev.dataTransfer.getData('colName');
-    console.log("FIELDNAME     :   " + fieldName);
     const target = ev.target;
 
     if (target.className == 'charts' || target.className == 'chartsFour') {

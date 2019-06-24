@@ -60,7 +60,7 @@ export class ModalDataManipulationComponent implements OnInit {
       return;
     }
     if (this.isTri) {
-      if (newFilter['excludeValue'] == undefined) {
+      if (this.excludeOption == undefined) {
         return;
       }
       newFilter['excludeValue'] = this.excludeOption;

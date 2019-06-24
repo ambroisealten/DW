@@ -297,6 +297,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
     let dialogRef = this.dialog.open(ModalDataManipulationComponent, dialogConfig);
     const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
+      console.log(newFilter)
       if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
         this.excludeOrIncludeFromFilter(newFilter);
       } else {
@@ -370,6 +371,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         }
       });
     }
+    console.log(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue)
     this.toggleFilter();
   }
 

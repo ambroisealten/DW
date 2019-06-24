@@ -14,7 +14,7 @@ export class ChartViewComponent implements OnInit {
 
   currentType: string = "tab";
 
-  allColors = ["blue","red","green","yellow","pink","cyan","orange","white","salmon","grey"];
+  allColors = ["blue", "red", "green", "yellow", "pink", "cyan", "orange", "white", "salmon", "grey"];
 
   data: any[] = [];
 
@@ -61,7 +61,7 @@ export class ChartViewComponent implements OnInit {
     }
   }
 
-  resetCanvasHeightAndWidth(){
+  resetCanvasHeightAndWidth() {
     this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetWidth - 150).toString();
     this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetHeight - 50).toString();
   }
@@ -119,8 +119,8 @@ export class ChartViewComponent implements OnInit {
 
     let test = [];
     let inter = 0;
-    for(let i =0; i <labels.length; i++){
-      if(i%this.allColors.length == 0){
+    for (let i = 0; i < labels.length; i++) {
+      if (i % this.allColors.length == 0) {
         inter = 0;
       }
       test.push(this.allColors[inter]);
@@ -156,6 +156,32 @@ export class ChartViewComponent implements OnInit {
 
   resetChartView() {
     if (this.chart instanceof Chart) this.chart.destroy();
+  }
+
+  deleteChartView() {
+    let allContainedFour = document.getElementsByClassName("chartContainedFour").length;
+    let allContained = document.getElementsByClassName("chartContained").length;
+    let allCharts = document.getElementsByClassName("charts").length;
+    let allChartsFour = document.getElementsByClassName("chartsFour").length;
+
+    let chartsLength = allContained + allCharts + allChartsFour + allContainedFour;
+
+    if (chartsLength > 1) {
+      let divContainer = this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode;
+
+      let templateContainer = document.getElementById("templates");
+      templateContainer.appendChild(divContainer.firstChild);
+
+      divContainer.parentNode.removeChild(divContainer);
+
+      if(chartsLength == 2){
+        let mainContainer = document.getElementById("chartContainerDouble");
+        mainContainer.setAttribute('id','chartContainerSimple');
+      }
+    }
+    else{
+      console.log("You can't destroy your one and only chart !");
+    }
   }
 
 }

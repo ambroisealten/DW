@@ -19,6 +19,7 @@
     </div>
   </nav>
   <div id="chartContainerSimple" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
+
     <div class='charts' id='1'>
       <template #chartHost></template>
     </div>
@@ -33,5 +34,5 @@
   </aside>
 </main>
 <div id='templates'>
-  <template *ngFor="let el of allTemplates; let i = index" id='{{ i+100 }}' #chartHost></template>
+  <template *ngFor="let el of allTemplates; let i = index" id='{{ i+102 }}' #chartHost></template>
 </div>

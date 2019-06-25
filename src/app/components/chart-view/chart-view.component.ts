@@ -13,43 +13,45 @@ import { FilterList } from '../../models/Filter';
 })
 export class ChartViewComponent implements OnInit, OnDestroy {
 
-  //Data binding to Parent
+  //Data binding to Parent - Output vers AppComponent
   @Output() public toParent: EventEmitter<string> = new EventEmitter();
 
-  canvasWidth: number = 0;
-  canvasHeight: number = 0;
-  canvasFontSize: number;
-
-  currentType: string = "tab";
-
-  allColors = ["blue", "red", "green", "yellow", "pink", "cyan", "orange", "white", "salmon", "grey"];
-
-  data: any[] = [];
-
-  @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
-  public context: CanvasRenderingContext2D;
-
-  chart: any = [];
-
-  tasksList = [{ "name": "Tab", "function": "test()" }, { "name": "Pie", "function": "test()" }, { "name": "Doughnut", "function": "test()" }, { "name": "Bar", "function": "test()" }, { "name": "Line", "function": "test()" }];
-
-  isTabView: boolean = true;
-
-  spans = [];
-  filters: FilterList[] = [];
-
+  //Input - Parent vers ce composant
   @Input() instanceNumber: number;
   @Input() droppedText: string;
   @Input() displayedColumns: string[];
   @Input() dataSource: any[] = [];
 
-  datas: DataScheme[] = [];
-
-  previousIndex: number;
-
-  //Observable parents
+  //Observable parents - canal de communication entre ce composant et son Parent
   @Input() parentObs: Observable<any>;
   parentSub;
+
+  //Détermine le type de réprésentation de la donnée, tableau, doughnut etc..
+  currentType: string = "tab";
+
+  @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
+  public context: CanvasRenderingContext2D;
+  chart: any = [];
+  canvasWidth: number = 0;
+  canvasHeight: number = 0;
+  canvasFontSize: number;
+  allColors = ["blue", "red", "green", "yellow", "pink", "cyan", "orange", "white", "salmon", "grey"];
+
+  //Liste des filtres à appliquer sur les données 
+  filters: FilterList[] = [];
+
+  //Permet de mettre ensemble les lignes qui en ont besoin 
+  spans = [];
+
+  //Donnée du Tableau
+  datas: any[] = [];
+
+  //Ancien index lors du drag
+  previousIndex: number;
+
+  //Donnée pour les chats -- TO SUPPR MUST BE DYNAMIC 
+  data: any[] = [];
+
 
   constructor() {
   }
@@ -57,7 +59,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
 
+    //Sort le tableau pour que le spanning soit correct
     this.multipleSort();
+    //Réalise le spanning
     this.spans = [];
     for (let i = 0; i < this.displayedColumns.length; i++) {
       this.cacheSpan(this.displayedColumns[i], i + 1);
@@ -66,6 +70,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    //Unsubscribe du canal parent 
     if (this.parentSub != undefined) {
       this.parentSub.unsubscribe();
     }
@@ -73,7 +78,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   ngAfterViewInit() {
     this.context = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
-
+    //Set la taille du texte selon la taille 
     switch (document.getElementsByClassName('chartContainerDouble').length) {
       case 0:
         this.canvasFontSize = 14;
@@ -86,8 +91,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.resetCanvasHeightAndWidth();
   }
 
+  /**
+   * 
+   */
   recheckValues() {
-
     if (this.currentType != "tab") {
       this.resetChartView();
       this.resetCanvasHeightAndWidth();
@@ -95,6 +102,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Initialise le canal de subscription avec le parent 
+   */
   setSubscription() {
     if (this.parentSub == undefined) {
       this.parentSub = this.parentObs.subscribe(data => this.handleData(data));
@@ -106,42 +116,52 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetHeight - 50).toString();
   }
 
+  /**
+   * Ajout d'une colonne de donnée, reset de l'affichage
+   * @param ev 
+   */
   onDrop(ev) {
+    //Récupération de la colonne 
     const colName = ev.dataTransfer.getData('colName');
     if(colName != ""){
-      this.displayedColumns.push(colName);
 
-      // this.setDisplayedColumns();
+      //On ajoute la colonne et on ajout le span correspondant  
+      this.displayedColumns.push(colName);
       this.multipleSort();
-      this.spans = [];
-      for (let i = 0; i < this.displayedColumns.length; i++) {
-        this.cacheSpan(this.displayedColumns[i], i + 1);
-      }
+      this.cacheSpan(this.displayedColumns[this.displayedColumns.length-1],this.displayedColumns.length) ; 
     }
 
     ev.preventDefault();
   }
 
   /**
-   * Evaluated and store an evaluation of the rowspan for each row.
-   * The key determines the column it affects, and the accessor determines the
-   * value that should be checked for spanning.
+   * Evalue et stock le row span 
+   * La clé détermine la colonne affectée et l'accesseur détermine la profondeur de cette colonne dans le tableau
+   * Ne fonctionne que si les données sont triées car les données similaires doivent être successives dans le tableau 
    */
   cacheSpan(key, accessor) {
+    //On boucle sur les données 
     for (let i = 0; i < this.datas.length;) {
+
+      //On construit la donnée elle est représentée par object[key1]+object[key2]+object[key3]+....
       let currentValue = "";
       for (let k = 0; k < accessor; k++) {
+        //On transforme la donnée selon les filtres afin de convertir des données qui n'ont pas la même valeur en une même valeur afin de les "spans" ensemble
         currentValue += this.transform(this.datas[i][this.displayedColumns[k]], this.displayedColumns[k]);
       }
+
       let count = 1;
 
-      // Iterate through the remaining rows to see how many match
-      // the current value as retrieved through the accessor.
+      // On itère sur les donnes restantes
       for (let j = i + 1; j < this.datas.length; j++) {
+
+        //On construit la donnée elle est représentée par object[key1]+object[key2]+object[key3]+....
         let checkedValue = "";
         for (let h = 0; h < accessor; h++) {
+           //On transforme la donnée selon les filtres afin de convertir des données qui n'ont pas la même valeur en une même valeur afin de les "spans" ensemble
           checkedValue += this.transform(this.datas[j][this.displayedColumns[h]], this.displayedColumns[h]);
         }
+        //Si les valeurs sont différentes ont casse la boucle 
         if (currentValue != checkedValue) {
           break;
         }
@@ -149,23 +169,34 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         count++;
       }
 
+      //Comme le span est un tableau vide à l'origine et que l'index du span peut être n'importe où on initialise la ligne avec un object vide
       if (!this.spans[i]) {
         this.spans[i] = {};
       }
 
-      // Store the number of similar values that were found (the span)
-      // and skip i to the next unique row.
+      // On stock le nombre de similiarité trouvée (donc le span)
+      // et on skip jusqu'à la prochaine ligne unique 
       this.spans[i][key] = count;
       i += count;
     }
   }
 
+  /**
+   * On récupère l'index lors du début du drag 
+   * @param event 
+   * @param index 
+   */
   dragStarted(event: CdkDragStart, index: number) {
     this.previousIndex = index;
   }
 
+  /**
+   * Echange les colonnes et redéfinie le rowSpan
+   * @param event 
+   * @param index 
+   */
   dropListDropped(event: CdkDropList, index: number) {
-    if (event) {
+    if (event && index != this.previousIndex) {
       moveItemInArray(this.displayedColumns, this.previousIndex, index);
       this.multipleSort();
       this.dataSource = this.datas;
@@ -176,6 +207,12 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Permet de sort les données jusqu'à la dernière colonne affichée 
+   * C'est-à-dire qu'on cherche l'attribut le plus loin différenciant deux données 
+   * Dans l'ordre de gauche à droite des colonnes affichées 
+   * Les données sont transformer selon leur filtre 
+   */
   multipleSort() {
     this.datas.sort((a, b) => {
       for (let i = 0; i < this.displayedColumns.length; i++) {
@@ -186,10 +223,20 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     })
   }
 
+  /**
+   * Evalue si la ligne doit être skip ou affichée
+   * @param col 
+   * @param index 
+   */
   getRowSpan(col, index) {
     return this.spans[index] && this.spans[index][col];
   }
 
+  /**
+   * Permet de transformer la donnée selon les filtres existants 
+   * @param data 
+   * @param column 
+   */
   transform(data, column) {
     let actualFilter: FilterList = this.filters.find(filter => filter.filterColumn == column)
     let bool = false;
@@ -221,6 +268,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     return data;
   }
 
+  /**
+   * Evalue si la valeur appartient au filtre 
+   * @param value 
+   * @param filter 
+   */
   agregateNumber(value, filter) {
     let bool: boolean = false;
     switch (filter.type) {
@@ -250,6 +302,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     ev.preventDefault();
   }
 
+  /**
+   * 
+   * @param type 
+   */
   changeChartView(type: string) {
     this.resetChartView();
 
@@ -260,14 +316,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       case 'doughnut':
       case 'bar':
       case 'line':
-        this.isTabView = false;
-
         this.setCanvasSettings(true);
         this.modifyChartView(this.currentType);
         break;
       default:
-        this.isTabView = true;
-
+        this.currentType = "tab" ; 
         this.setCanvasSettings(false);
         break;
     }
@@ -357,7 +410,12 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Interprète les données reçues par le parent
+   * @param data 
+   */
   handleData(data) {
+    // Si réception d'un nouveau filtre retransforme les données
     this.filters = data;
     this.multipleSort();
     this.spans = [];
@@ -366,6 +424,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Permet de déterminer si la valeur fait partie des données exclue ou non 
+   * @param data 
+   * @param column 
+   */
   isNotExclude(data, column) {
     return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + "");
   }

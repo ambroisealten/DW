@@ -7,7 +7,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { DataService } from './services/dataService';
-import { ViewService } from './services/viewService';
 
 import { ModalDataManipulationComponent } from './components/modal/modal-data-manipulation/modal-data-manipulation.component';
 import { ParamViewComponent } from './components/param-view/param-view.component';
@@ -55,7 +54,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
   ],
   providers: [
     DataService,
-    ViewService
   ],
   entryComponents: [
     ChartViewComponent,

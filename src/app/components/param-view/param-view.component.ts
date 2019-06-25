@@ -106,8 +106,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   setActifInactif(row) {
     if (!row['actif']) {
       if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filterType == "number") {
-        this.checkConflictGpmtNumber(row.min, row.type);
-        this.checkConflictGpmtNumber(row.max, row.type);
+        this.checkConflictGpmtNumber(row.min, row.max, row.type);
       } else {
         this.checkConflictGpmtString(row.listElem) ; 
       }
@@ -121,54 +120,85 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     this.dataSourceGpmt = new MatTableDataSource<any>(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters)
   }
 
-  checkConflictGpmtNumber(value, type) {
+  checkConflictGpmtNumber(valueMin, valueMax, type) {
     this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => {
       let bool = false;
-      if (!bool) {
-        switch (filter.type) {
-          case ('inf. à'):
-            bool = (value < filter.min);
-            break;
-          case ('inf. égal à'):
-            bool = (value <= filter.min);
-            break;
-          case ('égal'):
-            bool = (value == filter.min);
-            break;
-          case ('sup. à'):
-            bool = (value > filter.min);
-            break;
-          case ('sup. égal à'):
-            bool = (value > filter.min);
-            break;
-          case ('compris'):
-            bool = ((value >= filter.min) && (value <= filter.max));
-            break;
+      if (filter.actif) {
+        if (!bool) {
+          switch (filter.type) {
+            case ('inf. à'):
+              if(type == 'inf. à' || type == 'inf. égal à'){
+                bool = valueMin <= filter.min
+              } else {
+                bool = (valueMin < filter.min);
+              }
+              break;
+            case ('inf. égal à'):
+              bool = (valueMin <= filter.min);
+              break;
+            case ('sup. à'):
+              if(type == 'sup. à' || type == 'sup. égal à'){
+                bool = valueMin >= filter.min
+              } else {
+                bool = (valueMin > filter.min);
+              }
+              break;
+            case ('sup. égal à'):
+              bool = (valueMin > filter.min);
+              break;
+            case ('compris'):
+              if (type == 'compris') {
+                bool = (((valueMin >= filter.min) && (valueMin <= filter.max)) || ((valueMax >= filter.min) && (valueMax <= filter.max)));
+              } else if (type == 'inf. à'){
+                bool = valueMin > filter.min;
+              } else if (type == 'inf. égal à'){
+                bool = valueMin >= filter.min;
+              } else if (type == 'sup. égal à'){
+                bool = valueMin <= filter.max;
+              } else if (type == 'sup. à') {
+                bool = valueMin < filter.max;
+              } else {
+                bool = (valueMin >= filter.min) && (valueMin <= filter.max)
+              }
+              break;
+          }
         }
-      }
-      if (!bool) {
-        switch (type) {
-          case ('inf. à'):
-            bool = (value > filter.min);
-            break;
-          case ('inf. égal à'):
-            bool = (value >= filter.min);
-            break;
-          case ('égal'):
-            bool = (value == filter.min);
-            break;
-          case ('sup. à'):
-            bool = (filter.min > value);
-            break;
-          case ('sup. égal à'):
-            bool = (filter.min >= value);
-            break;
+        if (!bool) {
+          switch (type) {
+            case ('inf. à'):
+              bool = (valueMin > filter.min);
+              break;
+            case ('inf. égal à'):
+              bool = (valueMin >= filter.min);
+              break;
+            case ('sup. à'):
+              bool = (filter.min > valueMin);
+              break;
+            case ('sup. égal à'):
+              bool = (filter.min >= valueMin);
+              break;
+            case ('compris'):
+              if (filter.type == 'compris') {
+                bool = (((valueMin <= filter.min) && (valueMax >= filter.min)) || ((valueMin <= filter.max) && (valueMax >= filter.max)));
+              }  else if (type == 'inf. à'){
+                bool = valueMin < filter.min;
+              } else if (type == 'inf. égal à'){
+                bool = valueMin <= filter.min;
+              } else if (type == 'sup. égal à'){
+                bool = valueMin >= filter.min;
+              } else if (type == 'sup. à') {
+                bool = valueMin > filter.min;
+              } else {
+                bool = (valueMin <= filter.min) && (valueMax >= filter.min)
+              }
+              break;
+          }
         }
       }
       if (bool)
         filter['actif'] = false;
     })
-  }
+  }s
 
   checkConflictGpmtString(listElem) {
     this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filtre => {
@@ -313,6 +343,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.data = {
       bool: istri,
       data: this.filteredDataSource(),
+      filters: this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters, 
       displayedColumns: [this.displayedColumns[1]]
     }
 

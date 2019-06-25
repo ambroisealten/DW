@@ -4,8 +4,7 @@ import { DataService } from 'src/app/services/dataService';
 import { DataScheme } from 'src/app/models/dataScheme';
 import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Observable } from 'rxjs';
-import { FilterList } from './filterClass';
-import { filter } from 'minimatch';
+import { FilterList } from '../../models/Filter';
 
 @Component({
   selector: 'app-chart-view',
@@ -59,11 +58,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
 
     this.multipleSort();
-    this.dataSource = this.datas;
     this.spans = [];
     for (let i = 0; i < this.displayedColumns.length; i++) {
       this.cacheSpan(this.displayedColumns[i], i + 1);
     }
+
   }
 
   ngOnDestroy() {
@@ -108,17 +107,16 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   onDrop(ev) {
-    const data = ev.dataTransfer.getData('data');
     const colName = ev.dataTransfer.getData('colName');
+    if(colName != ""){
+      this.displayedColumns.push(colName);
 
-    this.displayedColumns.push(colName);
-
-    // this.setDisplayedColumns();
-    this.multipleSort();
-    this.dataSource = this.datas;
-    this.spans = [];
-    for (let i = 0; i < this.displayedColumns.length; i++) {
-      this.cacheSpan(this.displayedColumns[i], i + 1);
+      // this.setDisplayedColumns();
+      this.multipleSort();
+      this.spans = [];
+      for (let i = 0; i < this.displayedColumns.length; i++) {
+        this.cacheSpan(this.displayedColumns[i], i + 1);
+      }
     }
 
     ev.preventDefault();
@@ -362,7 +360,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   handleData(data) {
     this.filters = data;
     this.multipleSort();
-    this.dataSource = this.datas;
     this.spans = [];
     for (let i = 0; i < this.displayedColumns.length; i++) {
       this.cacheSpan(this.displayedColumns[i], i + 1);

@@ -24,6 +24,7 @@ export class ModalStringManipulationComponent implements OnInit {
   dataSources = new MatTableDataSource<any>([]);
 
   excludeOption:string ; 
+  filters = []  ;
 
   isTri; 
   @Output() public addFilter = new EventEmitter();
@@ -35,7 +36,8 @@ export class ModalStringManipulationComponent implements OnInit {
     this.displayedColumns = data.displayedColumns;
     this.dataSources = new MatTableDataSource() ; 
     this.displayedColumnsright = Object.assign([], this.displayedColumns);
-    this.displayedColumnsright.push('delete')
+    this.displayedColumnsright.push('delete') ; 
+    this.filters = data.filters ; 
   }
 
   ngOnInit() {
@@ -59,6 +61,18 @@ export class ModalStringManipulationComponent implements OnInit {
     })
     if(newFilter['listElem'].length == 0){
       return ; 
+    }
+    let taille = newFilter.listElem.length ; 
+    for(let i  = 0 ; i < this.filters.length ; i++){
+      let count = 0 ; 
+      for(let j = 0 ; j < taille ; j++){
+        if(this.filters[i].listElem.includes(newFilter.listElem[j])){
+          count++; 
+        }
+      }
+      if(count == taille && this.filters[i].listElem.length == taille){
+        return ; 
+      }
     }
     newFilter['name'] = this.createName(newFilter['listElem']) ; 
     newFilter.actif = true ; 

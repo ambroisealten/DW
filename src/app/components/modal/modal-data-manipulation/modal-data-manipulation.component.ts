@@ -43,14 +43,14 @@ export class ModalDataManipulationComponent implements OnInit {
     let newFilter: Filter = new Filter();
     if (this.type.selectedOptions.selected.length > 0 && this.valueSolo != undefined) {
       newFilter['type'] = this.type.selectedOptions.selected[0].value;
-      if (!this.isTri && this.isFiltered(this.valueSolo, newFilter['type'])) {
+      if (!this.isTri && this.isFiltered(this.valueSolo, null, newFilter['type'])) {
         return;
       }
       newFilter['min'] = this.valueSolo;
       newFilter['name'] = this.createName(newFilter['type'], newFilter['min']);
     } else if (this.compris.checked && this.valueMin != undefined && this.valueMax != undefined) {
       newFilter['type'] = 'compris';
-      if (!this.isTri && (this.isFiltered(this.valueMin, newFilter['type']) || this.isFiltered(this.valueMax, newFilter['type']))) {
+      if (!this.isTri && this.isFiltered(this.valueMin,this.valueMax, newFilter['type'])) {
         return;
       }
       newFilter['min'] = this.valueMin;
@@ -73,57 +73,93 @@ export class ModalDataManipulationComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  isFiltered(value, type) {
+  isFiltered(valueMin, valueMax, type) {
     let bool: boolean = false;
-    this.filters.forEach(filter => {
-      if (filter.actif) {
+    for(let i = 0 ; i < this.filters.length ; i++){
+      if(valueMax == null){
+        bool = (this.filters[i].min == valueMin) && (type == this.filters[i].type)
+      } else {
+        bool = (this.filters[i].min == valueMin) && (type == this.filters[i].type) && (this.filters[i].max == valueMax)
+      }
+      if(bool){
+        return bool ; 
+      }
+      if (this.filters[i].actif) {
         if (!bool) {
-          switch (filter.type) {
+          switch (this.filters[i].type) {
             case ('inf. à'):
-              bool = (value < filter.min);
+              if(type == 'inf. à' || type == 'inf. égal à'){
+                bool = valueMin <= this.filters[i].min
+              } else {
+                bool = (valueMin < this.filters[i].min);
+              }
               break;
             case ('inf. égal à'):
-              bool = (value <= filter.min);
-              break;
-            case ('égal'):
-              bool = (value == filter.min);
+              bool = (valueMin <= this.filters[i].min);
               break;
             case ('sup. à'):
-              bool = (value > filter.min);
+              if(type == 'sup. à' || type == 'sup. égal à'){
+                bool = valueMin >= this.filters[i].min
+              } else {
+                bool = (valueMin > this.filters[i].min);
+              }
               break;
             case ('sup. égal à'):
-              bool = (value > filter.min);
+              bool = (valueMin > this.filters[i].min);
               break;
             case ('compris'):
-              bool = ((value >= filter.min) && (value <= filter.max));
+              if (type == 'compris') {
+                bool = (((valueMin >= this.filters[i].min) && (valueMin <= this.filters[i].max)) || ((valueMax >= this.filters[i].min) && (valueMax <= this.filters[i].max)));
+              } else if (type == 'inf. à'){
+                bool = valueMin > this.filters[i].min;
+              } else if (type == 'inf. égal à'){
+                bool = valueMin >= this.filters[i].min;
+              } else if (type == 'sup. égal à'){
+                bool = valueMin <= this.filters[i].max;
+              } else if (type == 'sup. à') {
+                bool = valueMin < this.filters[i].max;
+              } else {
+                bool = (valueMin >= this.filters[i].min) && (valueMin <= this.filters[i].max)
+              }
               break;
           }
-        } else {
-          return;
         }
         if (!bool) {
           switch (type) {
             case ('inf. à'):
-              bool = (value > filter.min);
+              bool = (valueMin > this.filters[i].min);
               break;
             case ('inf. égal à'):
-              bool = (value >= filter.min);
-              break;
-            case ('égal'):
-              bool = (value == filter.min);
+              bool = (valueMin >= this.filters[i].min);
               break;
             case ('sup. à'):
-              bool = (filter.min > value);
+              bool = (this.filters[i].min > valueMin);
               break;
             case ('sup. égal à'):
-              bool = (filter.min >= value);
+              bool = (this.filters[i].min >= valueMin);
+              break;
+            case ('compris'):
+              if (this.filters[i].type == 'compris') {
+                bool = (((valueMin <= this.filters[i].min) && (valueMax >= this.filters[i].min)) || ((valueMin <= this.filters[i].max) && (valueMax >= this.filters[i].max)));
+              }  else if (type == 'inf. à'){
+                bool = valueMin < this.filters[i].min;
+              } else if (type == 'inf. égal à'){
+                bool = valueMin <= this.filters[i].min;
+              } else if (type == 'sup. égal à'){
+                bool = valueMin >= this.filters[i].min;
+              } else if (type == 'sup. à') {
+                bool = valueMin > this.filters[i].min;
+              } else {
+                bool = (valueMin <= this.filters[i].min) && (valueMax >= this.filters[i].min)
+              }
               break;
           }
-        } else {
-          return;
+          if(bool){
+            return bool; 
+          }
         }
       }
-    })
+    }
     return bool;
   }
 

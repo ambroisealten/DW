@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   baseUrl: 'http://localhost:8080',
-  maxTemplates : 100
+  maxTemplates: 100,
+  maxSizePacket: 1000
 };
 
 /*

@@ -8,6 +8,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { environment } from 'src/environments/environment';
 import { DataSet } from './models/dataSet';
 import { Subject, Subscription, Observable } from 'rxjs';
+import { DataTable } from './models/data';
 
 export interface PeriodicElement {
   name: string;
@@ -56,9 +57,15 @@ export class AppComponent implements OnInit {
 
   componentRef: any;
   datas: DataScheme[] = [];
-  datasDetails: DataScheme[] = [];
+  dataTable: DataTable[] = [];
+  tableStored: string[] = [];
+  i: number;
+  charge = 0;
+  value: any;
+  elaspedTime: number;
+  count: number;
 
-  activeInstance: number ; 
+  activeInstance: number;
 
   constructor(
     private dataService: DataService,
@@ -68,26 +75,54 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.i = 0;
     this.dataService.fetchDataScheme().subscribe(response => {
       (response as any[]).forEach(element => {
-        let fields = [] ; 
+        const fields = [];
         Object.keys(element.fields).forEach(field => {
-          fields.push({name: field, type: element.fields[field]}); 
-        })
-        fields.sort((e1,e2) => e1.name > e2.name ? 1 : -1) ;
-        this.datas.push({name: element.name, fields: fields});
-      });
-    });
-    this.dataService.getData().subscribe((response: any[]) => {
-      const datasFetched = response;
-      datasFetched.forEach(element => {
-        this.datasDetails.push(element);
+          fields.push({ name: field, type: element.fields[field] });
+        });
+        fields.sort((e1, e2) => e1.name > e2.name ? 1 : -1);
+        this.datas.push({ name: element.name, fields: fields });
       });
     });
   }
 
+  getData(tableName: string) {
+    if (this.tableStored.includes(tableName)) {
+      return this.dataTable.find(data => data.tableName === tableName);
+    } else {
+      return this.loadDataAsync(tableName, 0);
+    }
+  }
 
-  onDragField(ev, field: string,name) {
+  loadDataAsync(tableName: string, count: number) {
+    console.log('paquet' + environment.maxSizePacket);
+    this.charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
+    console.log(this.charge);
+    if (this.i === 0) {
+      console.log('Start data loading');
+    }
+    if (this.charge < 1000) {
+      this.dataService.getData(tableName, this.i * environment.maxSizePacket, environment.maxSizePacket).subscribe((response: any[]) => {
+        const datasFetched = response;
+        this.dataTable.push(new DataTable(tableName, datasFetched));
+        this.tableStored.push(tableName);
+        this.loadDataAsync(tableName, 0);
+      });
+      this.i += 1;
+    } else {
+      if (count < 3) {
+        setTimeout(() => { this.loadDataAsync(tableName, count + 1); }, 2000);
+      } else {
+        console.log('DATA LOADED - Final charge : ' + this.charge);
+        return this.dataTable.find(data => data.tableName === tableName);
+      }
+    }
+
+  }
+
+  onDragField(ev, field: string, name) {
     ev.dataTransfer.setData('colName', field);
     ev.dataTransfer.setData('colNameDetail', field);
     ev.dataTransfer.setData('tableName', name);
@@ -109,23 +144,23 @@ export class AppComponent implements OnInit {
       this.componentRef = entryUsed.createComponent(componentFactory);
 
       this.componentRef.instance.instanceNumber = instanceNumber;
-      this.activeInstance = instanceNumber ;
+      this.activeInstance = instanceNumber;
       this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
       this.componentRef.instance.droppedText = fieldName;
 
       this.componentRef.instance.displayedColumns = [fieldName];
-      this.componentRef.instance.datas = this.datasDetails;
+      this.componentRef.instance.datas = this.getData(ev.dataTransfer.getData('tableName'));
 
       //Child Event emit
       const subChild: Subscription = this.componentRef.instance.toParent.subscribe(message => this.handleMessageFromChild(message));
       this.componentRef.onDestroy(() => subChild.unsubscribe());
 
       //Observable
-      let sub = new Subject<any>();
+      const sub = new Subject<any>();
       this.componentRef.instance.parentObs = sub.asObservable();
-      this.componentRef.instance.setSubscription() ; 
+      this.componentRef.instance.setSubscription();
       this.allComponentsObs.push(sub);
-      
+
       this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
 
       this.componentRef.instance.recheckValues();
@@ -147,34 +182,34 @@ export class AppComponent implements OnInit {
   }
 
   messageReceiveFromRightPanel($event) {
-    this.allComponentsObs[this.activeInstance-1].next($event) ; 
+    this.allComponentsObs[this.activeInstance - 1].next($event);
   }
 
   allowDrop(ev) {
     ev.preventDefault();
   }
 
-  parseTemplateDiv(idNumber : string){
-    let container = document.getElementById('templates');
+  parseTemplateDiv(idNumber: string) {
+    const container = document.getElementById('templates');
     let test = container.firstChild;
-    while(test.nodeName != "TEMPLATE"){
+    while (test.nodeName != 'TEMPLATE') {
       test = test.nextSibling;
     }
     return test;
   }
-  
+
   diviseChartsSegment() {
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 
-      this.containerRepeat += 1;
+    this.containerRepeat += 1;
 
     if (this.containerRepeat > 2) {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'chartsFour');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
-      
+
       const template = this.parseTemplateDiv(this.containerRepeat.toString());
       newDivForChart.appendChild(template);
 
@@ -197,7 +232,7 @@ export class AppComponent implements OnInit {
 
       this.resizeAllCanvas();
     }
-    
+
   }
 
   resizeAllCharts() {

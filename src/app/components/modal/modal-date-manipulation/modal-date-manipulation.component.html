@@ -1,0 +1,59 @@
+<div class="dialogContainer">
+  <h2 mat-dialog-title class="dialogTitle">Date filter</h2>
+
+
+  <mat-dialog-content class="contentdialog">
+
+    <div class="Panel">
+      <div class="matLabel">
+        <mat-selection-list class="floating" #type>
+          <mat-list-option class="text_check" checkboxPosition="before" value="à partir">à partir du</mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="avant le">avant le</mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="après le">après le</mat-list-option>
+        </mat-selection-list>
+      </div>
+      <div class="input">
+        Choisir la date :
+        <mat-form-field class="picker1">
+          <input matInput [matDatepickerFilter]="myFilter" [matDatepicker]="picker1" placeholder="Choose a date"
+            disabled>
+          <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+          <mat-datepicker #picker1 disabled="false"></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="part2">
+
+      <mat-checkbox #compris (click)="unselectOther()">
+        Entre le
+      </mat-checkbox>
+
+      <mat-form-field class="pickerstart">
+        <input matInput [matDatepickerFilter]="myFilter" [matDatepicker]="pickerDebut" placeholder="Choose a date"
+          disabled>
+        <mat-datepicker-toggle matSuffix [for]="pickerDebut"></mat-datepicker-toggle>
+        <mat-datepicker #pickerDebut disabled="false"></mat-datepicker>
+      </mat-form-field>
+      et le
+      <mat-form-field>
+        <input matInput [matDatepickerFilter]="myFilter" [matDatepicker]="pickerEnd" placeholder="Choose a date"
+          disabled>
+        <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+        <mat-datepicker #pickerEnd disabled="false"></mat-datepicker>
+      </mat-form-field>
+
+      <div class="ban" *ngIf="isTri">
+        <mat-radio-group [(ngModel)]="excludeOption" aria-label="Select an option">
+          <mat-radio-button value="exclure" class="exclure">exclure </mat-radio-button>
+          <mat-radio-button value="inclure"> inclure</mat-radio-button>
+          <mat-radio-button value="n'inclure que"> n'inclure que</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-primary saveButton" color="primary" (click)="onSave()">Ajouter</button>
+    <button type="button" class="btn btn-danger closeButton" color="primary" (click)="close()">Fermer</button>
+
+  </mat-dialog-content>
+</div>

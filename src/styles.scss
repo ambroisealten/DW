@@ -97,7 +97,8 @@ figcaption {
 main {
   position: absolute;
   display: grid;
-  grid-template-columns: 1.5fr 6fr 1.5fr;
+  grid-template-columns: 1.5fr 3fr 1.5fr;
+  width: 100%;
 }
 
 #chartContainerDouble {

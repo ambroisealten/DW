@@ -11,7 +11,7 @@
   float: right;
   position: absolute;
   top: 5px;
-  right:10px;
+  right: 10px;
 }
 
 .mat-elevation-z8 {
@@ -61,4 +61,12 @@
 
 .mat-tab-body-content .ng-trigger .ng-trigger-translateTab {
   height: 90% !important;
+}
+
+.toto {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: grey;
+
 }

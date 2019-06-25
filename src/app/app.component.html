@@ -11,7 +11,7 @@
             </mat-panel-title>
           </mat-expansion-panel-header>
           <hr size="1" color="lightgray">
-          <h6 class="field" draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field,data.name)">
+          <h6 class="field" draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field.name,data.name)">
             {{ field.name }}
           </h6>
         </mat-expansion-panel>
@@ -19,6 +19,7 @@
     </div>
   </nav>
   <div id="chartContainerSimple" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
+
     <div class='charts' id='1'>
       <template #chartHost></template>
     </div>
@@ -29,9 +30,9 @@
       </div>
   </div>
   <aside>
-    <app-param-view [parentObs]="obsRightPanel" (messageEvent)="receiveMessage($event)" class="paramview"></app-param-view>    
+    <app-param-view [parentObs]="obsRightPanel" (messageEvent)="messageReceiveFromRightPanel($event)" class="paramview"></app-param-view>    
   </aside>
 </main>
 <div id='templates'>
-  <template *ngFor="let el of allTemplates; let i = index" id='{{ i+100 }}' #chartHost></template>
+  <template *ngFor="let el of allTemplates; let i = index" id='{{ i+102 }}' #chartHost></template>
 </div>

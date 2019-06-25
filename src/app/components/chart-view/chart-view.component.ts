@@ -1,6 +1,10 @@
 import { Component, ElementRef, Input, OnInit, ViewChild, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Chart } from 'chart.js';
+import { DataService } from 'src/app/services/dataService';
+import { DataScheme } from 'src/app/models/dataScheme';
+import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Observable } from 'rxjs';
+import { FilterList } from '../../models/Filter';
 
 @Component({
   selector: 'app-chart-view',
@@ -31,8 +35,17 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   isTabView: boolean = true;
 
+  spans = [];
+  filters: FilterList[] = [];
+
   @Input() instanceNumber: number;
   @Input() droppedText: string;
+  @Input() displayedColumns: string[];
+  @Input() dataSource: any[] = [];
+
+  datas: DataScheme[] = [];
+
+  previousIndex: number;
 
   //Observable parents
   @Input() parentObs: Observable<any>;
@@ -43,6 +56,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
+
+    this.multipleSort();
+    this.spans = [];
+    for (let i = 0; i < this.displayedColumns.length; i++) {
+      this.cacheSpan(this.displayedColumns[i], i + 1);
+    }
+
   }
 
   ngOnDestroy() {
@@ -76,7 +96,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   setSubscription() {
-    if (this.parentSub != undefined) {
+    if (this.parentSub == undefined) {
       this.parentSub = this.parentObs.subscribe(data => this.handleData(data));
     }
   }
@@ -87,10 +107,143 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   onDrop(ev) {
-    const data = ev.dataTransfer.getData('data');
     const colName = ev.dataTransfer.getData('colName');
+    if(colName != ""){
+      this.displayedColumns.push(colName);
+
+      // this.setDisplayedColumns();
+      this.multipleSort();
+      this.spans = [];
+      for (let i = 0; i < this.displayedColumns.length; i++) {
+        this.cacheSpan(this.displayedColumns[i], i + 1);
+      }
+    }
 
     ev.preventDefault();
+  }
+
+  /**
+   * Evaluated and store an evaluation of the rowspan for each row.
+   * The key determines the column it affects, and the accessor determines the
+   * value that should be checked for spanning.
+   */
+  cacheSpan(key, accessor) {
+    for (let i = 0; i < this.datas.length;) {
+      let currentValue = "";
+      for (let k = 0; k < accessor; k++) {
+        currentValue += this.transform(this.datas[i][this.displayedColumns[k]], this.displayedColumns[k]);
+      }
+      let count = 1;
+
+      // Iterate through the remaining rows to see how many match
+      // the current value as retrieved through the accessor.
+      for (let j = i + 1; j < this.datas.length; j++) {
+        let checkedValue = "";
+        for (let h = 0; h < accessor; h++) {
+          checkedValue += this.transform(this.datas[j][this.displayedColumns[h]], this.displayedColumns[h]);
+        }
+        if (currentValue != checkedValue) {
+          break;
+        }
+
+        count++;
+      }
+
+      if (!this.spans[i]) {
+        this.spans[i] = {};
+      }
+
+      // Store the number of similar values that were found (the span)
+      // and skip i to the next unique row.
+      this.spans[i][key] = count;
+      i += count;
+    }
+  }
+
+  dragStarted(event: CdkDragStart, index: number) {
+    this.previousIndex = index;
+  }
+
+  dropListDropped(event: CdkDropList, index: number) {
+    if (event) {
+      moveItemInArray(this.displayedColumns, this.previousIndex, index);
+      this.multipleSort();
+      this.dataSource = this.datas;
+      this.spans = [];
+      for (let i = 0; i < this.displayedColumns.length; i++) {
+        this.cacheSpan(this.displayedColumns[i], i + 1);
+      }
+    }
+  }
+
+  multipleSort() {
+    this.datas.sort((a, b) => {
+      for (let i = 0; i < this.displayedColumns.length; i++) {
+        if (this.transform(a[this.displayedColumns[i]], this.displayedColumns[i]) !== this.transform(b[this.displayedColumns[i]], this.displayedColumns[i])) {
+          return a[this.displayedColumns[i]] > b[this.displayedColumns[i]] ? 1 : -1;
+        }
+      }
+    })
+  }
+
+  getRowSpan(col, index) {
+    return this.spans[index] && this.spans[index][col];
+  }
+
+  transform(data, column) {
+    let actualFilter: FilterList = this.filters.find(filter => filter.filterColumn == column)
+    let bool = false;
+    let name = "";
+    if (actualFilter != undefined) {
+      if (actualFilter['filterType'] == 'number') {
+        for(let i = 0 ; i < actualFilter.filters.length ; i++){
+          if (actualFilter.filters[i].actif && !bool) {
+            if (this.agregateNumber(data, actualFilter.filters[i])) {
+              name = actualFilter.filters[i]['name'];
+              break ; 
+            }
+          } 
+        }
+      } else if (actualFilter['filterType'] == "string") {
+        for(let i = 0 ; i < actualFilter.filters.length ; i++){
+          if (actualFilter.filters[i].actif && !bool) {
+            if (actualFilter.filters[i].listElem.includes(data)) {
+              name = actualFilter.filters[i]['name'];
+              break ; 
+            }
+          } 
+        }
+      }
+      if(name != ""){
+        return name ;
+      }
+    }
+    return data;
+  }
+
+  agregateNumber(value, filter) {
+    let bool: boolean = false;
+    switch (filter.type) {
+      case ('inf. à'):
+        bool = (value < filter.min);
+        break;
+      case ('inf. égal à'):
+        bool = (value <= filter.min);
+        break;
+      case ('égal'):
+        bool = (value == filter.min);
+        break;
+      case ('sup. à'):
+        bool = (value > filter.min);
+        break;
+      case ('sup. égal à'):
+        bool = (value > filter.min);
+        break;
+      case ('compris'):
+        bool = ((value >= filter.min) && (value <= filter.max));
+        break;
+    }
+    return bool;
   }
 
   allowDrop(ev) {
@@ -178,8 +331,43 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     if (this.chart instanceof Chart) this.chart.destroy();
   }
 
-  handleData(data) {
+  deleteChartView() {
+    let allContainedFour = document.getElementsByClassName("chartContainedFour").length;
+    let allContained = document.getElementsByClassName("chartContained").length;
+    let allCharts = document.getElementsByClassName("charts").length;
+    let allChartsFour = document.getElementsByClassName("chartsFour").length;
 
+    let chartsLength = allContained + allCharts + allChartsFour + allContainedFour;
+
+    if (chartsLength > 1) {
+      let divContainer = this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode;
+
+      let templateContainer = document.getElementById("templates");
+      templateContainer.appendChild(divContainer.firstChild);
+
+      divContainer.parentNode.removeChild(divContainer);
+
+      if (chartsLength == 2) {
+        let mainContainer = document.getElementById("chartContainerDouble");
+        mainContainer.setAttribute('id', 'chartContainerSimple');
+      }
+    }
+    else {
+      console.log("You can't destroy your one and only chart !");
+    }
+  }
+
+  handleData(data) {
+    this.filters = data;
+    this.multipleSort();
+    this.spans = [];
+    for (let i = 0; i < this.displayedColumns.length; i++) {
+      this.cacheSpan(this.displayedColumns[i], i + 1);
+    }
+  }
+
+  isNotExclude(data, column) {
+    return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + "");
   }
 
 }

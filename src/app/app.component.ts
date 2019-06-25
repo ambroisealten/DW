@@ -56,6 +56,9 @@ export class AppComponent implements OnInit {
 
   componentRef: any;
   datas: DataScheme[] = [];
+  datasDetails: DataScheme[] = [];
+
+  activeInstance: number ; 
 
   constructor(
     private dataService: DataService,
@@ -64,27 +67,33 @@ export class AppComponent implements OnInit {
     this.obsRightPanel = this.subjectRightPanel.asObservable();
   }
 
-
   ngOnInit() {
     this.dataService.fetchDataScheme().subscribe(response => {
       (response as any[]).forEach(element => {
         let fields = [] ; 
         Object.keys(element.fields).forEach(field => {
-          fields.push({name: field, type: element[field]}); 
+          fields.push({name: field, type: element.fields[field]}); 
         })
         fields.sort((e1,e2) => e1.name > e2.name ? 1 : -1) ;
         this.datas.push({name: element.name, fields: fields});
       });
     });
-
+    this.dataService.getData().subscribe((response: any[]) => {
+      const datasFetched = response;
+      datasFetched.forEach(element => {
+        this.datasDetails.push(element);
+      });
+    });
   }
 
 
-  onDragField(ev, field: string, name) {
-    ev.dataTransfer.setData('data', this.dataService.fetchData(field));
-    ev.dataTransfer.setData('colName', Object.keys(field)[0]);
+  onDragField(ev, field: string,name) {
+    ev.dataTransfer.setData('colName', field);
+    ev.dataTransfer.setData('colNameDetail', field);
     ev.dataTransfer.setData('tableName', name);
   }
+
+
 
   onDrop(ev) {
 
@@ -94,15 +103,18 @@ export class AppComponent implements OnInit {
     if (target.className == 'charts' || target.className == 'chartsFour') {
       const instanceNumber = parseInt(target.id, 10);
 
-      let entryUsed = this.entries.toArray()[target.id - 1];
+      const entryUsed = this.entries.toArray()[target.id - 1];
 
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
 
       this.componentRef.instance.instanceNumber = instanceNumber;
+      this.activeInstance = instanceNumber ;
       this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
       this.componentRef.instance.droppedText = fieldName;
-      this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
+
+      this.componentRef.instance.displayedColumns = [fieldName];
+      this.componentRef.instance.datas = this.datasDetails;
 
       //Child Event emit
       const subChild: Subscription = this.componentRef.instance.toParent.subscribe(message => this.handleMessageFromChild(message));
@@ -111,7 +123,10 @@ export class AppComponent implements OnInit {
       //Observable
       let sub = new Subject<any>();
       this.componentRef.instance.parentObs = sub.asObservable();
-      this.allComponentsObs[instanceNumber] = sub;
+      this.componentRef.instance.setSubscription() ; 
+      this.allComponentsObs.push(sub);
+      
+      this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
 
       this.componentRef.instance.recheckValues();
 
@@ -119,8 +134,7 @@ export class AppComponent implements OnInit {
 
       if (this.containerRepeat > 2) {
         target.setAttribute('class', 'chartContainedFour');
-      }
-      else {
+      } else {
         target.setAttribute('class', 'chartContained');
       }
 
@@ -133,50 +147,48 @@ export class AppComponent implements OnInit {
   }
 
   messageReceiveFromRightPanel($event) {
-
+    this.allComponentsObs[this.activeInstance-1].next($event) ; 
   }
 
   allowDrop(ev) {
     ev.preventDefault();
   }
 
-  parseTemplateDiv() {
+  parseTemplateDiv(idNumber : string){
     let container = document.getElementById('templates');
     let test = container.firstChild;
-    while (test.nodeName != "TEMPLATE") {
+    while(test.nodeName != "TEMPLATE"){
       test = test.nextSibling;
     }
     return test;
   }
-
+  
   diviseChartsSegment() {
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 
-    this.containerRepeat += 1;
+      this.containerRepeat += 1;
 
     if (this.containerRepeat > 2) {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'chartsFour');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
-
-      const template = this.parseTemplateDiv();
+      
+      const template = this.parseTemplateDiv(this.containerRepeat.toString());
       newDivForChart.appendChild(template);
 
       chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
 
-      if (this.containerRepeat == 3) {
-        this.resizeAllCharts();
-      }
+      this.resizeAllCharts();
     }
     else {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'charts');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
-      const template = this.parseTemplateDiv();
+      const template = this.parseTemplateDiv(this.containerRepeat.toString());
       newDivForChart.appendChild(template);
 
 
@@ -185,6 +197,7 @@ export class AppComponent implements OnInit {
 
       this.resizeAllCanvas();
     }
+    
   }
 
   resizeAllCharts() {
@@ -202,8 +215,7 @@ export class AppComponent implements OnInit {
           this.allComponentRefs.map(componentRef => {
             componentRef.instance.recheckValues();
           });
-        }
-        else if (this.containerRepeat == 3) {
+        } else if (this.containerRepeat == 3) {
           this.allComponentRefs.map(componentRef => {
             componentRef.instance.recheckValues();
           });

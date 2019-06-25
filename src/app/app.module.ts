@@ -15,6 +15,9 @@ import { MatTableModule, MatRadioModule, MatFormFieldModule, MatSlideToggleModul
 import { MatIconModule } from '@angular/material/icon';
 import { ModalStringManipulationComponent } from './components/modal/modal-string-manipulation/modal-string-manipulation.component';
 import { FormsModule } from '@angular/forms';
+import { CdkTableModule } from '@angular/cdk/table';
+import { CdkTreeModule } from '@angular/cdk/tree';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -43,8 +46,12 @@ import { FormsModule } from '@angular/forms';
     HttpClientModule,
     MatExpansionModule,
     BrowserModule,
+    MatButtonModule,
     BrowserAnimationsModule,
-    MatButtonModule
+    MatTableModule,
+    CdkTableModule,
+    CdkTreeModule,
+    DragDropModule
   ],
   providers: [
     DataService,

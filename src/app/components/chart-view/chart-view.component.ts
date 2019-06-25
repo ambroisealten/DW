@@ -152,7 +152,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
       let count = 1;
 
-      // On itère sur les donnes restantes
+      // On itère sur les données restantes
       for (let j = i + 1; j < this.datas.length; j++) {
 
         //On construit la donnée elle est représentée par object[key1]+object[key2]+object[key3]+....
@@ -161,7 +161,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
            //On transforme la donnée selon les filtres afin de convertir des données qui n'ont pas la même valeur en une même valeur afin de les "spans" ensemble
           checkedValue += this.transform(this.datas[j][this.displayedColumns[h]], this.displayedColumns[h]);
         }
-        //Si les valeurs sont différentes ont casse la boucle 
+        //Si les valeurs sont différentes, on casse la boucle 
         if (currentValue != checkedValue) {
           break;
         }

@@ -1,5 +1,5 @@
 <div class="container" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
-  <ng-container *ngIf="isTabView">
+  <ng-container *ngIf="currentType == 'tab'">
     <table cdkDropListGroup>
       <tr>
         <ng-container *ngFor="let column of displayedColumns ; let i = index">

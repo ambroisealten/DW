@@ -1,5 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MatSelectionList, MatSelectionListChange, MatCheckbox } from '@angular/material';
+import { AnimationStaggerMetadata } from '@angular/animations';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-modal-date-manipulation',
@@ -8,10 +10,15 @@ import { MatDialogRef, MatSelectionList, MatSelectionListChange, MatCheckbox } f
 })
 export class ModalDateManipulationComponent implements OnInit {
 
+  startDate: number;
+  endDate: number;
+  currentDate : string;
+
+
   @ViewChild('type', { static: true }) type: MatSelectionList;
   @ViewChild('compris', { static: true }) compris: MatCheckbox;
-  
-  constructor(private dialogRef: MatDialogRef<ModalDateManipulationComponent>) { }
+
+  constructor(private dialogRef: MatDialogRef<ModalDateManipulationComponent>,private toastr: ToastrService) { }
 
   ngOnInit() {
     this.type.selectionChange.subscribe((s: MatSelectionListChange) => {
@@ -26,9 +33,14 @@ export class ModalDateManipulationComponent implements OnInit {
   }
 
   save() {
+    this.toastr.success("Filtre ajouté avec succès", '' , {'positionClass': 'toast-bottom-full-width','closeButton':true});
 
   }
-  
+
+  myFilter() {
+    this.startDate;
+  }
+
   close() {
     this.dialogRef.close();
   }

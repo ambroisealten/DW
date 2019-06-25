@@ -8,6 +8,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { environment } from 'src/environments/environment';
 import { DataSet } from './models/dataSet';
 import { Subject, Subscription, Observable } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 export interface PeriodicElement {
   name: string;
@@ -59,7 +60,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private dataService: DataService,
-    private componentFactoryResolver: ComponentFactoryResolver) {
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private toastr: ToastrService) {
     this.subjectRightPanel = new Subject<any>();
     this.obsRightPanel = this.subjectRightPanel.asObservable();
   }

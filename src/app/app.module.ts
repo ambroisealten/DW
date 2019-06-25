@@ -23,6 +23,8 @@ import { CdkTableModule } from '@angular/cdk/table';
 import { CdkTreeModule } from '@angular/cdk/tree';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ModalDateManipulationComponent } from './components/modal/modal-date-manipulation/modal-date-manipulation.component';
+import { ToastrModule } from 'ngx-toastr';
+
 
 @NgModule({
   declarations: [
@@ -59,7 +61,8 @@ import { ModalDateManipulationComponent } from './components/modal/modal-date-ma
     CdkTreeModule,
     DragDropModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    ToastrModule.forRoot()
   ],
   providers: [
     DataService,

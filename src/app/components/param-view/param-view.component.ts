@@ -7,6 +7,8 @@ import { ModalStringManipulationComponent } from '../modal/modal-string-manipula
 import { FilterList } from 'src/app/models/Filter';
 import { Observable } from 'rxjs';
 import { ModalDateManipulationComponent } from '../modal/modal-date-manipulation/modal-date-manipulation.component';
+import {ToastrService } from 'ngx-toastr';
+
 
 export interface PeriodicElement {
   name: string;
@@ -61,7 +63,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource<any>(ELEMENT_DATA);
   selectionTri = new SelectionModel<any>(true, []);
 
-  constructor(private dialog: MatDialog) { }
+  constructor(private dialog: MatDialog, private toastr: ToastrService) { }
 
   ngOnInit() {
     this.toggleFilter();

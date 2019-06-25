@@ -15,7 +15,7 @@
       <div class="input">
         Choisir la date :
         <mat-form-field class="picker1">
-          <input matInput [matDatepickerFilter]="myFilter" [matDatepicker]="picker1" placeholder="Choose a date"
+          <input matInput [matDatepickerFilter]="myFilter()" [matDatepicker]="picker1" placeholder="Choose a date"
             disabled>
           <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
           <mat-datepicker #picker1 disabled="false"></mat-datepicker>
@@ -30,15 +30,15 @@
       </mat-checkbox>
 
       <mat-form-field class="pickerstart">
-        <input matInput [matDatepickerFilter]="myFilter" [matDatepicker]="pickerDebut" placeholder="Choose a date"
-          disabled>
+        <input matInput [matDatepickerFilter]="myFilter()" min="{{ currentDate }}" [matDatepicker]="pickerDebut" placeholder="Choose a date"
+          disabled [(ngModel)]="startDate">
         <mat-datepicker-toggle matSuffix [for]="pickerDebut"></mat-datepicker-toggle>
         <mat-datepicker #pickerDebut disabled="false"></mat-datepicker>
       </mat-form-field>
       et le
       <mat-form-field>
-        <input matInput [matDatepickerFilter]="myFilter" [matDatepicker]="pickerEnd" placeholder="Choose a date"
-          disabled>
+        <input matInput [matDatepickerFilter]="myFilter()" [matDatepicker]="pickerEnd" placeholder="Choose a date"
+          disabled [(ngModel)]="endDate">
         <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
         <mat-datepicker #pickerEnd disabled="false"></mat-datepicker>
       </mat-form-field>

@@ -220,9 +220,7 @@ export class AppComponent implements OnInit {
    * @param message 
    */
   handleMessageFromChild(message: string) {
-    console.log(message);
     const messageSplited = message.split('/');
-    console.log(messageSplited);
     const instance: number = +messageSplited[1];
     switch (messageSplited[0]) {
       case 'askForData':
@@ -236,9 +234,9 @@ export class AppComponent implements OnInit {
         break;
       case 'destroyed':
         this.activeTable = this.datas;
+        this.diviseChartsSegment();
         break;
       default:
-        console.log(messageSplited[0]);
         break;
     }
   }

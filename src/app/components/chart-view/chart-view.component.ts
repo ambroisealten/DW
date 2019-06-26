@@ -6,6 +6,7 @@ import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-dr
 import { Observable } from 'rxjs';
 import { FilterList } from './filterClass';
 import { filter } from 'minimatch';
+import { DataTable } from 'src/app/models/data';
 
 @Component({
   selector: 'app-chart-view',
@@ -21,18 +22,16 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   canvasHeight: number = 0;
   canvasFontSize: number;
 
-  currentType: string = "tab";
+  currentType: string = 'tab';
 
-  allColors = ["blue", "red", "green", "yellow", "pink", "cyan", "orange", "white", "salmon", "grey"];
-
-  data: any[] = [];
+  allColors = ['blue', 'red', 'green', 'yellow', 'pink', 'cyan', 'orange', 'white', 'salmon', 'grey'];
 
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   public context: CanvasRenderingContext2D;
 
   chart: any = [];
 
-  tasksList = [{ "name": "Tab", "function": "test()" }, { "name": "Pie", "function": "test()" }, { "name": "Doughnut", "function": "test()" }, { "name": "Bar", "function": "test()" }, { "name": "Line", "function": "test()" }];
+  tasksList = [{ 'name': 'Tab', 'function': 'test()' }, { 'name': 'Pie', 'function': 'test()' }, { 'name': 'Doughnut', 'function': 'test()' }, { 'name': 'Bar', 'function': 'test()' }, { 'name': 'Line', 'function': 'test()' }];
 
   isTabView: boolean = true;
 
@@ -43,6 +42,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   @Input() droppedText: string;
   @Input() displayedColumns: string[];
   @Input() dataSource: any[] = [];
+  @Input() data: DataTable[] = [];
+  @Input() tableNames: string[] = [];
 
   datas: DataScheme[] = [];
 
@@ -56,8 +57,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.data.push({ "name": this.droppedText, "vls": [12, 1, 0, 78, 69, 11, 45, 32, 69] });
-
     this.multipleSort();
     this.dataSource = this.datas;
     this.spans = [];
@@ -83,13 +82,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         this.canvasFontSize = 10;
         break;
     }
-    this.myCanvas.nativeElement.style = "display : none";
+    this.myCanvas.nativeElement.style = 'display : none';
     this.resetCanvasHeightAndWidth();
   }
 
   recheckValues() {
 
-    if (this.currentType != "tab") {
+    if (this.currentType != 'tab') {
       this.resetChartView();
       this.resetCanvasHeightAndWidth();
       this.modifyChartView(this.currentType);
@@ -108,7 +107,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   onDrop(ev) {
-    const data = ev.dataTransfer.getData('data');
+    const data = JSON.parse(ev.dataTransfer.getData('data')) as DataTable;
+    this.data.push(data);
     const colName = ev.dataTransfer.getData('colName');
 
     this.displayedColumns.push(colName);
@@ -131,7 +131,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   cacheSpan(key, accessor) {
     for (let i = 0; i < this.datas.length;) {
-      let currentValue = "";
+      let currentValue = '';
       for (let k = 0; k < accessor; k++) {
         currentValue += this.transform(this.datas[i][this.displayedColumns[k]], this.displayedColumns[k]);
       }
@@ -140,7 +140,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       // Iterate through the remaining rows to see how many match
       // the current value as retrieved through the accessor.
       for (let j = i + 1; j < this.datas.length; j++) {
-        let checkedValue = "";
+        let checkedValue = '';
         for (let h = 0; h < accessor; h++) {
           checkedValue += this.transform(this.datas[j][this.displayedColumns[h]], this.displayedColumns[h]);
         }
@@ -193,31 +193,31 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   transform(data, column) {
-    let actualFilter: FilterList = this.filters.find(filter => filter.filterColumn == column)
-    let bool = false;
-    let name = "";
+    const actualFilter: FilterList = this.filters.find(filter => filter.filterColumn == column)
+    const bool = false;
+    let name = '';
     if (actualFilter != undefined) {
       if (actualFilter['filterType'] == 'number') {
-        for(let i = 0 ; i < actualFilter.filters.length ; i++){
+        for (let i = 0; i < actualFilter.filters.length; i++) {
           if (actualFilter.filters[i].actif && !bool) {
             if (this.agregateNumber(data, actualFilter.filters[i])) {
               name = actualFilter.filters[i]['name'];
-              break ; 
+              break;
             }
-          } 
+          }
         }
-      } else if (actualFilter['filterType'] == "string") {
-        for(let i = 0 ; i < actualFilter.filters.length ; i++){
+      } else if (actualFilter['filterType'] == 'string') {
+        for (let i = 0; i < actualFilter.filters.length; i++) {
           if (actualFilter.filters[i].actif && !bool) {
             if (actualFilter.filters[i].listElem.includes(data)) {
               name = actualFilter.filters[i]['name'];
-              break ; 
+              break;
             }
-          } 
+          }
         }
       }
-      if(name != ""){
-        return name ;
+      if (name != '') {
+        return name;
       }
     }
     return data;
@@ -276,8 +276,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   setCanvasSettings(display: boolean) {
-    this.myCanvas.nativeElement.style = "display : none";
-    if (display) this.myCanvas.nativeElement.style = "display : inline-block";
+    this.myCanvas.nativeElement.style = 'display : none';
+    if (display) { this.myCanvas.nativeElement.style = 'display : inline-block'; }
 
     this.context = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
 
@@ -285,14 +285,15 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   modifyChartView(chartType: string) {
-    let testData = this.data[0].vls;
-
-    let labels = testData.map(el => {
-      return this.droppedText + " : " + el.toString();
+    console.log(this.data.find(data => data.tableName === this.tableNames[0]).values);
+    const testData = this.data.find(data => data.tableName === this.tableNames[0]).values.map(val => val[this.droppedText]);
+    console.log(testData);
+    const labels = testData.map(el => {
+      return this.droppedText + ' : ' + el.toString();
     });
 
 
-    let test = [];
+    const test = [];
     let inter = 0;
     for (let i = 0; i < labels.length; i++) {
       if (i % this.allColors.length == 0) {
@@ -308,16 +309,16 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         labels: labels,
         datasets: [
           {
-            data: testData,
+            data: testData as number[],
             backgroundColor: test,
-            borderColor: "#00000",
+            borderColor: '#00000',
             fill: true
           }]
       },
       options: {
         legend: {
           display: false,
-          position: "bottom",
+          position: 'bottom',
           labels: {
             fontSize: this.canvasFontSize
           }
@@ -330,32 +331,31 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   resetChartView() {
-    if (this.chart instanceof Chart) this.chart.destroy();
+    if (this.chart instanceof Chart) { this.chart.destroy(); }
   }
 
   deleteChartView() {
-    let allContainedFour = document.getElementsByClassName("chartContainedFour").length;
-    let allContained = document.getElementsByClassName("chartContained").length;
-    let allCharts = document.getElementsByClassName("charts").length;
-    let allChartsFour = document.getElementsByClassName("chartsFour").length;
+    const allContainedFour = document.getElementsByClassName('chartContainedFour').length;
+    const allContained = document.getElementsByClassName('chartContained').length;
+    const allCharts = document.getElementsByClassName('charts').length;
+    const allChartsFour = document.getElementsByClassName('chartsFour').length;
 
-    let chartsLength = allContained + allCharts + allChartsFour + allContainedFour;
+    const chartsLength = allContained + allCharts + allChartsFour + allContainedFour;
 
     if (chartsLength > 1) {
-      let divContainer = this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode;
+      const divContainer = this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode;
 
-      let templateContainer = document.getElementById("templates");
+      const templateContainer = document.getElementById('templates');
       templateContainer.appendChild(divContainer.firstChild);
 
       divContainer.parentNode.removeChild(divContainer);
 
       if (chartsLength == 2) {
-        let mainContainer = document.getElementById("chartContainerDouble");
+        const mainContainer = document.getElementById('chartContainerDouble');
         mainContainer.setAttribute('id', 'chartContainerSimple');
       }
-    }
-    else {
-      console.log("You can't destroy your one and only chart !");
+    } else {
+      console.log('You can\'t destroy your one and only chart !');
     }
   }
 
@@ -370,7 +370,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   isNotExclude(data, column) {
-    return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + "");
+    return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + '');
   }
 
 }

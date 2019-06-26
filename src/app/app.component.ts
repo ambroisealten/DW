@@ -92,40 +92,38 @@ export class AppComponent implements OnInit {
     if (this.tableStored.includes(tableName)) {
       return this.dataTable.find(data => data.tableName === tableName);
     } else {
-      return this.loadDataAsync(tableName, 0);
+      return this.loadDataAsync(tableName);
     }
   }
 
-  loadDataAsync(tableName: string, count: number) {
-    console.log('paquet' + environment.maxSizePacket);
+  loadDataAsync(tableName: string) {
     this.charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
-    console.log(this.charge);
     if (this.i === 0) {
       console.log('Start data loading');
     }
     if (this.charge < 1000) {
       this.dataService.getData(tableName, this.i * environment.maxSizePacket, environment.maxSizePacket).subscribe((response: any[]) => {
+        if (response.length === 0) {
+          this.i = 0;
+          return this.dataTable.find(data => data.tableName === tableName);
+        }
         const datasFetched = response;
         this.dataTable.push(new DataTable(tableName, datasFetched));
         this.tableStored.push(tableName);
-        this.loadDataAsync(tableName, 0);
+        this.loadDataAsync(tableName);
       });
       this.i += 1;
     } else {
-      if (count < 3) {
-        setTimeout(() => { this.loadDataAsync(tableName, count + 1); }, 2000);
-      } else {
-        console.log('DATA LOADED - Final charge : ' + this.charge);
-        return this.dataTable.find(data => data.tableName === tableName);
-      }
+      console.log('DATA LOADED - Final charge : ' + this.charge);
+      return this.dataTable.find(data => data.tableName === tableName);
     }
-
   }
 
   onDragField(ev, field: string, name) {
     ev.dataTransfer.setData('colName', field);
     ev.dataTransfer.setData('colNameDetail', field);
     ev.dataTransfer.setData('tableName', name);
+    ev.dataTransfer.setData('data', JSON.stringify(this.getData(name)));
   }
 
 
@@ -149,7 +147,9 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.droppedText = fieldName;
 
       this.componentRef.instance.displayedColumns = [fieldName];
-      this.componentRef.instance.datas = this.getData(ev.dataTransfer.getData('tableName'));
+      this.componentRef.instance.tableNames.push(ev.dataTransfer.getData('tableName'));
+      const data = this.getData(ev.dataTransfer.getData('tableName'));
+      this.componentRef.instance.data.push(data);
 
       //Child Event emit
       const subChild: Subscription = this.componentRef.instance.toParent.subscribe(message => this.handleMessageFromChild(message));
@@ -161,7 +161,7 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.setSubscription();
       this.allComponentsObs.push(sub);
 
-      this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
+      this.subjectRightPanel.next(this.datas.find(data => data.name === ev.dataTransfer.getData('tableName')));
 
       this.componentRef.instance.recheckValues();
 

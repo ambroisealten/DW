@@ -97,7 +97,8 @@ figcaption {
 main {
   position: absolute;
   display: grid;
-  grid-template-columns: 1.5fr 6fr 1.5fr;
+  grid-template-columns: 1.5fr 3fr 1.5fr;
+  width: 100%;
 }
 
 #chartContainerDouble {
@@ -295,4 +296,11 @@ ul {
 .icon-material_close{
   background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJub25lIiBkPSJNMCAwaDI0djI0SDBWMHoiLz48cGF0aCBkPSJNMTYgMTZoMmMuNTUgMCAxIC40NSAxIDFzLS40NSAxLTEgMWgtMmMtLjU1IDAtMS0uNDUtMS0xcy40NS0xIDEtMXptMC04aDVjLjU1IDAgMSAuNDUgMSAxcy0uNDUgMS0xIDFoLTVjLS41NSAwLTEtLjQ1LTEtMXMuNDUtMSAxLTF6bTAgNGg0Yy41NSAwIDEgLjQ1IDEgMXMtLjQ1IDEtMSAxaC00Yy0uNTUgMC0xLS40NS0xLTFzLjQ1LTEgMS0xek0zIDE4YzAgMS4xLjkgMiAyIDJoNmMxLjEgMCAyLS45IDItMlY4SDN2MTB6TTEzIDVoLTJsLS43MS0uNzFjLS4xOC0uMTgtLjQ0LS4yOS0uNy0uMjlINi40MWMtLjI2IDAtLjUyLjExLS43LjI5TDUgNUgzYy0uNTUgMC0xIC40NS0xIDFzLjQ1IDEgMSAxaDEwYy41NSAwIDEtLjQ1IDEtMXMtLjQ1LTEtMS0xeiIvPjwvc3ZnPg==")
   center no-repeat;
+}
+
+
+.overlay-container{
+  position: fixed;
+  bottom: 0;
+  left: 40vw;
 }

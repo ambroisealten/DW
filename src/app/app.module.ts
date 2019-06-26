@@ -10,13 +10,20 @@ import { DataService } from './services/dataService';
 
 import { ModalDataManipulationComponent } from './components/modal/modal-data-manipulation/modal-data-manipulation.component';
 import { ParamViewComponent } from './components/param-view/param-view.component';
-import { MatTableModule, MatRadioModule, MatFormFieldModule, MatSlideToggleModule, MatCheckboxModule, MatTabsModule, MatDialogModule, MatSelectModule, MatSliderModule, MatListModule, MatInputModule } from '@angular/material';
+import {
+  MAT_DATE_LOCALE, MatTableModule, MatNativeDateModule, MatDatepickerModule, MatRadioModule,
+  MatFormFieldModule, MatSlideToggleModule, MatCheckboxModule, MatTabsModule, MatDialogModule,
+  MatSelectModule, MatSliderModule, MatListModule, MatInputModule
+} from '@angular/material';
 import { MatIconModule } from '@angular/material/icon';
 import { ModalStringManipulationComponent } from './components/modal/modal-string-manipulation/modal-string-manipulation.component';
 import { FormsModule } from '@angular/forms';
 import { CdkTableModule } from '@angular/cdk/table';
 import { CdkTreeModule } from '@angular/cdk/tree';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { ModalDateManipulationComponent } from './components/modal/modal-date-manipulation/modal-date-manipulation.component';
+import { ToastrModule } from 'ngx-toastr';
+
 
 @NgModule({
   declarations: [
@@ -25,6 +32,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     ModalDataManipulationComponent,
     ParamViewComponent,
     ModalStringManipulationComponent,
+    ModalDateManipulationComponent,
   ],
   imports: [
     BrowserModule,
@@ -50,15 +58,20 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     MatTableModule,
     CdkTableModule,
     CdkTreeModule,
-    DragDropModule
+    DragDropModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    ToastrModule.forRoot()
   ],
   providers: [
     DataService,
+    { provide: MAT_DATE_LOCALE, useValue: 'fr-FR' },
   ],
   entryComponents: [
     ChartViewComponent,
     ModalDataManipulationComponent,
-    ModalStringManipulationComponent
+    ModalStringManipulationComponent,
+    ModalDateManipulationComponent
   ],
   bootstrap: [AppComponent]
 })

@@ -2,6 +2,7 @@ import { Component, OnInit, Inject, Output, EventEmitter, ViewChild, Input } fro
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSelectionList, MatSelectionListChange, MatCheckbox, MatRadioGroup } from '@angular/material';
 import { Filter } from 'src/app/models/Filter';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-modal-data-manipulation',
@@ -27,7 +28,7 @@ export class ModalDataManipulationComponent implements OnInit {
   valueMin;
   valueMax;
 
-  constructor(private dialogRef: MatDialogRef<ModalDataManipulationComponent>, @Inject(MAT_DIALOG_DATA) public data) {
+  constructor(private dialogRef: MatDialogRef<ModalDataManipulationComponent>, @Inject(MAT_DIALOG_DATA) public data, private toastr: ToastrService) {
     //On récupère les données d'initialisation 
     this.isTri = data.bool;
     this.filters = data.filters
@@ -88,6 +89,7 @@ export class ModalDataManipulationComponent implements OnInit {
     newFilter['actif'] = true;
     //On transmet le filtre à param-view
     this.addFilter.emit(newFilter);
+    this.toastr.success("Filtre ajouté avec succès", '' , {'positionClass': 'toast-bottom-full-width','closeButton':true});
   }
 
   close() {

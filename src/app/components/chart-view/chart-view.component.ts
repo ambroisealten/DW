@@ -239,12 +239,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   transform(data, column) {
     let actualFilter: FilterList = this.filters.find(filter => filter.filterColumn == column)
-    let bool = false;
     let name = "";
     if (actualFilter != undefined) {
       if (actualFilter['filterType'] == 'number') {
         for(let i = 0 ; i < actualFilter.filters.length ; i++){
-          if (actualFilter.filters[i].actif && !bool) {
+          if (actualFilter.filters[i].actif) {
             if (this.agregateNumber(data, actualFilter.filters[i])) {
               name = actualFilter.filters[i]['name'];
               break ; 
@@ -253,12 +252,22 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         }
       } else if (actualFilter['filterType'] == "string") {
         for(let i = 0 ; i < actualFilter.filters.length ; i++){
-          if (actualFilter.filters[i].actif && !bool) {
+          if (actualFilter.filters[i].actif) {
             if (actualFilter.filters[i].listElem.includes(data)) {
               name = actualFilter.filters[i]['name'];
               break ; 
             }
           } 
+        }
+      } else if (actualFilter['filterType'] == "date"){
+        for(let i = 0 ; i < actualFilter.filters.length ; i++){
+          if (actualFilter.filters[i].actif) {
+            let value = (new Date(data)).getTime()
+            if(this.agregateDate(value,actualFilter.filters[i])){
+              name = actualFilter.filters[i]['name'];
+              break ; 
+            }
+          }
         }
       }
       if(name != ""){
@@ -293,6 +302,33 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         break;
       case ('compris'):
         bool = ((value >= filter.min) && (value <= filter.max));
+        break;
+    }
+    return bool;
+  }
+
+   /**
+   * Evalue si la valeur appartient au filtre 
+   * @param value 
+   * @param filter 
+   */
+  agregateDate(value, filter){
+    let bool: boolean = false;
+    switch (filter.type) {
+      case ('avant le'):
+        bool = (value < filter.startDate);
+        break;
+      case ('jusqu\'au'):
+        bool = (value <= filter.startDate);
+        break;
+      case ('après le'):
+        bool = (value > filter.startDate);
+        break;
+      case ('à partir'):
+        bool = (value > filter.startDate);
+        break;
+      case ('entre'):
+        bool = ((value >= filter.startDate) && (value <= filter.endDate));
         break;
     }
     return bool;

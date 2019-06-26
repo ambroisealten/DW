@@ -12,7 +12,7 @@ export class Filter{
     max: number ; 
     type: string ; 
     listElem: string[] ;
-    minDate: string ;
-    maxDate: string ; 
+    startDate: number ;
+    endDate: number ; 
     actif: boolean ; 
 }

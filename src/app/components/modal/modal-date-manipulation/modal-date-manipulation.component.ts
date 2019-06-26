@@ -1,7 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatDialogRef, MatSelectionList, MatSelectionListChange, MatCheckbox } from '@angular/material';
+import { Component, OnInit, ViewChild, Output, EventEmitter, Inject } from '@angular/core';
+import { MatDialogRef, MatSelectionList, MatSelectionListChange, MatCheckbox, MAT_DIALOG_DATA } from '@angular/material';
 import { AnimationStaggerMetadata } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
+import { Filter } from 'src/app/models/Filter';
+import { filter } from 'minimatch';
+import { start } from 'repl';
 
 @Component({
   selector: 'app-modal-date-manipulation',
@@ -10,15 +13,28 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class ModalDateManipulationComponent implements OnInit {
 
-  startDate: number;
-  endDate: number;
-  currentDate : string;
+  //Canal de communication avec le parent afin d'envoyer l'ajout de nouveau filtre sans fermer la modale
+  @Output() public addFilter = new EventEmitter();
 
+  //Permet de savoir si le but est de trier ou de grouper les données 
+  isTri: boolean;
 
+  //Liste des filtres existants afin de déterminer l'unicité des filtres 
+  filters: Filter[];
+
+  //Permet de récupérer les valeurs sélectionnées/entrées par l'utilisateur 
   @ViewChild('type', { static: true }) type: MatSelectionList;
   @ViewChild('compris', { static: true }) compris: MatCheckbox;
+  startDate: Date;
+  endDate: Date;
+  dateSolo: Date; 
+  currentDate: Date;
+  excludeOption: string;
 
-  constructor(private dialogRef: MatDialogRef<ModalDateManipulationComponent>,private toastr: ToastrService) { }
+  constructor(private dialogRef: MatDialogRef<ModalDateManipulationComponent>, @Inject(MAT_DIALOG_DATA) public data, private toastr: ToastrService) {
+    this.isTri = data.isTri;
+    this.filters = data.filters;
+  }
 
   ngOnInit() {
     this.type.selectionChange.subscribe((s: MatSelectionListChange) => {
@@ -32,10 +48,151 @@ export class ModalDateManipulationComponent implements OnInit {
     this.type.deselectAll();
   }
 
-  save() {
-    this.toastr.success("Filtre ajouté avec succès", '' , {'positionClass': 'toast-bottom-full-width','closeButton':true});
+  onSave() {
 
+    if (this.type.selectedOptions.selected.length == 0 && !this.compris) {
+      this.toastr.error("Erreur lors de l'ajout du filtre", "Veuillez selectionnez le type du filtre a ajouté !", { 'positionClass': 'toast-bottom-full-width', 'closeButton': true });
+      return;
+    }
+
+    if (this.isTri && this.excludeOption == undefined) {
+      return;
+    }
+
+    let newFilter: Filter = new Filter();
+    if (this.type.selectedOptions.selected.length > 0 && this.dateSolo != undefined) {
+      newFilter['type'] = this.type.selectedOptions.selected[0].value;
+      newFilter['startDate'] = this.dateSolo.getTime();
+      newFilter['name'] = this.createName(newFilter['type'], newFilter['startDate']);
+      //Si l'onglet est le tri, on ne regarde pas le conflit avec les autres filtres 
+      if (!this.isTri && this.isFiltered(this.dateSolo.getTime(), null, newFilter['type'], newFilter['name'])) {
+        return;
+      }
+    } else if (this.compris.checked && this.startDate != undefined && this.endDate != undefined) {
+      newFilter['type'] = 'entre';
+      newFilter['name'] = 'Entre le ' + new Date(this.startDate).toISOString().slice(0,10) + ' et le ' + new Date(this.endDate).toISOString().slice(0,10);
+      //Si l'onglet est le tri, on ne regarde pas le conflit avec les autres filtres 
+      if (!this.isTri && this.isFiltered(this.startDate.getTime(), this.endDate.getTime(), newFilter['type'], newFilter['name'])) {
+        return;
+      }
+      newFilter['startDate'] = this.startDate.getTime();
+      newFilter['endDate'] = this.endDate.getTime();
+    } else {
+      //Si aucune option sélectionné on stop
+      return;
+    }
+
+    //On ajoute un attribut déterminant le type de traitement de la donnée en cas de tri
+    if (this.isTri) {
+      newFilter['excludeValue'] = this.excludeOption;
+    }
+
+    //Un filtre ajouté est considéré comme actif
+    newFilter['actif'] = true;
+
+    //On transmet le filtre à param-view
+    this.addFilter.emit(newFilter);
+    this.toastr.success("Filtre ajouté avec succès", '', { 'positionClass': 'toast-bottom-full-width', 'closeButton': true });
   }
+
+  isFiltered(startDate, endDate, type, name): boolean { 
+    let bool = false;
+    for (let i = 0; i < this.filters.length; i++) {
+      if (this.filters[i].name == name) {
+        return true;
+      }
+      switch (this.filters[i].type) {
+        case ('avant le'):
+          if (type == 'avant le') {
+            bool = startDate <= this.filters[i].startDate;
+          } else {
+            bool = startDate < this.filters[i].startDate;
+          }
+          break;
+        case ('jusqu\'au'):
+          bool = startDate <= this.filters[i].startDate;
+          break;
+        case ('après le'):
+          if (type == 'après le') {
+            bool = startDate >= this.filters[i].startDate;
+          } else {
+            bool = startDate > this.filters[i].startDate;
+          }
+          break;
+        case ('à partir'):
+          bool = startDate >= this.filters[i].startDate;
+          break;
+        case ('entre'):
+          if (type == 'entre') {
+            bool = ((startDate >= this.filters[i].startDate) && (startDate <= this.filters[i].endDate)) || ((endDate >= this.filters[i].startDate) && (endDate <= this.filters[i].endDate))
+          } else if (type == 'avant le') {
+            bool = startDate > this.filters[i].startDate;
+          } else if ('jusqu\'au') {
+            bool = startDate >= this.filters[i].startDate; 
+          } else if (type == 'après le') {
+            bool = startDate < this.filters[i].endDate ; 
+          } else if (type == 'à partir') {
+            bool = startDate <= this.filters[i].endDate
+          }
+          break;
+      }
+      if (!bool) {
+        switch (type) {
+          case ('avant le'):
+          if (type == 'avant le') {
+            bool = startDate >= this.filters[i].startDate;
+          } else {
+            bool = startDate > this.filters[i].startDate;
+          }
+          break;
+        case ('jusqu\'au'):
+          bool = startDate >= this.filters[i].startDate;
+          break;
+        case ('après le'):
+          if (type == 'après le') {
+            bool = startDate <= this.filters[i].startDate;
+          } else {
+            bool = startDate < this.filters[i].startDate;
+          }
+          break;
+        case ('à partir'):
+          bool = startDate >= this.filters[i].startDate;
+          break;
+        case ('entre'):
+          if (type == 'entre') {
+            bool = ((startDate <= this.filters[i].startDate) && (endDate >= this.filters[i].startDate)) || ((startDate <= this.filters[i].endDate) && (endDate >= this.filters[i].endDate))
+          } else if (type == 'avant le') {
+            bool = startDate < this.filters[i].startDate;
+          } else if ('jusqu\'au') {
+            bool = startDate <= this.filters[i].startDate; 
+          } else if (type == 'après le') {
+            bool = endDate > this.filters[i].startDate; 
+          } else if (type == 'à partir') {
+            bool = endDate >= this.filters[i].startDate; 
+          }
+          break;
+        }
+      }
+      if (bool) {
+        return bool;
+      }
+    }
+    return bool;
+  }
+
+  createName(startDate, type){
+    switch(type){
+      case('avant le'):
+        return "Avant le " + new Date(startDate).toISOString().slice(0,10);  
+      case('jusqu\'au'):
+        return "Jusqu'au " + new Date(startDate).toISOString().slice(0,10);
+      case('après le'):
+        return "Après le " + new Date(startDate).toISOString().slice(0,10);
+      case('à partir'):
+        return "A partir du " + new Date(startDate).toISOString().slice(0,10);
+    } 
+  }
+
 
   myFilter() {
     this.startDate;

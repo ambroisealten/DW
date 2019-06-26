@@ -7,7 +7,7 @@ import { ModalStringManipulationComponent } from '../modal/modal-string-manipula
 import { FilterList } from 'src/app/models/Filter';
 import { Observable } from 'rxjs';
 import { ModalDateManipulationComponent } from '../modal/modal-date-manipulation/modal-date-manipulation.component';
-import {ToastrService } from 'ngx-toastr';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-param-view',
@@ -121,10 +121,13 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   setActifInactif(row) {
     //En laissant le filtre inactif on évite de tester le filtre avec lui-même 
     if (!row['actif']) {
-      if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filterType == "number") {
+      let type = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filterType
+      if (type == "number") {
         this.checkConflictGpmtNumber(row.min, row.max, row.type);
-      } else {
+      } else if (type == "string") {
         this.checkConflictGpmtString(row.listElem);
+      } else if (type == "date") {
+        this.checkConflictGpmtDate(row.startDate, row.endDate, row.type);
       }
     }
     row['actif'] = !row['actif'];
@@ -223,7 +226,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       if (bool)
         filter['actif'] = false;
     })
-  } s
+  }
 
   /**
    * Désactive les filtres en conflit dans le cas ou le type est 'string'
@@ -240,6 +243,93 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       })
       if (bool) {
         filtre.actif = false;
+      }
+    })
+  }
+
+  /**
+   * Désactive les filtres en conflit dans le cas ou le type est 'date'
+   * @param startDate 
+   * @param endDate 
+   * @param type 
+   */
+  checkConflictGpmtDate(startDate, endDate, type) {
+    this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => {
+      let bool = false;
+      switch (filter.type) {
+        case ('avant le'):
+          if (type == 'avant le') {
+            bool = startDate <= filter.startDate;
+          } else {
+            bool = startDate < filter.startDate;
+          }
+          break;
+        case ('jusqu\'au'):
+          bool = startDate <= filter.startDate;
+          break;
+        case ('après le'):
+          if (type == 'après le') {
+            bool = startDate >= filter.startDate;
+          } else {
+            bool = startDate > filter.startDate;
+          }
+          break;
+        case ('à partir'):
+          bool = startDate >= filter.startDate;
+          break;
+        case ('entre'):
+          if (type == 'entre') {
+            bool = ((startDate >= filter.startDate) && (startDate <= filter.endDate)) || ((endDate >= filter.startDate) && (endDate <= filter.endDate))
+          } else if (type == 'avant le') {
+            bool = startDate > filter.startDate;
+          } else if ('jusqu\'au') {
+            bool = startDate >= filter.startDate;
+          } else if (type == 'après le') {
+            bool = startDate < filter.endDate;
+          } else if (type == 'à partir') {
+            bool = startDate <= filter.endDate
+          }
+          break;
+      }
+      if (!bool) {
+        switch (type) {
+          case ('avant le'):
+            if (type == 'avant le') {
+              bool = startDate >= filter.startDate;
+            } else {
+              bool = startDate > filter.startDate;
+            }
+            break;
+          case ('jusqu\'au'):
+            bool = startDate >= filter.startDate;
+            break;
+          case ('après le'):
+            if (type == 'après le') {
+              bool = startDate <= filter.startDate;
+            } else {
+              bool = startDate < filter.startDate;
+            }
+            break;
+          case ('à partir'):
+            bool = startDate >= filter.startDate;
+            break;
+          case ('entre'):
+            if (type == 'entre') {
+              bool = ((startDate <= filter.startDate) && (endDate >= filter.startDate)) || ((startDate <= filter.endDate) && (endDate >= filter.endDate))
+            } else if (type == 'avant le') {
+              bool = startDate < filter.startDate;
+            } else if ('jusqu\'au') {
+              bool = startDate <= filter.startDate;
+            } else if (type == 'après le') {
+              bool = endDate > filter.startDate;
+            } else if (type == 'à partir') {
+              bool = endDate >= filter.startDate;
+            }
+            break;
+        }
+      }
+      if (bool) {
+        filter['actif'] = false;
       }
     })
   }
@@ -261,15 +351,22 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Inclut ou exclut toutes les valeurs 
   */
   masterToggle() {
+    let filterConcerned =   this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1])
     if (this.isAllSelected()) {
       this.selectionTri.clear();
-      this.dataSource.data.forEach(row => {
-        this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(row[this.displayedColumns[1]]);
-      })
+      if(filterConcerned.filterType == 'date'){
+        this.dataSource.data.forEach(row => {
+          filterConcerned.excludeValue.push((new Date(row[this.displayedColumns[1]])).getTime() + "");
+        })
+      } else {
+        this.dataSource.data.forEach(row => {
+          filterConcerned.excludeValue.push(row[this.displayedColumns[1]]+"");
+        })
+      }
     } else {
       this.dataSource.data.forEach(row => {
         this.selectionTri.select(row)
-        this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue = [];
+        filterConcerned.excludeValue = [];
       });
     }
     this.sendFilterList();
@@ -301,7 +398,12 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param row 
    */
   isExclude(row) {
-    return this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.includes(row[this.displayedColumns[1]] + "")
+    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]) ; 
+    if(filterConcerned.filterType == "date"){
+      return filterConcerned.excludeValue.includes((new Date(row[this.displayedColumns[1]])).getTime() + "")
+    } else {
+      return filterConcerned.excludeValue.includes(row[this.displayedColumns[1]] + "")
+    }
   }
 
   /**
@@ -324,13 +426,6 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
   /**************************************************************************************************\
   * 
-  *                                        SELECTION TRI
-  * 
-  \**************************************************************************************************/
-
-
-  /**************************************************************************************************\
-  * 
   *                                        MODAL
   * 
   \**************************************************************************************************/
@@ -346,7 +441,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       case ('string'):
         this.AddFilterString(this.isTri());
         break;
-      case ('symbol'):
+      case ('date'):
         this.AddFilterDate(this.isTri())
     }
   }
@@ -450,13 +545,27 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
     dialogConfig.data = {
       bool: istri,
-      data: this.filteredDataSource(),
-      displayedColumns: [this.displayedColumns[1]]
+      filters: this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters
     }
 
     let dialogRef = this.dialog.open(ModalDateManipulationComponent, dialogConfig);
-    
 
+    //Souscrit à l'ajout de nouveau filtres 
+    const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
+      if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
+        this.excludeOrIncludeFromFilterDate(newFilter);
+      } else {
+        this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.push(newFilter);
+        this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
+        this.toggleFilterGpmt();
+      }
+      this.sendFilterList();
+    });
+
+    //Unsubscribe on close
+    dialogRef.afterClosed().subscribe(() => {
+      sub.unsubscribe();
+    });
   }
 
   /**
@@ -464,30 +573,31 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param filter 
    */
   excludeOrIncludeFromFilter(filter) {
+    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]);
     if (filter['excludeValue'] == 'exclure') {
       this.dataSource.data.forEach(element => {
-        if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max']) && this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1) {
-          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]] + "");
+        if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max']) && filterConcerned.excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1) {
+          filterConcerned.excludeValue.push(element[this.displayedColumns[1]] + "");
         }
       });
     } else if (filter['excludeValue'] == 'inclure') {
       this.dataSource.data.forEach(element => {
         if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max'])) {
-          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf("" + element[this.displayedColumns[1]]);
+          let index = filterConcerned.excludeValue.indexOf("" + element[this.displayedColumns[1]]);
           if (index != -1) {
-            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
+            filterConcerned.excludeValue.splice(index, 1);
           }
         }
       });
     } else if (filter['excludeValue'] == "n'inclure que") {
       this.dataSource.data.forEach(element => {
         if (this.isFiltered(+element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max'])) {
-          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf("" + element[this.displayedColumns[1]]);
+          let index = filterConcerned.excludeValue.indexOf("" + element[this.displayedColumns[1]]);
           if (index != -1) {
-            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
+            filterConcerned.excludeValue.splice(index, 1);
           }
-        } else if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1) {
-          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]] + "");
+        } else if (filterConcerned.excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1) {
+          filterConcerned.excludeValue.push(element[this.displayedColumns[1]] + "");
         }
       });
     }
@@ -562,6 +672,71 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Dans le cas de tri, permet de traiter la donnée selon si le but est d'exclure ou d'inclure les valeurs de type date
+   * @param filter 
+   */
+  excludeOrIncludeFromFilterDate(filter) {
+    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]);
+    if (filter['excludeValue'] == 'exclure') {
+      this.dataSource.data.forEach(element => {
+        if (this.isDateFiltered(element[this.displayedColumns[1]], filter) && filterConcerned.excludeValue.indexOf((new Date(element[this.displayedColumns[1]])).getTime() + "") == -1) {
+          filterConcerned.excludeValue.push(element[this.displayedColumns[1]] + "");
+        }
+      });
+    } else if (filter['excludeValue'] == 'inclure') {
+      this.dataSource.data.forEach(element => {
+        if (this.isDateFiltered(element[this.displayedColumns[1]], filter)) {
+          let index = filterConcerned.excludeValue.indexOf("" + (new Date(element[this.displayedColumns[1]])).getTime());
+          if (index != -1) {
+            filterConcerned.excludeValue.splice(index, 1);
+          }
+        }
+      });
+    } else if (filter['excludeValue'] == "n'inclure que") {
+      this.dataSource.data.forEach(element => {
+        if (this.isDateFiltered(element[this.displayedColumns[1]],filter)) {
+          let index = filterConcerned.excludeValue.indexOf("" + (new Date(element[this.displayedColumns[1]])).getTime());
+          if (index != -1) {
+            filterConcerned.excludeValue.splice(index, 1);
+          }
+        } else if (filterConcerned.excludeValue.indexOf((new Date(element[this.displayedColumns[1]])).getTime() + "") == -1) {
+          filterConcerned.excludeValue.push((new Date(element[this.displayedColumns[1]])).getTime() + "");
+        }
+      });
+    }
+    this.toggleFilter();
+  }
+
+  /**
+   * Permet de savoir si la valeur est filtrée
+   * @param value 
+   * @param filter 
+   */
+  isDateFiltered(value,filter){
+    let bool: boolean = false;
+    switch (filter.type) {
+      case ('avant le'):
+        bool = (value < filter.startDate);
+        break;
+      case ('jusqu\'au'):
+        bool = (value <= filter.startDate);
+        break;
+      case ('après le'):
+        bool = (value > filter.startDate);
+        break;
+      case ('à partir'):
+        bool = (value > filter.startDate);
+        break;
+      case ('entre'):
+        bool = ((value >= filter.startDate) && (value <= filter.endDate));
+        break;
+    }
+    return bool;
+  }
+
+
+
+  /**
    * Permet de n'envoyer à la modale de string que les valeurs qui ne sont pas conflictuelles avec des filtres actifs 
    */
   filteredDataSource() {
@@ -610,6 +785,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         filter.filterType = "number"
       } else if (element.type == "String") {
         filter.filterType = "string"
+      } else if (element.type == "Timestamp") {
+        filter.filterType = "date";
       } else {
         filter.filterType = element.type;
       }

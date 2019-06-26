@@ -155,7 +155,7 @@ export class AppComponent implements OnInit {
 
       //On Initialise les variables 
       this.componentRef.instance.instanceNumber = instanceNumber;
-      this.activeInstance = this.allComponentsObs.length+1;
+      this.activeInstance = this.allComponentsObs.length + 1;
 
       //!\ INUTILE TO SUPPR 
       this.componentRef.instance.droppedText = fieldName;
@@ -196,6 +196,18 @@ export class AppComponent implements OnInit {
 
     }
     ev.preventDefault();
+  }
+
+  random() {
+    let button = document.getElementById('lolKeksButton');
+    let body = document.getElementById('testMain');
+
+    let colors = ["red", "magenta", "cyan", "ivory", "white", "yellow", "aquablue", "marine", "khaki", "maroon", "purple", "grey", "gold", "silver", "pink", "turquoise", "green"];
+
+
+    button.addEventListener('click', () => {
+      body.setAttribute('style', "background-color : " + colors[Math.floor(Math.random() * colors.length)] + "; color :" + colors[Math.floor(Math.random() * colors.length)]);
+    });
   }
 
   /**
@@ -249,7 +261,7 @@ export class AppComponent implements OnInit {
     newDivForChart.appendChild(template);
     chartContainer.setAttribute('id', 'chartContainerDouble');
 
-    if (allChartChilds > 2) { 
+    if (allChartChilds > 2) {
       newDivForChart.setAttribute('class', 'chartsFour');
       chartContainer.appendChild(newDivForChart);
 

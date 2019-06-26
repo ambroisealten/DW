@@ -3,8 +3,6 @@ import { MatDialogRef, MatSelectionList, MatSelectionListChange, MatCheckbox, MA
 import { AnimationStaggerMetadata } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { Filter } from 'src/app/models/Filter';
-import { filter } from 'minimatch';
-import { start } from 'repl';
 
 @Component({
   selector: 'app-modal-date-manipulation',

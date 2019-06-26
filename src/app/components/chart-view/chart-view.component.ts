@@ -53,9 +53,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   //Ancien index lors du drag
   previousIndex: number;
 
-  //Donnée pour les chats -- TO SUPPR MUST BE DYNAMIC 
-  data: any[] = [];
-
 
   constructor() {
   }

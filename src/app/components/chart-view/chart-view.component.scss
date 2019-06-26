@@ -24,6 +24,10 @@
   right: 7vw;
 }
 
+canvas{
+  padding-top: 2vh;
+}
+
 .fab {
   z-index: 100;
   position: absolute;
@@ -35,7 +39,7 @@
   border-radius: 80px;
   height: 0;
   visibility: hidden;
-  transition: linear .3s;
+  transition: linear .6s;
 }
 
 .closeIcon:hover, .fabWrapper:hover + .closeWrapper .closeIcon {
@@ -47,7 +51,7 @@
 
 
 .fab-action-button {
-  transition: linear 0.3s;
+  transition: linear .6s;
 }
 
 .fab:hover .fab-action-button {
@@ -55,7 +59,7 @@
 }
 
 .fab-action-button_icon{
-  transition: linear 0.3s;
+  transition: linear .3s;
 }
 
 .fab:hover .fab-action-button_icon {

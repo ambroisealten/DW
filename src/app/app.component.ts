@@ -17,8 +17,9 @@ export class AppComponent implements OnInit {
   //Titre de l'application
   title = 'DW - Lot 0';
 
-  //
+  //Variable d'environnement pour la création des templates
   containerRepeat = 1;
+
 
   //Nombre de templates
   allTemplates = new Array(environment.maxTemplates);
@@ -176,7 +177,7 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.tableNames.push(tableName);
       const data = this.getData(tableName);
       this.activeTable = [];
-      this.activeTable.push(this.datas.find(element => element.name == tableName))
+      this.activeTable.push(this.datas.find(element => element.name == tableName));
       this.componentRef.instance.data.push(data);
 
       //Initialisation de la communication Parent enfant
@@ -193,14 +194,16 @@ export class AppComponent implements OnInit {
       //On initialise les données à destination de param view
       this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
 
-      // ??? To determine
+      //On ré-initialise les tailles de l'instance créée
       this.componentRef.instance.recheckValues();
 
       //"Sauvegarde" de la ref
       this.allComponentRefs.push(this.componentRef);
 
+      const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
+
       //Changement de l'attribut selon le nombre de graphe présent
-      if (this.containerRepeat > 2) {
+      if (allChartChilds > 3) {
         target.setAttribute('class', 'chartContainedFour');
       } else {
         target.setAttribute('class', 'chartContained');
@@ -209,6 +212,7 @@ export class AppComponent implements OnInit {
     }
     ev.preventDefault();
   }
+
 
   /**
    * [0] message type
@@ -229,6 +233,10 @@ export class AppComponent implements OnInit {
           this.setActiveTable(messageSplited);
         }
         break;
+      case 'destroyed':
+        this.activeTable = this.datas;
+        this.diviseChartsSegment();
+        break;
       default:
         break;
     }
@@ -248,7 +256,7 @@ export class AppComponent implements OnInit {
   }
 
   /**
-   * Reception des messages venus du panel de droit 
+   * Reception des messages venus du panel de droite
    */
   messageReceiveFromRightPanel($event) {
     //Envoi des filtres vers l'enfant
@@ -256,14 +264,14 @@ export class AppComponent implements OnInit {
   }
 
   /**
-   * 
+   * Permet d'activer le drop
    */
   allowDrop(ev) {
     ev.preventDefault();
   }
 
   /**
-   * 
+   * Parcourt le div contenant les templates disponibles, et retourne la première contenue dans ce div
    * @param idNumber 
    */
   parseTemplateDiv(idNumber: string) {
@@ -282,35 +290,25 @@ export class AppComponent implements OnInit {
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 
+    const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
+
     this.containerRepeat += 1;
+    const newDivForChart = document.createElement('div');
+    newDivForChart.setAttribute('id', this.containerRepeat.toString());
+    const template = this.parseTemplateDiv(this.containerRepeat.toString());
+    newDivForChart.appendChild(template);
+    if(allChartChilds < 2) chartContainer.setAttribute('id', 'chartContainerSimple');
+    else chartContainer.setAttribute('id', 'chartContainerDouble');
 
-    if (this.containerRepeat > 2) {
-      const newDivForChart = document.createElement('div');
+    if (allChartChilds > 2) {
       newDivForChart.setAttribute('class', 'chartsFour');
-      newDivForChart.setAttribute('id', this.containerRepeat.toString());
-      newDivForChart.addEventListener('click', (event) => this.resetActiveTable(event));
-
-
-      const template = this.parseTemplateDiv(this.containerRepeat.toString());
-      newDivForChart.appendChild(template);
-
-      chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
 
       this.resizeAllCharts();
     }
     else {
-      const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'charts');
-      newDivForChart.setAttribute('id', this.containerRepeat.toString());
-      newDivForChart.setAttribute('value', this.containerRepeat + "")
-      newDivForChart.addEventListener('click', (event) => this.resetActiveTable(event));
 
-      const template = this.parseTemplateDiv(this.containerRepeat.toString());
-      newDivForChart.appendChild(template);
-
-
-      chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
 
       this.resizeAllCanvas();
@@ -328,7 +326,7 @@ export class AppComponent implements OnInit {
   }
 
   /**
-   * 
+   * Permet de redimmensionner tous les canvas/tableaux lors d'un changement
    */
   resizeAllCanvas() {
     if (this.containerRepeat == 2 || this.containerRepeat == 3) {
@@ -350,7 +348,7 @@ export class AppComponent implements OnInit {
   }
 
   /**
-   * 
+   * Permet de redimmensionner le container des charts (avec un fils) lors d'un changement
    */
   resizeContainedCharts() {
     const containedCharts = document.getElementsByClassName('chartContained');
@@ -363,7 +361,7 @@ export class AppComponent implements OnInit {
   }
 
   /**
-   * 
+   * Permet de redimensionner le container des charts (sans fils) lors d'un changement
    */
   resizeBlankCharts() {
     const blankCharts = document.getElementsByClassName('charts');

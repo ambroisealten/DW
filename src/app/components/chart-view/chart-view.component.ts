@@ -88,7 +88,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * 
+   * Changement des tailles du canvas et de la vue
    */
   recheckValues() {
     if (this.currentType != "tab") {
@@ -338,7 +338,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * 
+   * Change le type du chart en fonction du type renseigné (tableau ou chart issu de la librairie Chart.js)
    * @param type 
    */
   changeChartView(type: string) {
@@ -361,6 +361,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** 
+  * Définit si le canvas (template d'apparition du chart) doit apparaître ou non
+  * @param display 
+  */
   setCanvasSettings(display: boolean) {
     this.myCanvas.nativeElement.style = 'display : none';
     if (display) { this.myCanvas.nativeElement.style = 'display : inline-block'; }
@@ -370,9 +374,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.resetCanvasHeightAndWidth();
   }
 
+  /**
+   * Création du chart en fonction des données inclues et du type donné
+   * @param chartType
+   */
   modifyChartView(chartType: string) {
     const chartData = [];
-    console.log(this.data);
+
     const data = this.data.find(data => data.tableName === this.tableNames[0]).values.map(val => val[this.droppedText]);
 
     const labels = [];
@@ -416,7 +424,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         },
         responsive: false,
         maintainAspectRatio: true
-
       }
     });
   }
@@ -448,20 +455,18 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
     const chartsLength = allContained + allCharts + allChartsFour + allContainedFour;
 
-    if (chartsLength > 1) {
-      const divContainer = this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode;
+    const divContainer = this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode;
 
-      const templateContainer = document.getElementById('templates');
-      templateContainer.appendChild(divContainer.firstChild);
+    const templateContainer = document.getElementById('templates');
+    templateContainer.appendChild(divContainer.firstChild);
 
-      divContainer.parentNode.removeChild(divContainer);
+    divContainer.parentNode.removeChild(divContainer);
 
-      if (chartsLength === 2) {
-        const mainContainer = document.getElementById('chartContainerDouble');
-        mainContainer.setAttribute('id', 'chartContainerSimple');
-      }
-    } else {
-      console.log('You can\'t destroy your one and only chart !');
+    this.toParent.emit('destroyed');
+
+    if (chartsLength === 2) {
+      const mainContainer = document.getElementById('chartContainerDouble');
+      mainContainer.setAttribute('id', 'chartContainerSimple');
     }
   }
 
@@ -492,6 +497,20 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  resizeContainers() {
+    const allContained = Array.from(document.getElementsByClassName('chartContainedFour'));
+
+    allContained.forEach(contained => {
+      contained.setAttribute('class', 'chartContained');
+    });
+
+    const allContainers = Array.from(document.getElementsByClassName('chartsFour'));
+
+    allContainers.forEach(container => {
+      container.setAttribute('class', 'charts');
+    })
+  }
+
   /**
    * Permet de déterminer si la valeur fait partie des données exclue ou non 
    * @param data 
@@ -504,12 +523,14 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   /**
    * Say to the parents the active child
    */
-  emitActiveInstance(){
-    let message = "actif/" + this.instanceNumber + "/" ;
-    for(let i = 0 ; i < this.tableNames.length ; i++){
-      message += this.tableNames[i] + "/" ;
+  emitActiveInstance(event) {
+    if (event.target.tagName != "I") {
+      let message = "actif/" + this.instanceNumber + "/";
+      for (let i = 0; i < this.tableNames.length; i++) {
+        message += this.tableNames[i] + "/";
+      }
+      this.toParent.emit(message)
     }
-    this.toParent.emit(message)
   }
 
 }

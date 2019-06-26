@@ -177,7 +177,7 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.tableNames.push(tableName);
       const data = this.getData(tableName);
       this.activeTable = [];
-      this.activeTable.push(this.datas.find(element => element.name == tableName))
+      this.activeTable.push(this.datas.find(element => element.name == tableName));
       this.componentRef.instance.data.push(data);
 
       //Initialisation de la communication Parent enfant
@@ -303,7 +303,8 @@ export class AppComponent implements OnInit {
     newDivForChart.setAttribute('id', this.containerRepeat.toString());
     const template = this.parseTemplateDiv(this.containerRepeat.toString());
     newDivForChart.appendChild(template);
-    chartContainer.setAttribute('id', 'chartContainerDouble');
+    if(allChartChilds < 2) chartContainer.setAttribute('id', 'chartContainerSimple');
+    else chartContainer.setAttribute('id', 'chartContainerDouble');
 
     if (allChartChilds > 2) {
       newDivForChart.setAttribute('class', 'chartsFour');

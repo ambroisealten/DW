@@ -1,8 +1,13 @@
+<header>
+  <figure>
+    <img src="assets/images/football.png" alt="Logo" />
+    <figcaption>DW</figcaption>
+  </figure>
+</header>
 <main>
   <nav>
     <div class="data">
       <h1>Données</h1>
-      <button id="lolKeksButton" (click)="random()"></button>
       <hr size="1" color="lightgray">
       <mat-accordion class="accordion-headers-align">
         <mat-expansion-panel *ngFor="let data of activeTable">
@@ -12,7 +17,8 @@
             </mat-panel-title>
           </mat-expansion-panel-header>
           <hr size="1" color="lightgray">
-          <h6 class="field" draggable="true" *ngFor="let field of data.fields" (dragstart)="onDragField($event,field.name,data.name)">
+          <h6 class="field" draggable="true" *ngFor="let field of data.fields"
+            (dragstart)="onDragField($event,field.name,data.name)">
             {{ field.name }}
           </h6>
         </mat-expansion-panel>
@@ -25,13 +31,14 @@
       <template #chartHost></template>
     </div>
     <div class="fab">
-        <span class="fab-action-button">
-              <i class="fab-action-button_icon icon-material_add" (click)="diviseChartsSegment()"></i>
-          </span>
-      </div>
+      <span class="fab-action-button">
+        <i class="fab-action-button_icon icon-material_add" (click)="diviseChartsSegment()"></i>
+      </span>
+    </div>
   </div>
   <aside class="right_panel">
-    <app-param-view [parentObs]="obsRightPanel" (messageEvent)="messageReceiveFromRightPanel($event)" class="paramview"></app-param-view>    
+    <app-param-view [parentObs]="obsRightPanel" (messageEvent)="messageReceiveFromRightPanel($event)" class="paramview">
+    </app-param-view>
   </aside>
 </main>
 <div id='templates'>

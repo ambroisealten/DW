@@ -5,6 +5,7 @@ import { ChartViewComponent } from './components/chart-view/chart-view.component
 import { Subject, Subscription, Observable } from 'rxjs';
 import { DataTable } from './models/data';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',

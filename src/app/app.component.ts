@@ -3,6 +3,7 @@ import { DataService } from './services/dataService';
 import { DataScheme } from './models/dataScheme';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { Subject, Subscription, Observable } from 'rxjs';
+import { DataTable } from './models/data';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -35,9 +36,13 @@ export class AppComponent implements OnInit {
 
   //Information sur les tables & champs
   datas: DataScheme[] = [];
-
-  //Données 
-  datasDetails: DataScheme[] = [];
+  dataTable: DataTable[] = [];
+  tableStored: string[] = [];
+  i: number;
+  charge = 0;
+  value: any;
+  elaspedTime: number;
+  count: number;
 
   //Instance active
   activeInstance: number;
@@ -55,26 +60,49 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     //Récupération des données sur les tables et les champs
+    this.i = 0;
     this.dataService.fetchDataScheme().subscribe(response => {
       (response as any[]).forEach(element => {
-        let fields = [];
-        //Nom champ = attribut récupération de l'information
+        const fields = [];
         Object.keys(element.fields).forEach(field => {
           fields.push({ name: field, type: element.fields[field] });
-        })
-        //Sort pour que ce soit plus propre
+        });
         fields.sort((e1, e2) => e1.name > e2.name ? 1 : -1);
         this.datas.push({ name: element.name, fields: fields });
       });
     });
+  }
 
-    //Récupérations des données 
-    this.dataService.getData().subscribe((response: any[]) => {
-      const datasFetched = response;
-      datasFetched.forEach(element => {
-        this.datasDetails.push(element);
+  getData(tableName: string) {
+    if (this.tableStored.includes(tableName)) {
+      return this.dataTable.find(data => data.tableName === tableName);
+    } else {
+      return this.loadDataAsync(tableName);
+    }
+  }
+
+  loadDataAsync(tableName: string) {
+    this.charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
+    if (this.i === 0) {
+      console.log('Start data loading');
+    }
+    if (this.charge < 1000) {
+      this.dataService.getData(tableName, this.i * environment.maxSizePacket, environment.maxSizePacket).subscribe((response: any[]) => {
+        if (response.length === 0) {
+          this.i = 0;
+          console.log('DATA LOADED - Final charge : ' + this.charge);
+          return this.dataTable.find(data => data.tableName === tableName);
+        }
+        const datasFetched = response;
+        this.dataTable.push(new DataTable(tableName, datasFetched));
+        this.tableStored.push(tableName);
+        this.loadDataAsync(tableName);
       });
-    }); 
+      this.i += 1;
+    } else {
+      console.log('DATA LOADED - Final charge : ' + this.charge);
+      return this.dataTable.find(data => data.tableName === tableName);
+    }
   }
 
   /**************************************************************************************************\
@@ -94,6 +122,7 @@ export class AppComponent implements OnInit {
     ev.dataTransfer.setData('colName', field);
     ev.dataTransfer.setData('colNameDetail', field);
     ev.dataTransfer.setData('tableName', name);
+    ev.dataTransfer.setData('data', JSON.stringify(this.getData(name)));
   }
 
 
@@ -129,7 +158,9 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.droppedText = fieldName;
 
       this.componentRef.instance.displayedColumns = [fieldName];
-      this.componentRef.instance.datas = this.datasDetails;
+      this.componentRef.instance.tableNames.push(ev.dataTransfer.getData('tableName'));
+      const data = this.getData(ev.dataTransfer.getData('tableName'));
+      this.componentRef.instance.data.push(data);
 
       //Initialisation de la communication Parent enfant
       //Enfant vers Parent
@@ -167,7 +198,6 @@ export class AppComponent implements OnInit {
    * @param message 
    */
   handleMessageFromChild(message) {
-
   }
 
   /**

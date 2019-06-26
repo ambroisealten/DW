@@ -105,6 +105,7 @@ export class AppComponent implements OnInit {
       this.dataService.getData(tableName, this.i * environment.maxSizePacket, environment.maxSizePacket).subscribe((response: any[]) => {
         if (response.length === 0) {
           this.i = 0;
+          console.log('DATA LOADED - Final charge : ' + this.charge);
           return this.dataTable.find(data => data.tableName === tableName);
         }
         const datasFetched = response;
@@ -178,7 +179,6 @@ export class AppComponent implements OnInit {
   }
 
   handleMessageFromChild(message) {
-
   }
 
   messageReceiveFromRightPanel($event) {

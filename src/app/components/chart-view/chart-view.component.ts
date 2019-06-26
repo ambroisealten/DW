@@ -107,8 +107,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   onDrop(ev) {
-    const data = JSON.parse(ev.dataTransfer.getData('data')) as DataTable;
-    this.data.push(data);
+    
     const colName = ev.dataTransfer.getData('colName');
 
     this.displayedColumns.push(colName);
@@ -285,18 +284,22 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   modifyChartView(chartType: string) {
-    console.log(this.data.find(data => data.tableName === this.tableNames[0]).values);
-    const testData = this.data.find(data => data.tableName === this.tableNames[0]).values.map(val => val[this.droppedText]);
-    console.log(testData);
-    const labels = testData.map(el => {
-      return this.droppedText + ' : ' + el.toString();
-    });
+    const chartData = [];
+    const data = this.data.find(data => data.tableName === this.tableNames[0]).values.map(val => val[this.droppedText]);
 
+    const labels = [];
+
+    const lol = this.frequencies(data).values;
+    // tslint:disable-next-line: forin
+    for (const key in lol) {
+      labels.push(key);
+      chartData.push(lol[key]);
+    }
 
     const test = [];
     let inter = 0;
     for (let i = 0; i < labels.length; i++) {
-      if (i % this.allColors.length == 0) {
+      if (i % this.allColors.length === 0) {
         inter = 0;
       }
       test.push(this.allColors[inter]);
@@ -306,10 +309,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.chart = new Chart(this.context, {
       type: chartType,
       data: {
-        labels: labels,
+        labels,
         datasets: [
           {
-            data: testData as number[],
+            data: chartData as number[],
             backgroundColor: test,
             borderColor: '#00000',
             fill: true
@@ -328,6 +331,21 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
       }
     });
+  }
+
+  frequencies(array: any[]) {
+    const freqs = { values: {}, sum: 0 };
+    array.map(function (a) {
+      if (!(a in this.values)) {
+        this.values[a] = 1;
+      } else {
+        this.values[a] += 1;
+      }
+      this.sum += 1;
+      return a;
+    }, freqs
+    );
+    return freqs;
   }
 
   resetChartView() {

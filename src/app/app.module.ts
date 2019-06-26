@@ -7,7 +7,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { DataService } from './services/dataService';
-import { ViewService } from './services/viewService';
 
 import { ModalDataManipulationComponent } from './components/modal/modal-data-manipulation/modal-data-manipulation.component';
 import { ParamViewComponent } from './components/param-view/param-view.component';
@@ -15,6 +14,9 @@ import { MatTableModule, MatRadioModule, MatFormFieldModule, MatSlideToggleModul
 import { MatIconModule } from '@angular/material/icon';
 import { ModalStringManipulationComponent } from './components/modal/modal-string-manipulation/modal-string-manipulation.component';
 import { FormsModule } from '@angular/forms';
+import { CdkTableModule } from '@angular/cdk/table';
+import { CdkTreeModule } from '@angular/cdk/tree';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -43,12 +45,15 @@ import { FormsModule } from '@angular/forms';
     HttpClientModule,
     MatExpansionModule,
     BrowserModule,
+    MatButtonModule,
     BrowserAnimationsModule,
-    MatButtonModule
+    MatTableModule,
+    CdkTableModule,
+    CdkTreeModule,
+    DragDropModule
   ],
   providers: [
     DataService,
-    ViewService
   ],
   entryComponents: [
     ChartViewComponent,

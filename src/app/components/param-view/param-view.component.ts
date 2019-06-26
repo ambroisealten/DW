@@ -1,30 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialogConfig, MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ModalDataManipulationComponent } from '../modal/modal-data-manipulation/modal-data-manipulation.component';
 import { ModalStringManipulationComponent } from '../modal/modal-string-manipulation/modal-string-manipulation.component';
 import { FilterList } from 'src/app/models/Filter';
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
-];
+import { Observable } from 'rxjs';
+import { filter } from 'minimatch';
 
 @Component({
   selector: 'app-param-view',
@@ -33,38 +15,51 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class ParamViewComponent implements OnInit, OnDestroy {
 
-  booleanString: boolean;
 
-  displayedColumns: string[] = ['select', 'name'];
-  columns: string[] = ['position', 'name', 'weight', 'symbol'];
+  //Canal de communication enfant vers Parent 
+  @Output() messageEvent = new EventEmitter<any>();
+
+  //Canal de communication Parent vers Enfant
+  @Input() parentObs: Observable<any>;
+  parentSub;
+
+  //Colonne de l'onglet 
+  displayedColumns: string[] = [];
+
+  //Information du DropDown
+  columns: string[] = [];
   column;
 
-  filterList: FilterList[] = [
-    { filterColumn: "name", filterType: "string", excludeValue: ["Hydrogen"], filters: [] },
-    { filterColumn: "weight", filterType: "number", excludeValue: ["4.0026"], filters: [] },
-  ];
+  //Filtres 
+  filterList: FilterList[] = [];
 
+  //Information concernant l'onglet actuel de l'utilisateur 
   selectedIndex: string;
 
-  //Groupement 
+  //Données groupement 
   selectionGpmt = new SelectionModel<any>(true, []);
   dataSourceGpmt = new MatTableDataSource<any>();
 
-  //Tri
-  dataSource = new MatTableDataSource<any>(ELEMENT_DATA);
+  //Données tri 
+  dataSource = new MatTableDataSource<any>();
   selectionTri = new SelectionModel<any>(true, []);
 
   constructor(private dialog: MatDialog) { }
 
   ngOnInit() {
-    this.toggleFilter();
-    this.dataSource.data.sort((e1, e2) => e1[this.displayedColumns[1]] > e2[this.displayedColumns[1]] ? 1 : -1);
+    //Création du canal Parent-Enfant 
+    this.parentSub = this.parentObs.subscribe(dataParent => this.handleDataFromParent(dataParent));
   }
 
   ngOnDestroy() {
     this.dialog.closeAll();
+    //Unsubscribe au canal
+    if (this.parentSub != undefined) {
+      this.parentSub.unsubscribe();
+    }
   }
 
+  //Lors d'un changement de colonne reset les sélections et les données affichées
   changeColumn() {
     this.displayedColumns = ['select', this.column];
     this.selectionTri.clear();
@@ -79,6 +74,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   *                                        SELECTION GROUPEMENT
   * 
   \**************************************************************************************************/
+
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelectedGpmt() {
     const numSelected = this.selectionGpmt.selected.length;
@@ -86,18 +82,18 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     return numSelected === numRows;
   }
 
+  /**
+   * Du fait des conflits, impossible de tout sélectionner les filtres
+   */
   masterToggleGpmt() {
-    if (this.isAllSelectedGpmt()) {
-      this.selectionGpmt.clear()
-      this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => filter.actif = false)
-    } else {
-      this.dataSourceGpmt.data.forEach(row => {
-        this.selectionGpmt.select(row)
-        this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => filter.actif = true)
-      });
-    }
+    this.selectionGpmt.clear()
+    this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => filter.actif = false)
+    this.sendFilterList();
   }
 
+  /**
+   * Selectionne toutes les filtres actifs 
+   */
   toggleFilterGpmt() {
     this.dataSourceGpmt.data.forEach(row => {
       if (row['actif']) {
@@ -116,84 +112,134 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     return `${this.selectionGpmt.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
   }
 
+  /**
+   * Lors d'un click sur une donnée, active ou désactive le filtre selon son précédent état
+   * Si on le rend actif, on désactive les filtres conflictuelles 
+   * @param row 
+   */
   setActifInactif(row) {
+    //En laissant le filtre inactif on évite de tester le filtre avec lui-même 
     if (!row['actif']) {
       if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filterType == "number") {
-        this.checkConflictGpmtNumber(row.min, row.type);
-        this.checkConflictGpmtNumber(row.max, row.type);
+        this.checkConflictGpmtNumber(row.min, row.max, row.type);
       } else {
-        this.checkConflictGpmtString(row.listElem) ; 
+        this.checkConflictGpmtString(row.listElem);
       }
     }
     row['actif'] = !row['actif'];
     this.toggleFilterGpmt();
+    this.sendFilterList();
   }
 
+  /**
+   * Initialise les données du tableau de l'onglet groupement 
+   */
   setDatasourceGpmt() {
     this.dataSourceGpmt = new MatTableDataSource<any>(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters)
   }
 
-  checkConflictGpmtNumber(value, type) {
+  /**
+   * Désactive les filtres en conflit dans le cas ou le type est 'number'
+   * @param valueMin 
+   * @param valueMax 
+   * @param type 
+   */
+  checkConflictGpmtNumber(valueMin, valueMax, type) {
     this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => {
       let bool = false;
-      if (!bool) {
-        switch (filter.type) {
-          case ('inf. à'):
-            bool = (value < filter.min);
-            break;
-          case ('inf. égal à'):
-            bool = (value <= filter.min);
-            break;
-          case ('égal'):
-            bool = (value == filter.min);
-            break;
-          case ('sup. à'):
-            bool = (value > filter.min);
-            break;
-          case ('sup. égal à'):
-            bool = (value > filter.min);
-            break;
-          case ('compris'):
-            bool = ((value >= filter.min) && (value <= filter.max));
-            break;
+      if (filter.actif) {
+        if (!bool) {
+          switch (filter.type) {
+            case ('inf. à'):
+              if (type == 'inf. à' || type == 'inf. égal à') {
+                bool = valueMin <= filter.min
+              } else {
+                bool = (valueMin < filter.min);
+              }
+              break;
+            case ('inf. égal à'):
+              bool = (valueMin <= filter.min);
+              break;
+            case ('sup. à'):
+              if (type == 'sup. à' || type == 'sup. égal à') {
+                bool = valueMin >= filter.min
+              } else {
+                bool = (valueMin > filter.min);
+              }
+              break;
+            case ('sup. égal à'):
+              bool = (valueMin > filter.min);
+              break;
+            case ('compris'):
+              if (type == 'compris') {
+                bool = (((valueMin >= filter.min) && (valueMin <= filter.max)) || ((valueMax >= filter.min) && (valueMax <= filter.max)));
+              } else if (type == 'inf. à') {
+                bool = valueMin > filter.min;
+              } else if (type == 'inf. égal à') {
+                bool = valueMin >= filter.min;
+              } else if (type == 'sup. égal à') {
+                bool = valueMin <= filter.max;
+              } else if (type == 'sup. à') {
+                bool = valueMin < filter.max;
+              } else {
+                bool = (valueMin >= filter.min) && (valueMin <= filter.max)
+              }
+              break;
+          }
         }
-      }
-      if (!bool) {
-        switch (type) {
-          case ('inf. à'):
-            bool = (value > filter.min);
-            break;
-          case ('inf. égal à'):
-            bool = (value >= filter.min);
-            break;
-          case ('égal'):
-            bool = (value == filter.min);
-            break;
-          case ('sup. à'):
-            bool = (filter.min > value);
-            break;
-          case ('sup. égal à'):
-            bool = (filter.min >= value);
-            break;
+        if (!bool) {
+          switch (type) {
+            case ('inf. à'):
+              bool = (valueMin > filter.min);
+              break;
+            case ('inf. égal à'):
+              bool = (valueMin >= filter.min);
+              break;
+            case ('sup. à'):
+              bool = (filter.min > valueMin);
+              break;
+            case ('sup. égal à'):
+              bool = (filter.min >= valueMin);
+              break;
+            case ('compris'):
+              if (filter.type == 'compris') {
+                bool = (((valueMin <= filter.min) && (valueMax >= filter.min)) || ((valueMin <= filter.max) && (valueMax >= filter.max)));
+              } else if (type == 'inf. à') {
+                bool = valueMin < filter.min;
+              } else if (type == 'inf. égal à') {
+                bool = valueMin <= filter.min;
+              } else if (type == 'sup. égal à') {
+                bool = valueMin >= filter.min;
+              } else if (type == 'sup. à') {
+                bool = valueMin > filter.min;
+              } else {
+                bool = (valueMin <= filter.min) && (valueMax >= filter.min)
+              }
+              break;
+          }
         }
       }
       if (bool)
         filter['actif'] = false;
     })
-  }
+  } s
 
+  /**
+   * Désactive les filtres en conflit dans le cas ou le type est 'string'
+   * @param listElem 
+   */
   checkConflictGpmtString(listElem) {
     this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filtre => {
-      let bool = false ; 
+      let bool = false;
       listElem.forEach(element => {
-        if(filtre.listElem.includes(element)){
-          bool = true ; 
-          return ;  
+        if (filtre.listElem.includes(element)) {
+          bool = true;
+          return;
         }
       })
-      if(bool){
-        filtre.actif = false ; 
-      } 
+      if (bool) {
+        filtre.actif = false;
+      }
     })
   }
 
@@ -210,7 +256,9 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     return numSelected === numRows;
   }
 
-  /** Selects all rows if they are not all selected; otherwise clear selectionTri. */
+  /** Selects all rows if they are not all selected; otherwise clear selectionTri. 
+   * Inclut ou exclut toutes les valeurs 
+  */
   masterToggle() {
     if (this.isAllSelected()) {
       this.selectionTri.clear();
@@ -223,8 +271,12 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue = [];
       });
     }
+    this.sendFilterList();
   }
 
+  /**
+   * Sélectionne les valeurs qui ne sont pas exclues, le cas contraire les déselectionne
+   */
   toggleFilter() {
     this.dataSource.data.forEach(row => {
       if (!this.isExclude(row)) {
@@ -243,10 +295,20 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     return `${this.selectionTri.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
   }
 
+  /**
+   * Permet de déterminer si la donnée est exclue ou non 
+   * @param row 
+   */
   isExclude(row) {
     return this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.includes(row[this.displayedColumns[1]] + "")
   }
 
+  /**
+   * Inclut ou Exclut la valeur 
+   * Si la valeur était exclut, l'enlève de liste des valeurs exclues du filtre
+   * Sinon l'ajoute 
+   * @param row 
+   */
   excludeOrInclude(row) {
     let newFilter = row[this.displayedColumns[1]] + ""
     let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(newFilter);
@@ -256,6 +318,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
     }
     this.selectionTri.toggle(row);
+    this.sendFilterList();
   }
 
   /**************************************************************************************************\
@@ -264,9 +327,11 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   * 
   \**************************************************************************************************/
 
+  /**
+   * Permet de déterminer quel modale ouvrir selon le type de la donnée 
+   */
   whichDialog() {
-    let dataType = typeof (this.dataSource.data[0][this.displayedColumns[1]]);
-    switch (dataType) {
+    switch (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filterType) {
       case ('number'):
         this.AddFilter(this.isTri());
         break;
@@ -274,13 +339,19 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.AddFilterString(this.isTri());
         break;
     }
-
   }
 
+  /**
+   * Permet de déterminer si l'onglet est tri ou groupement 
+   */
   isTri(): boolean {
     return this.selectedIndex == "1";
   }
 
+  /**
+   * Ouvre la modale de filtre sur les nombres 
+   * @param isTri
+   */
   AddFilter(istri) {
     const dialogConfig = new MatDialogConfig();
 
@@ -290,14 +361,16 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.direction = 'ltr';
     dialogConfig.closeOnNavigation = true;
 
+    //Initialise les données 
     dialogConfig.data = {
       bool: istri,
       filters: this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters
     }
 
     let dialogRef = this.dialog.open(ModalDataManipulationComponent, dialogConfig);
+
+    //Souscrit à l'ajout de nouveaux filtres 
     const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
-      console.log(newFilter)
       if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
         this.excludeOrIncludeFromFilter(newFilter);
       } else {
@@ -305,12 +378,19 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
         this.toggleFilterGpmt();
       }
+      this.sendFilterList();
     });
+
+    //Unsubscribe on close 
     dialogRef.afterClosed().subscribe(() => {
       sub.unsubscribe();
     });
   }
 
+  /**
+   * Ouvre la modale de filtre sur les strings 
+   * @param istri 
+   */
   AddFilterString(istri) {
     const dialogConfig = new MatDialogConfig();
 
@@ -320,13 +400,17 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.direction = 'ltr';
     dialogConfig.closeOnNavigation = true;
 
+    //Initialise les données envoyées à la modale 
     dialogConfig.data = {
       bool: istri,
       data: this.filteredDataSource(),
+      filters: this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters,
       displayedColumns: [this.displayedColumns[1]]
     }
 
     let dialogRef = this.dialog.open(ModalStringManipulationComponent, dialogConfig);
+
+    //Souscrit à l'ajout de nouveau filtres 
     const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
       if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
         this.excludeOrIncludeFromFilterString(newFilter);
@@ -335,14 +419,20 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
         this.toggleFilterGpmt();
       }
+      this.sendFilterList();
     });
 
+    //Unsubscribe on close
     dialogRef.afterClosed().subscribe(() => {
       sub.unsubscribe();
     });
 
   }
 
+  /**
+   * Dans le cas de tri, permet de traiter la donnée selon si le but est d'exclure ou d'inclure les valeurs de type number 
+   * @param filter 
+   */
   excludeOrIncludeFromFilter(filter) {
     if (filter['excludeValue'] == 'exclure') {
       this.dataSource.data.forEach(element => {
@@ -371,10 +461,16 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         }
       });
     }
-    console.log(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue)
     this.toggleFilter();
   }
 
+  /**
+   * Permet de déterminer si la valeur est filtrée (type number)
+   * @param value 
+   * @param type 
+   * @param comparatorMin 
+   * @param comparatorMax 
+   */
   isFiltered(value, type, comparatorMin, comparatorMax) {
     let bool: boolean = false;
     switch (type) {
@@ -400,6 +496,10 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     return bool;
   }
 
+  /**
+   * Dans le cas de tri, permet de traiter la donnée selon si le but est d'exclure ou d'inclure les valeurs de type string 
+   * @param filter 
+   */
   excludeOrIncludeFromFilterString(filter) {
     if (filter['excludeValue'] == 'exclure') {
       this.dataSource.data.forEach(element => {
@@ -431,25 +531,77 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     this.toggleFilter();
   }
 
+  /**
+   * Permet de n'envoyer à la modale de string que les valeurs qui ne sont pas conflictuelles avec des filtres actifs 
+   */
   filteredDataSource() {
     if (this.isTri() || this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.length == 0) {
       return this.dataSource;
     }
     let dialogDataSource = new MatTableDataSource();
-    let excludes: any[] = [] ; 
+    let excludes: any[] = [];
     this.dataSource.data.forEach(data => {
       this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => {
         if (filter.actif && filter.listElem.includes(data[this.displayedColumns[1]])) {
-          excludes.push(data) ; 
-        } 
+          excludes.push(data);
+        }
       })
     })
     this.dataSource.data.forEach(data => {
-      if(!excludes.includes(data)){
-        dialogDataSource.data.push(data) ; 
+      if (!excludes.includes(data)) {
+        dialogDataSource.data.push(data);
       }
     })
     return dialogDataSource;
   }
 
+  /**************************************************************************************************\
+  * 
+  *                                        Data Exchange
+  * 
+  \**************************************************************************************************/
+
+  /**
+   * Permet gérer la donnée reçu du Parent 
+   * @param data Donnée envoyée par le parent
+   */
+  handleDataFromParent(data) {
+    //Initialise les filtres 
+    this.columns = [];
+    this.filterList = [];
+    this.dataSource = new MatTableDataSource();
+    data.fields.forEach(element => {
+      this.columns.push(element.name);
+      let filter = new FilterList();
+      filter.filterColumn = element.name;
+      filter.excludeValue = [];
+      filter.filters = [];
+      if (this.isNumber(element.type)) {
+        filter.filterType = "number"
+      } else if (element.type == "String") {
+        filter.filterType = "string"
+      } else {
+        filter.filterType = element.type;
+      }
+      this.filterList.push(filter);
+    });
+    this.column = this.filterList[0].filterColumn;
+    this.changeColumn();
+    this.sendFilterList();
+  }
+
+  /**
+   * Permet de déterminer si le type sauvegarder en BDD est un number 
+   */
+  isNumber(type): boolean {
+    let numberElement = ["Long", "Double", "Integer"]
+    return numberElement.includes(type);
+  }
+
+  /**
+   * Envoie vers le Parent la liste des filtres 
+   */
+  sendFilterList() {
+    this.messageEvent.emit(this.filterList);
+  }
 }

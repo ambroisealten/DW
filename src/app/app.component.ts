@@ -11,62 +11,118 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+
+  //Titre de l'application
   title = 'DW - Lot 0';
 
   //Variables d'environnement pour la création des templates
   containerRepeat = 1;
   allTemplates = new Array(environment.maxTemplates);
 
-  allTemplates = new Array(environment.maxTemplates);
 
+  //Liste des entries pour les templates
   @ViewChildren('chartHost', { read: ViewContainerRef }) entries: QueryList<ViewContainerRef>;
-  @ViewChildren('chartHost') templates : QueryList<ElementRef>;
 
-  @ViewChild('chart1Host', { read: ViewContainerRef, static: true }) entry1: ViewContainerRef;
-  @ViewChild('chart2Host', { read: ViewContainerRef, static: false }) entry2: ViewContainerRef;
-  @ViewChild('chart3Host', { read: ViewContainerRef, static: false }) entry3: ViewContainerRef;
-  @ViewChild('chart4Host', { read: ViewContainerRef, static: false }) entry4: ViewContainerRef;
+  //Communication vers le panel droit c-à-d gestion des groupements & tris
+  subjectRightPanel: Subject<any>;
+  obsRightPanel: Observable<any>;
 
+  //Tableau des sujets liées aux child pour communiquer
+  allComponentsObs: Subject<any>[] = [];
 
+  //Tableau des refs vers les childs
   allComponentRefs: any[] = [];
 
   componentRef: any;
 
-  constructor(
-    private dataService: DataService,
-    private componentFactoryResolver: ComponentFactoryResolver) { }
-
+  //Information sur les tables & champs
   datas: DataScheme[] = [];
 
+  //Données 
+  datasDetails: DataScheme[] = [];
+
+  //Instance active
+  activeInstance: number;
+
+
+  constructor(
+    private dataService: DataService,
+    private componentFactoryResolver: ComponentFactoryResolver) {
+    //Initialisation du canal entre paramView et AppComponent
+    this.subjectRightPanel = new Subject<any>();
+    this.obsRightPanel = this.subjectRightPanel.asObservable();
+  }
+
+
   ngOnInit() {
-    this.dataService.fetchDataScheme().subscribe((response: string) => {
-      // TODO Make that cutest as a puppy
-      const datasFetched = JSON.parse(JSON.stringify(response));
+    //Récupération des données sur les tables et les champs
+    this.dataService.fetchDataScheme().subscribe(response => {
+      (response as any[]).forEach(element => {
+        let fields = [];
+        //Nom champ = attribut récupération de l'information
+        Object.keys(element.fields).forEach(field => {
+          fields.push({ name: field, type: element.fields[field] });
+        })
+        //Sort pour que ce soit plus propre
+        fields.sort((e1, e2) => e1.name > e2.name ? 1 : -1);
+        this.datas.push({ name: element.name, fields: fields });
+      });
+    });
+
+    //Récupérations des données 
+    this.dataService.getData().subscribe((response: any[]) => {
+      const datasFetched = response;
       datasFetched.forEach(element => {
-        this.datas.push(element as DataScheme);
+        this.datasDetails.push(element);
       });
     });
   }
 
+  /**************************************************************************************************\
+  * 
+  *                                        GESTION DU DRAG DES ELEMENTS
+  * 
+  \**************************************************************************************************/
 
-  onDragField(ev, field: string) {
-    ev.dataTransfer.setData('data', this.dataService.fetchData(field));
+  /**
+   * Permet d'initialiser les données que l'on souhaite envoyer par rapport à ce qui a été drag
+   * @param ev 
+   * @param field 
+   * @param name 
+
+   */
+  onDragField(ev, field: string, name) {
     ev.dataTransfer.setData('colName', field);
+    ev.dataTransfer.setData('colNameDetail', field);
+    ev.dataTransfer.setData('tableName', name);
   }
 
-  onDrop(ev) {
 
-    const fieldName = ev.dataTransfer.getData('colName');
+
+  /**
+   * Une fois la donnée drop, on initialise le tableau enfant avec les données et met en place le réseau de communication
+   * @param ev 
+   */
+  onDrop(ev) {
     const target = ev.target;
 
+    //On vérifie que l'élément drag est bien celui qui initialise les données de l'enfant
     if (target.className == 'charts' || target.className == 'chartsFour') {
+
+      //On récupère les données du drag
+      const fieldName = ev.dataTransfer.getData('colName');
+
+      //On détermine l'id de l'enfant 
       const instanceNumber = parseInt(target.id, 10);
 
-      let entryUsed = this.entries.toArray()[target.id - 1];
+      //On récupère l'entries de l'enfant
+      const entryUsed = this.entries.toArray()[target.id - 1];
 
+      //On crée le composant enfant
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
 
+      //On Initialise les variables 
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.activeInstance = this.allComponentsObs.length+1;
 
@@ -93,6 +149,7 @@ export class AppComponent implements OnInit {
       //On ré-initialise les tailles de l'instance créée
       this.componentRef.instance.recheckValues();
 
+      //"Sauvegarde" de la ref
       this.allComponentRefs.push(this.componentRef);
 
       const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
@@ -100,8 +157,7 @@ export class AppComponent implements OnInit {
       //Changement de l'attribut selon le nombre de graphe présent
       if (allChartChilds > 3) {
         target.setAttribute('class', 'chartContainedFour');
-      }
-      else {
+      } else {
         target.setAttribute('class', 'chartContained');
       }
 
@@ -139,12 +195,15 @@ export class AppComponent implements OnInit {
   parseTemplateDiv(idNumber: string) {
     let container = document.getElementById('templates');
     let test = container.firstChild;
-    while(test.nodeName != "TEMPLATE" && test.id != idNumber){
+    while (test.nodeName != "TEMPLATE") {
       test = test.nextSibling;
     }
     return test;
   }
-  
+
+  /**
+   * Permet d'ajouter les charts au DOM et de le dimensionner différemment selon le nombre de chart
+   */
   diviseChartsSegment() {
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
@@ -171,9 +230,12 @@ export class AppComponent implements OnInit {
 
       this.resizeAllCanvas();
     }
-    
+
   }
 
+  /**
+   * Appelle les méthodes de redimensionnement 
+   */
   resizeAllCharts() {
     this.resizeBlankCharts();
     this.resizeContainedCharts();
@@ -192,8 +254,7 @@ export class AppComponent implements OnInit {
           this.allComponentRefs.map(componentRef => {
             componentRef.instance.recheckValues();
           });
-        }
-        else if (this.containerRepeat == 3) {
+        } else if (this.containerRepeat == 3) {
           this.allComponentRefs.map(componentRef => {
             componentRef.instance.recheckValues();
           });
@@ -228,5 +289,6 @@ export class AppComponent implements OnInit {
       chart.setAttribute('class', 'chartsFour');
     });
   }
+
 }
 

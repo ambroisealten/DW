@@ -194,42 +194,15 @@ header {
   background-color: #353535;
   color: lightgrey;
   width: 100%;
-  position: fixed;
   max-height: 5vh;
   top: 0;
   padding-left: 1%;
-  margin-bottom: 5%;
-}
-
-figure {
-  margin: 0 auto 0.5% auto;
-}
-
-figcaption {
-  display: inline-block;
-  margin-bottom: 1%;
-  font-size: 4vh;
 }
 
 header img {
-  width: 1.5%;
-}
-
-main {
-  padding-top: 3%;
-  display: grid;
-  grid-template-columns: 1fr 4fr 1fr;
-}
-
-#chartContainerDouble {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-}
-
-main nav {
-  margin-right: 2%;
-  padding-left: 2%;
-  border-right: 1px solid grey;
+  width: 1.5vw;
+  height: 4vh;
+  padding-bottom: 1vh;
 }
 
 .chartContained {
@@ -239,6 +212,7 @@ main nav {
   margin: auto;
   color: white;
   border: 1px dotted gray;
+  border-radius: 20px;
 }
 
 .chartContainedFour {
@@ -248,6 +222,7 @@ main nav {
   margin: auto;
   color: white;
   border: 1px dotted gray;
+  border-radius: 20px;
 }
 
 .charts {
@@ -300,14 +275,10 @@ figcaption {
   font-size: 4vh;
 }
 
-header img {
-  width: 1.5%;
-}
-
 main {
   position: absolute;
   display: grid;
-  grid-template-columns: 1.5fr 4fr 1.5fr;
+  grid-template-columns: 1.5fr 6fr 1.5fr;
 }
 
 #chartContainerDouble {
@@ -323,51 +294,10 @@ main nav {
   border-right: 1px solid grey;
 }
 
-.chartContained {
-  overflow: auto;
-  height: 90vh;
-  color: white;
-  border: 1px dotted gray;
-  border-radius: 20px;
-}
-
-.chartContainedFour {
-  overflow: auto;
-  height: 45vh;
-  color: white;
-  border: 1px dotted gray;
-  border-radius: 20px;
-}
-
-.charts {
-  height: 90vh;
-  border: 2px dotted rgba(255, 255, 255, 0.5);
-  border-radius: 20px;
-  background-image: url("./assets/images/barChart.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.5;
-}
-
-.chartsFour {
-  height: 45vh;
-  border: 2px dotted rgba(255, 255, 255, 0.5);
-  border-radius: 20px;
-  background-image: url("./assets/images/barChart.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.5;
-}
-
 ul {
   list-style: none;
 }
 
-main aside {
-  border-left: 1px solid grey;
-  padding-left: 2%;
-  margin-left: 3%;
-}
 
 //scrollbar
 /* width */
@@ -394,10 +324,6 @@ main aside {
 }
 
 //FAB style
-
-.fab {
-  position: fixed;
-}
 
 .fab-action-button:hover + .fab-buttons {
   opacity: 1;
@@ -539,6 +465,11 @@ main aside {
 
 .icon-material_renew {
   background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgNFYxTDggNWw0IDRWNmMzLjMxIDAgNiAyLjY5IDYgNiAwIDEuMDEtLjI1IDEuOTctLjcgMi44bDEuNDYgMS40NkMxOS41NCAxNS4wMyAyMCAxMy41NyAyMCAxMmMwLTQuNDItMy41OC04LTgtOHptMCAxNGMtMy4zMSAwLTYtMi42OS02LTYgMC0xLjAxLjI1LTEuOTcuNy0yLjhMNS4yNCA3Ljc0QzQuNDYgOC45NyA0IDEwLjQzIDQgMTJjMCA0LjQyIDMuNTggOCA4IDh2M2w0LTQtNC00djN6Ii8+PHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPjwvc3ZnPg==")
+    center no-repeat;
+}
+
+.icon-material_burger {
+  background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCAxNWgxNnYtMkg0djJ6bTAgNGgxNnYtMkg0djJ6bTAtOGgxNlY5SDR2MnptMC02djJoMTZWNUg0eiIvPjxwYXRoIGZpbGw9Im5vbmUiIGQ9Ik0wIDBoMjR2MjRIMFYweiIvPjwvc3ZnPg==")
     center no-repeat;
 }
 

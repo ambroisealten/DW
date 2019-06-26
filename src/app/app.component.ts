@@ -1,11 +1,11 @@
-import { Component, Directive, ViewContainerRef, ViewChild, ComponentFactoryResolver, OnInit, ViewChildren, QueryList, ElementRef } from '@angular/core';
-import { DataService } from './services/dataService';
-import { DataScheme } from './models/dataScheme';
-import { ChartViewComponent } from './components/chart-view/chart-view.component';
-import { Subject, Subscription, Observable } from 'rxjs';
-import { DataTable } from './models/data';
+import { Component, ComponentFactoryResolver, OnInit, QueryList, ViewChildren, ViewContainerRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { ChartViewComponent } from './components/chart-view/chart-view.component';
+import { DataTable } from './models/data';
+import { DataScheme } from './models/dataScheme';
+import { DataService } from './services/dataService';
 
 @Component({
   selector: 'app-root',
@@ -111,8 +111,8 @@ export class AppComponent implements OnInit {
       return this.dataTable.find(data => data.tableName === tableName);
     }
 
-    for(let i = 0 ; i < environment.maxTemplates ; i++){
-      this.allInstance[i] = false ; 
+    for (let i = 0; i < environment.maxTemplates; i++) {
+      this.allInstance[i] = false;
     }
   }
 
@@ -167,7 +167,7 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.activeInstance = instanceNumber;
       console.log(instanceNumber)
-      this.allInstance[instanceNumber-1] = true;
+      this.allInstance[instanceNumber - 1] = true;
 
       //!\ INUTILE TO SUPPR 
       this.componentRef.instance.droppedText = fieldName;
@@ -188,7 +188,7 @@ export class AppComponent implements OnInit {
       let sub = new Subject<any>();
       this.componentRef.instance.parentObs = sub.asObservable();
       this.componentRef.instance.setSubscription();
-      this.allComponentsObs[instanceNumber-1] = sub ; 
+      this.allComponentsObs[instanceNumber - 1] = sub;
 
       //On initialise les données à destination de param view
       this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
@@ -213,15 +213,16 @@ export class AppComponent implements OnInit {
   /**
    * [0] message type
    * [1] instance
-   * @param message 
+   * @param message
    */
   handleMessageFromChild(message: string) {
     const messageSplited = message.split('/');
     const instance: number = +messageSplited[1];
     switch (messageSplited[0]) {
       case 'askForData':
+        this.activeInstance = instance;
         const data = this.getData(messageSplited[2]);
-        this.allComponentsObs[instance - 1].next('sendData/' + JSON.stringify(data) + '/' + messageSplited[2]);
+        this.allComponentsObs[this.activeInstance - 1].next('sendData/' + JSON.stringify(data) + '/' + messageSplited[2]);
         break;
       case 'actif':
         if (messageSplited.length > 3) {
@@ -241,7 +242,7 @@ export class AppComponent implements OnInit {
   }
 
   resetActiveTable(event) {
-    if (+event['srcElement']['id']+"" != "NaN" && !this.allInstance[+event['srcElement']['id']-1]){
+    if (+event['srcElement']['id'] + "" != "NaN" && !this.allInstance[+event['srcElement']['id'] - 1]) {
       this.activeTable = this.datas
     }
   }

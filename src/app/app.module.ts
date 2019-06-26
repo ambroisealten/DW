@@ -7,7 +7,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { DataService } from './services/dataService';
-import { ViewService } from './services/viewService';
 
 import { ModalDataManipulationComponent } from './components/modal/modal-data-manipulation/modal-data-manipulation.component';
 import { ParamViewComponent } from './components/param-view/param-view.component';
@@ -66,7 +65,6 @@ import { ToastrModule } from 'ngx-toastr';
   ],
   providers: [
     DataService,
-    ViewService,
     { provide: MAT_DATE_LOCALE, useValue: 'fr-FR' },
   ],
   entryComponents: [

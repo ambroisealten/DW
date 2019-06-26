@@ -213,17 +213,6 @@ export class AppComponent implements OnInit {
     ev.preventDefault();
   }
 
-  random() {
-    let button = document.getElementById('lolKeksButton');
-    let body = document.getElementById('testMain');
-
-    let colors = ["red", "magenta", "cyan", "ivory", "white", "yellow", "aquablue", "marine", "khaki", "maroon", "purple", "grey", "gold", "silver", "pink", "turquoise", "green"];
-
-
-    button.addEventListener('click', () => {
-      body.setAttribute('style', "background-color : " + colors[Math.floor(Math.random() * colors.length)] + "; color :" + colors[Math.floor(Math.random() * colors.length)]);
-    });
-  }
 
   /**
    * [0] message type
@@ -231,7 +220,9 @@ export class AppComponent implements OnInit {
    * @param message 
    */
   handleMessageFromChild(message: string) {
+    console.log(message);
     const messageSplited = message.split('/');
+    console.log(messageSplited);
     const instance: number = +messageSplited[1];
     switch (messageSplited[0]) {
       case 'askForData':
@@ -243,7 +234,11 @@ export class AppComponent implements OnInit {
           this.setActiveTable(messageSplited);
         }
         break;
+      case 'destroyed':
+        this.activeTable = this.datas;
+        break;
       default:
+        console.log(messageSplited[0]);
         break;
     }
   }

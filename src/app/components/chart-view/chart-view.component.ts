@@ -462,71 +462,75 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
     divContainer.parentNode.removeChild(divContainer);
 
+    this.toParent.emit('destroyed');
+
     if (chartsLength === 2) {
       const mainContainer = document.getElementById('chartContainerDouble');
       mainContainer.setAttribute('id', 'chartContainerSimple');
     }
-}
+  }
 
-/**
- * Interprète les données reçues par le parent
- * [0] message type
- * @param data
- */
-handleData(message: string) {
-  const messageSplited = message.split('/');
-  const data = JSON.parse(messageSplited[1]);
-  switch (messageSplited[0]) {
-    case 'sendData':
-      this.tableNames.push(messageSplited[2]);
-      this.data.push(data);
-      break;
-    case 'sendFilter':
-      // Si réception d'un nouveau filtre retransforme les données
-      this.filters = data;
-      this.multipleSort();
-      this.spans = [];
-      for (let i = 0; i < this.displayedColumns.length; i++) {
-        this.cacheSpan(this.displayedColumns[i], i + 1);
+  /**
+   * Interprète les données reçues par le parent
+   * [0] message type
+   * @param data
+   */
+  handleData(message: string) {
+    const messageSplited = message.split('/');
+    const data = JSON.parse(messageSplited[1]);
+    switch (messageSplited[0]) {
+      case 'sendData':
+        this.tableNames.push(messageSplited[2]);
+        this.data.push(data);
+        break;
+      case 'sendFilter':
+        // Si réception d'un nouveau filtre retransforme les données
+        this.filters = data;
+        this.multipleSort();
+        this.spans = [];
+        for (let i = 0; i < this.displayedColumns.length; i++) {
+          this.cacheSpan(this.displayedColumns[i], i + 1);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  resizeContainers() {
+    const allContained = Array.from(document.getElementsByClassName('chartContainedFour'));
+
+    allContained.forEach(contained => {
+      contained.setAttribute('class', 'chartContained');
+    });
+
+    const allContainers = Array.from(document.getElementsByClassName('chartsFour'));
+
+    allContainers.forEach(container => {
+      container.setAttribute('class', 'charts');
+    })
+  }
+
+  /**
+   * Permet de déterminer si la valeur fait partie des données exclue ou non 
+   * @param data 
+   * @param column 
+   */
+  isNotExclude(data, column) {
+    return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + '');
+  }
+
+  /**
+   * Say to the parents the active child
+   */
+  emitActiveInstance(event) {
+    if (event.target.tagName != "I") {
+      let message = "actif/" + this.instanceNumber + "/";
+      for (let i = 0; i < this.tableNames.length; i++) {
+        message += this.tableNames[i] + "/";
       }
-      break;
-    default:
-      break;
+      this.toParent.emit(message)
+    }
   }
-}
-
-resizeContainers(){
-  const allContained = Array.from(document.getElementsByClassName('chartContainedFour'));
-
-  allContained.forEach(contained => {
-    contained.setAttribute('class', 'chartContained');
-  });
-
-  const allContainers = Array.from(document.getElementsByClassName('chartsFour'));
-
-  allContainers.forEach(container => {
-    container.setAttribute('class', 'charts');
-  })
-}
-
-/**
- * Permet de déterminer si la valeur fait partie des données exclue ou non 
- * @param data 
- * @param column 
- */
-isNotExclude(data, column) {
-  return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + '');
-}
-
-/**
- * Say to the parents the active child
- */
-emitActiveInstance(){
-  let message = "actif/" + this.instanceNumber + "/";
-  for (let i = 0; i < this.tableNames.length; i++) {
-    message += this.tableNames[i] + "/";
-  }
-  this.toParent.emit(message)
-}
 
 }

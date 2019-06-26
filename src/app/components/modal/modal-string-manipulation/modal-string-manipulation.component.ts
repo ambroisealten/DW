@@ -2,6 +2,7 @@ import { Component, OnInit, Inject, Output, EventEmitter, ChangeDetectorRef } fr
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource, MatIconModule } from '@angular/material';
 import { Filter } from 'src/app/models/Filter';
+import { Toast, ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-modal-string-manipulation',
@@ -31,7 +32,8 @@ export class ModalStringManipulationComponent implements OnInit {
   isTri: boolean; 
 
   constructor(private dialogRef: MatDialogRef<ModalStringManipulationComponent>,
-    @Inject(MAT_DIALOG_DATA) public data, private changeDetectorRefs: ChangeDetectorRef) {
+    @Inject(MAT_DIALOG_DATA) public data, private changeDetectorRefs: ChangeDetectorRef,
+    private toastr: ToastrService) {
     //Initialisation des données envoyées par param view
     this.isTri = data.bool;
     //On assign un nouvel espace mémoire pour éviter de modifier le tableau de donnée 
@@ -45,6 +47,7 @@ export class ModalStringManipulationComponent implements OnInit {
   }
 
   ngOnInit() {
+
   }
 
   /**
@@ -77,7 +80,7 @@ export class ModalStringManipulationComponent implements OnInit {
     let newFilter: Filter = new Filter() ; 
     newFilter['listElem'] = [] ; 
     this.dataSources.data.forEach(element => {
-      newFilter['listElem'].push(element[this.displayedColumnsright[0]]) ;
+      newFilter['listElem'].push(element[this.displayedColumnsright[0]]);
     })
 
     //Vérifie l'unicité
@@ -101,9 +104,9 @@ export class ModalStringManipulationComponent implements OnInit {
       if(this.excludeOption == undefined){
         return ; 
       }
-      newFilter['excludeValue'] = this.excludeOption ; 
+      newFilter['excludeValue'] = this.excludeOption;
     } else {
-      this.dataSources = new MatTableDataSource() ; 
+      this.dataSources = new MatTableDataSource();
     }
     //Envoi du filtre au parent - param-view
     this.addFilter.emit(newFilter);
@@ -118,8 +121,8 @@ export class ModalStringManipulationComponent implements OnInit {
     for(let i = 0 ; i < listElem.length-1 ; i++){
       name += listElem[i] + ", "
     }
-    name += listElem[listElem.length-1] + "]" ; 
-    return name ; 
+    name += listElem[listElem.length - 1] + "]";
+    return name;
   }
 
   /**

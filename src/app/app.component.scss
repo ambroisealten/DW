@@ -1,6 +1,8 @@
 .paramview {
   color: white;
-  position: static;
+  //direction: rtl;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .accordion-headers-align .mat-expansion-panel-header-title {
@@ -43,7 +45,13 @@ h4 {
 
 .fab {
   position: fixed;
-  right: 20%;
+  right: 25%;
   bottom: 15px;
   z-index: 100;
+}
+
+.right_panel {
+  height: 90vh !important;
+  max-height: 90vh !important;
+  overflow-y: auto;
 }

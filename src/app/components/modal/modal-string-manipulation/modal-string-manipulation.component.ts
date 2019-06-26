@@ -73,7 +73,7 @@ export class ModalStringManipulationComponent implements OnInit {
    */
   onSave() {
     if (this.dataSources.data.length == 0) {
-      this.toastr.error("Aucune donnée sélectionné", '', { 'positionClass': 'toast-bottom-full-width', 'closeButton': true });
+      this.toastr.error("Aucune donnée sélectionné", '');
       return;
     }
 
@@ -93,7 +93,7 @@ export class ModalStringManipulationComponent implements OnInit {
         }
       }
       if (count == taille && this.filters[i].listElem.length == taille) {
-        this.toastr.error("Le filtre existe déjà", '', { 'positionClass': 'toast-bottom-full-width', 'closeButton': true });
+        this.toastr.error("Le filtre existe déjà : " + this.filters[i].name, '');
         return;
       }
     }
@@ -103,7 +103,7 @@ export class ModalStringManipulationComponent implements OnInit {
     //Ajout d'un attribut désignant la politique de tri en cas de tri 
     if (this.isTri) {
       if (this.excludeOption == undefined) {
-        this.toastr.error("L'entité existe déjà", '', { 'positionClass': 'toast-bottom-full-width', 'closeButton': true });
+        this.toastr.error("Sélectionnez une option de tri", '');
         return;
       }
       newFilter['excludeValue'] = this.excludeOption;
@@ -112,7 +112,7 @@ export class ModalStringManipulationComponent implements OnInit {
     }
     //Envoi du filtre au parent - param-view
     this.addFilter.emit(newFilter);
-    this.toastr.success("Filtre ajouté avec succès", '', { 'positionClass': 'toast-bottom-full-width', 'closeButton': true });
+    this.toastr.success("Filtre ajouté avec succès", '');
   }
 
   /**

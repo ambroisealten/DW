@@ -7,16 +7,17 @@
     <div class="Panel">
       <div class="matLabel">
         <mat-selection-list class="floating" #type>
-          <mat-list-option class="text_check" checkboxPosition="before" value="à partir">à partir du</mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="jusqu'au">jusqu'au</mat-list-option>
           <mat-list-option class="text_check" checkboxPosition="before" value="avant le">avant le</mat-list-option>
           <mat-list-option class="text_check" checkboxPosition="before" value="après le">après le</mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="à partir">à partir du</mat-list-option>
         </mat-selection-list>
       </div>
       <div class="input">
         Choisir la date :
         <mat-form-field class="picker1">
           <input matInput [matDatepickerFilter]="myFilter()" [matDatepicker]="picker1" placeholder="Choose a date"
-            disabled>
+            disabled [(ngModel)]="dateSolo">
           <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
           <mat-datepicker #picker1 disabled="false"></mat-datepicker>
         </mat-form-field>

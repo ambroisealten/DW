@@ -74,7 +74,7 @@ export class AppComponent implements OnInit {
       datasFetched.forEach(element => {
         this.datasDetails.push(element);
       });
-    });
+    }); 
   }
 
   /**************************************************************************************************\

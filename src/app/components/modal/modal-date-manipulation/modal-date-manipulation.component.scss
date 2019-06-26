@@ -1,0 +1,95 @@
+mat-dialog-content {
+  width: 95vw;
+  max-width: 95vw;
+  height: 80vh;
+}
+
+.dialogTitle {
+  border-bottom: 2px solid #888;
+  color: white;
+  text-align: center;
+}
+
+.Panel {
+  color: white;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border: 2px solid #696969;
+}
+
+.contentdialog {
+  width: 65vw;
+  max-width: 100vw !important;
+}
+
+.part2 {
+  padding-left: 2.5%;
+  padding-bottom: 2%;
+  color: white;
+}
+
+.input {
+  margin-left: 15%;
+  float: right;
+  margin-right: 3% !important;
+}
+
+.saveButton {
+  margin-top: 1%;
+  margin-left: 35% !important;
+}
+
+.closeButton {
+  margin-top: 1%;
+  margin-left: 2% !important;
+}
+
+.ban {
+  margin-left: 35%;
+}
+
+.text_check {
+  color: white !important;
+}
+
+.mat-checkbox .mat-checkbox-frame {
+  border-color: white !important;
+  color: white !important;
+}
+
+.mat-list-option {
+}
+
+.matLabel {
+  color: white !important;
+  border-right: 2px solid #696969;
+}
+
+.matInput {
+  margin-top: 32%;
+}
+
+.floating {
+  width: 50%;
+}
+
+.dialogContainer {
+  background-color: black !important;
+}
+
+.mat-list-base .mat-list-item,
+.mat-list-base .mat-list-option {
+  width: 25vw;
+}
+
+.exclure {
+  margin-right: 2%;
+}
+
+.picker1 {
+  margin-top: 10%;
+}
+
+.pickerstart {
+  margin-left: 4%;
+}

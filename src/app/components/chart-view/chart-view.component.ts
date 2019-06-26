@@ -1,11 +1,9 @@
-import { Component, ElementRef, Input, OnInit, ViewChild, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { Chart } from 'chart.js';
-import { DataService } from 'src/app/services/dataService';
-import { DataScheme } from 'src/app/models/dataScheme';
 import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Chart } from 'chart.js';
 import { Observable } from 'rxjs';
-import { FilterList } from '../../models/Filter';
 import { DataTable } from 'src/app/models/data';
+import { FilterList } from '../../models/Filter';
 
 @Component({
   selector: 'app-chart-view',
@@ -28,13 +26,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   parentSub;
 
   //Détermine le type de réprésentation de la donnée, tableau, doughnut etc..
-  currentType: string = "tab";
+  currentType = "tab";
 
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   public context: CanvasRenderingContext2D;
   chart: any = [];
-  canvasWidth: number = 0;
-  canvasHeight: number = 0;
+  canvasWidth = 0;
+  canvasHeight = 0;
   canvasFontSize: number;
   allColors = ["blue", "red", "green", "yellow", "pink", "cyan", "orange", "white", "salmon", "grey"];
 
@@ -52,10 +50,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   //Ancien index lors du drag
   previousIndex: number;
-
-  //Donnée pour les chats -- TO SUPPR MUST BE DYNAMIC 
-  data: any[] = [];
-
 
   constructor() {
   }
@@ -123,14 +117,17 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * @param ev 
    */
   onDrop(ev) {
+    const tableName = ev.dataTransfer.getData('tableName');
+    this.toParent.emit('askForData/' + this.instanceNumber + '/' + tableName);
+    this.tableNames.push(tableName);
     //Récupération de la colonne 
     const colName = ev.dataTransfer.getData('colName');
-    if(colName != ""){
+    if (colName != "") {
 
       //On ajoute la colonne et on ajout le span correspondant  
       this.displayedColumns.push(colName);
       this.multipleSort();
-      this.cacheSpan(this.displayedColumns[this.displayedColumns.length-1],this.displayedColumns.length) ; 
+      this.cacheSpan(this.displayedColumns[this.displayedColumns.length - 1], this.displayedColumns.length);
     }
 
     ev.preventDefault();
@@ -160,7 +157,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         //On construit la donnée elle est représentée par object[key1]+object[key2]+object[key3]+....
         let checkedValue = "";
         for (let h = 0; h < accessor; h++) {
-           //On transforme la donnée selon les filtres afin de convertir des données qui n'ont pas la même valeur en une même valeur afin de les "spans" ensemble
+          //On transforme la donnée selon les filtres afin de convertir des données qui n'ont pas la même valeur en une même valeur afin de les "spans" ensemble
           checkedValue += this.transform(this.datas[j][this.displayedColumns[h]], this.displayedColumns[h]);
         }
         //Si les valeurs sont différentes, on casse la boucle 
@@ -244,7 +241,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     let name = "";
     if (actualFilter != undefined) {
       if (actualFilter['filterType'] == 'number') {
-        for(let i = 0 ; i < actualFilter.filters.length ; i++){
+        for (let i = 0; i < actualFilter.filters.length; i++) {
           if (actualFilter.filters[i].actif) {
             if (this.agregateNumber(data, actualFilter.filters[i])) {
               name = actualFilter.filters[i]['name'];
@@ -253,7 +250,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
           }
         }
       } else if (actualFilter['filterType'] == "string") {
-        for(let i = 0 ; i < actualFilter.filters.length ; i++){
+        for (let i = 0; i < actualFilter.filters.length; i++) {
           if (actualFilter.filters[i].actif) {
             if (actualFilter.filters[i].listElem.includes(data)) {
               name = actualFilter.filters[i]['name'];
@@ -261,13 +258,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
             }
           }
         }
-      } else if (actualFilter['filterType'] == "date"){
-        for(let i = 0 ; i < actualFilter.filters.length ; i++){
+      } else if (actualFilter['filterType'] == "date") {
+        for (let i = 0; i < actualFilter.filters.length; i++) {
           if (actualFilter.filters[i].actif) {
             let value = (new Date(data)).getTime()
-            if(this.agregateDate(value,actualFilter.filters[i])){
+            if (this.agregateDate(value, actualFilter.filters[i])) {
               name = actualFilter.filters[i]['name'];
-              break ; 
+              break;
             }
           }
         }
@@ -285,7 +282,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * @param filter 
    */
   agregateNumber(value, filter) {
-    let bool: boolean = false;
+    let bool = false;
     switch (filter.type) {
       case ('inf. à'):
         bool = (value < filter.min);
@@ -309,13 +306,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     return bool;
   }
 
-   /**
-   * Evalue si la valeur appartient au filtre 
-   * @param value 
-   * @param filter 
-   */
-  agregateDate(value, filter){
-    let bool: boolean = false;
+  /**
+  * Evalue si la valeur appartient au filtre 
+  * @param value 
+  * @param filter 
+  */
+  agregateDate(value, filter) {
+    let bool = false;
     switch (filter.type) {
       case ('avant le'):
         bool = (value < filter.startDate);
@@ -358,7 +355,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         this.modifyChartView(this.currentType);
         break;
       default:
-        this.currentType = "tab" ; 
+        this.currentType = "tab";
         this.setCanvasSettings(false);
         break;
     }
@@ -375,6 +372,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   modifyChartView(chartType: string) {
     const chartData = [];
+    console.log(this.data);
     const data = this.data.find(data => data.tableName === this.tableNames[0]).values.map(val => val[this.droppedText]);
 
     const labels = [];
@@ -458,7 +456,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
       divContainer.parentNode.removeChild(divContainer);
 
-      if (chartsLength == 2) {
+      if (chartsLength === 2) {
         const mainContainer = document.getElementById('chartContainerDouble');
         mainContainer.setAttribute('id', 'chartContainerSimple');
       }
@@ -469,15 +467,28 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   /**
    * Interprète les données reçues par le parent
-   * @param data 
+   * [0] message type
+   * @param data
    */
-  handleData(data) {
-    // Si réception d'un nouveau filtre retransforme les données
-    this.filters = data;
-    this.multipleSort();
-    this.spans = [];
-    for (let i = 0; i < this.displayedColumns.length; i++) {
-      this.cacheSpan(this.displayedColumns[i], i + 1);
+  handleData(message: string) {
+    const messageSplited = message.split('/');
+    const data = JSON.parse(messageSplited[1]);
+    switch (messageSplited[0]) {
+      case 'sendData':
+        this.tableNames.push(messageSplited[2]);
+        this.data.push(data);
+        break;
+      case 'sendFilter':
+        // Si réception d'un nouveau filtre retransforme les données
+        this.filters = data;
+        this.multipleSort();
+        this.spans = [];
+        for (let i = 0; i < this.displayedColumns.length; i++) {
+          this.cacheSpan(this.displayedColumns[i], i + 1);
+        }
+        break;
+      default:
+        break;
     }
   }
 

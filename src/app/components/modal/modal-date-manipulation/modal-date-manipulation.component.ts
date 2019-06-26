@@ -1,10 +1,7 @@
-import { Component, OnInit, ViewChild, Output, EventEmitter, Inject } from '@angular/core';
-import { MatDialogRef, MatSelectionList, MatSelectionListChange, MatCheckbox, MAT_DIALOG_DATA } from '@angular/material';
-import { AnimationStaggerMetadata } from '@angular/animations';
+import { Component, EventEmitter, Inject, OnInit, Output, ViewChild } from '@angular/core';
+import { MatCheckbox, MatDialogRef, MatSelectionList, MatSelectionListChange, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 import { Filter } from 'src/app/models/Filter';
-import { filter } from 'minimatch';
-import { start } from 'repl';
 
 @Component({
   selector: 'app-modal-date-manipulation',

@@ -123,6 +123,7 @@ export class AppComponent implements OnInit {
     ev.dataTransfer.setData('colName', field);
     ev.dataTransfer.setData('colNameDetail', field);
     ev.dataTransfer.setData('tableName', name);
+    //INUTILE
     ev.dataTransfer.setData('data', JSON.stringify(this.getData(name)));
   }
 
@@ -195,10 +196,22 @@ export class AppComponent implements OnInit {
   }
 
   /**
-   * 
+   * [0] message type
+   * [1] instance
    * @param message 
    */
-  handleMessageFromChild(message) {
+  handleMessageFromChild(message: string) {
+    console.log(message);
+    const messageSplited = message.split('/');
+    const instance: number = +messageSplited[1];
+    switch (messageSplited[0]) {
+      case 'askForData':
+        const data = this.getData(messageSplited[2]);
+        this.allComponentsObs[instance - 1].next('sendData/' + JSON.stringify(data) + '/' + messageSplited[2]);
+        break;
+      default:
+        break;
+    }
   }
 
   /**
@@ -206,7 +219,7 @@ export class AppComponent implements OnInit {
    */
   messageReceiveFromRightPanel($event) {
     //Envoi des filtres vers l'enfant
-    this.allComponentsObs[this.activeInstance - 1].next($event);
+    this.allComponentsObs[this.activeInstance - 1].next('sendFilter/' + JSON.stringify($event));
   }
 
   /**

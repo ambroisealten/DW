@@ -383,7 +383,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         },
         responsive: false,
         maintainAspectRatio: true
-
       }
     });
   }

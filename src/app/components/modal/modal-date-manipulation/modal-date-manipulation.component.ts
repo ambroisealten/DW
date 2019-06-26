@@ -3,8 +3,6 @@ import { MatDialogRef, MatSelectionList, MatSelectionListChange, MatCheckbox, MA
 import { AnimationStaggerMetadata } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { Filter } from 'src/app/models/Filter';
-import { filter } from 'minimatch';
-import { start } from 'repl';
 
 @Component({
   selector: 'app-modal-date-manipulation',
@@ -51,7 +49,7 @@ export class ModalDateManipulationComponent implements OnInit {
   onSave() {
 
     if (this.type.selectedOptions.selected.length == 0 && !this.compris) {
-      this.toastr.error("Erreur lors de l'ajout du filtre", "Veuillez selectionnez le type du filtre a ajouté !", { 'positionClass': 'toast-bottom-full-width', 'closeButton': true });
+      this.toastr.error("Erreur lors de l'ajout du filtre", "Veuillez selectionnez le type du filtre a ajouté !");
       return;
     }
 
@@ -92,13 +90,14 @@ export class ModalDateManipulationComponent implements OnInit {
 
     //On transmet le filtre à param-view
     this.addFilter.emit(newFilter);
-    this.toastr.success("Filtre ajouté avec succès", '', { 'positionClass': 'toast-bottom-full-width', 'closeButton': true });
+    this.toastr.success("Filtre ajouté avec succès", '');
   }
 
   isFiltered(startDate, endDate, type, name): boolean {
     let bool = false;
     for (let i = 0; i < this.filters.length; i++) {
       if (this.filters[i].name == name) {
+        this.toastr.error("Le filtre existe déjà : " + this.filters[i].name, '');
         return true;
       }
       if (this.filters[i].actif) {
@@ -175,6 +174,7 @@ export class ModalDateManipulationComponent implements OnInit {
           }
         }
         if (bool) {
+          this.toastr.error("Le filtre est en conflit avec : " + this.filters[i].name, '');
           return bool;
         }
       }

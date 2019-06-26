@@ -5,7 +5,7 @@
       <button id="lolKeksButton" (click)="random()"></button>
       <hr size="1" color="lightgray">
       <mat-accordion class="accordion-headers-align">
-        <mat-expansion-panel *ngFor="let data of datas">
+        <mat-expansion-panel *ngFor="let data of activeTable">
           <mat-expansion-panel-header>
             <mat-panel-title>
               <h4>{{data.name}}</h4>

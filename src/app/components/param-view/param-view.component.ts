@@ -6,7 +6,8 @@ import { ModalDataManipulationComponent } from '../modal/modal-data-manipulation
 import { ModalStringManipulationComponent } from '../modal/modal-string-manipulation/modal-string-manipulation.component';
 import { FilterList } from 'src/app/models/Filter';
 import { Observable } from 'rxjs';
-import { filter } from 'minimatch';
+import { ModalDateManipulationComponent } from '../modal/modal-date-manipulation/modal-date-manipulation.component';
+import {ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-param-view',
@@ -44,7 +45,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource<any>();
   selectionTri = new SelectionModel<any>(true, []);
 
-  constructor(private dialog: MatDialog) { }
+  constructor(private dialog: MatDialog, private toastr: ToastrService) { }
 
   ngOnInit() {
     //Création du canal Parent-Enfant 
@@ -323,6 +324,13 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
   /**************************************************************************************************\
   * 
+  *                                        SELECTION TRI
+  * 
+  \**************************************************************************************************/
+
+
+  /**************************************************************************************************\
+  * 
   *                                        MODAL
   * 
   \**************************************************************************************************/
@@ -338,6 +346,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       case ('string'):
         this.AddFilterString(this.isTri());
         break;
+      case ('symbol'):
+        this.AddFilterDate(this.isTri())
     }
   }
 
@@ -426,6 +436,26 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(() => {
       sub.unsubscribe();
     });
+
+  }
+
+  AddFilterDate(istri) {
+    const dialogConfig = new MatDialogConfig();
+
+    dialogConfig.disableClose = false;
+    dialogConfig.autoFocus = true;
+    dialogConfig.hasBackdrop = true;
+    dialogConfig.direction = 'ltr';
+    dialogConfig.closeOnNavigation = true;
+
+    dialogConfig.data = {
+      bool: istri,
+      data: this.filteredDataSource(),
+      displayedColumns: [this.displayedColumns[1]]
+    }
+
+    let dialogRef = this.dialog.open(ModalDateManipulationComponent, dialogConfig);
+    
 
   }
 

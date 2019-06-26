@@ -3,6 +3,7 @@ import { DataService } from './services/dataService';
 import { DataScheme } from './models/dataScheme';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { Subject, Subscription, Observable } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-root',
@@ -44,7 +45,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private dataService: DataService,
-    private componentFactoryResolver: ComponentFactoryResolver) {
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private toastr: ToastrService) {
     //Initialisation du canal entre paramView et AppComponent
     this.subjectRightPanel = new Subject<any>();
     this.obsRightPanel = this.subjectRightPanel.asObservable();

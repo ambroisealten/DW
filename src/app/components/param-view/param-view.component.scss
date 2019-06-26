@@ -7,10 +7,15 @@
 
 .addButton {
   margin-left: 50%;
+  background-color: grey;
+  float: right;
+  position: absolute;
+  top: 5px;
+  right: 10px;
 }
 
 .mat-elevation-z8 {
-  margin-left: 10%;
+  margin-right: 10%;
   background-color: black;
   color: white;
   width: 80%;
@@ -23,10 +28,12 @@
 .mat-header-cell {
   color: white;
   background-color: #696969;
+  text-align: center;
 }
 
 .mat-cell {
   color: white;
+  text-align: center;
 }
 
 .mat-row:nth-child(even) {
@@ -39,10 +46,27 @@
 
 .select_param {
   background-color: grey;
-  height: 15%;
   width: 50%;
+  margin-left: 20%;
+  text-align: center;
 }
 
 .mat-tab-label .mat-tab-link .mat-tab-label .mat-ripple .ng-star-inserted .mat-tab-label-active {
   color: white !important;
+}
+
+.mat-select-value {
+  background-color: grey;
+}
+
+.mat-tab-body-content .ng-trigger .ng-trigger-translateTab {
+  height: 90% !important;
+}
+
+.toto {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: grey;
+
 }

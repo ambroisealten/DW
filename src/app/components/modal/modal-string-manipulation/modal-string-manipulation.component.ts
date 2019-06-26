@@ -73,7 +73,7 @@ export class ModalStringManipulationComponent implements OnInit {
    */
   onSave() {
     if (this.dataSources.data.length == 0) {
-      this.toastr.error("L'entité existe déjà", '', { 'positionClass': 'toast-bottom-full-width', 'closeButton': true });
+      this.toastr.error("Aucune donnée sélectionné", '', { 'positionClass': 'toast-bottom-full-width', 'closeButton': true });
       return;
     }
 

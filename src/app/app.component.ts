@@ -2,30 +2,8 @@ import { Component, Directive, ViewContainerRef, ViewChild, ComponentFactoryReso
 import { DataService } from './services/dataService';
 import { DataScheme } from './models/dataScheme';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
-import { ViewService } from './services/viewService';
-import {SelectionModel} from '@angular/cdk/collections';
-import {MatTableDataSource} from '@angular/material/table';
-import {environment} from 'src/environments/environment';
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
-];
+import { Subject, Subscription, Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -34,7 +12,10 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class AppComponent implements OnInit {
   title = 'DW - Lot 0';
+
+  //Variables d'environnement pour la création des templates
   containerRepeat = 1;
+  allTemplates = new Array(environment.maxTemplates);
 
   allTemplates = new Array(environment.maxTemplates);
 
@@ -87,14 +68,37 @@ export class AppComponent implements OnInit {
       this.componentRef = entryUsed.createComponent(componentFactory);
 
       this.componentRef.instance.instanceNumber = instanceNumber;
-      this.componentRef.instance.viewService = ViewService.getInstance(instanceNumber);
+      this.activeInstance = this.allComponentsObs.length+1;
+
+      //!\ INUTILE TO SUPPR 
       this.componentRef.instance.droppedText = fieldName;
 
+      this.componentRef.instance.displayedColumns = [fieldName];
+      this.componentRef.instance.datas = this.datasDetails;
+
+      //Initialisation de la communication Parent enfant
+      //Enfant vers Parent
+      const subChild: Subscription = this.componentRef.instance.toParent.subscribe(message => this.handleMessageFromChild(message));
+      this.componentRef.onDestroy(() => subChild.unsubscribe());
+
+      //Observable Parent vers Enfant
+      let sub = new Subject<any>();
+      this.componentRef.instance.parentObs = sub.asObservable();
+      this.componentRef.instance.setSubscription();
+      this.allComponentsObs.push(sub);
+
+      //On initialise les données à destination de param view
+      this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
+
+      //On ré-initialise les tailles de l'instance créée
       this.componentRef.instance.recheckValues();
 
       this.allComponentRefs.push(this.componentRef);
 
-      if (this.containerRepeat > 2) {
+      const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
+
+      //Changement de l'attribut selon le nombre de graphe présent
+      if (allChartChilds > 3) {
         target.setAttribute('class', 'chartContainedFour');
       }
       else {
@@ -105,11 +109,34 @@ export class AppComponent implements OnInit {
     ev.preventDefault();
   }
 
+  /**
+   * 
+   * @param message 
+   */
+  handleMessageFromChild(message) {
+    
+  }
+
+  /**
+   * Reception des messages venus du panel de droite
+   */
+  messageReceiveFromRightPanel($event) {
+    //Envoi des filtres vers l'enfant
+    this.allComponentsObs[this.activeInstance - 1].next($event);
+  }
+
+  /**
+   * Permet d'activer le drop
+   */
   allowDrop(ev) {
     ev.preventDefault();
   }
 
-  parseTemplateDiv(idNumber : string){
+  /**
+   * Parcourt le div contenant les templates disponibles, et retourne la première contenue dans ce div
+   * @param idNumber 
+   */
+  parseTemplateDiv(idNumber: string) {
     let container = document.getElementById('templates');
     let test = container.firstChild;
     while(test.nodeName != "TEMPLATE" && test.id != idNumber){
@@ -122,32 +149,24 @@ export class AppComponent implements OnInit {
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 
-      this.containerRepeat += 1;
+    const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
 
-    if (this.containerRepeat > 2) {
-      const newDivForChart = document.createElement('div');
+    this.containerRepeat += 1;
+    const newDivForChart = document.createElement('div');
+    newDivForChart.setAttribute('id', this.containerRepeat.toString());
+    const template = this.parseTemplateDiv(this.containerRepeat.toString());
+    newDivForChart.appendChild(template);
+    chartContainer.setAttribute('id', 'chartContainerDouble');
+
+    if (allChartChilds > 2) { 
       newDivForChart.setAttribute('class', 'chartsFour');
-      newDivForChart.setAttribute('id', this.containerRepeat.toString());
-
-      
-      const template = this.parseTemplateDiv(this.containerRepeat.toString());
-      newDivForChart.appendChild(template);
-
-      chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
 
       this.resizeAllCharts();
     }
     else {
-      const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'charts');
-      newDivForChart.setAttribute('id', this.containerRepeat.toString());
 
-      const template = this.parseTemplateDiv(this.containerRepeat.toString());
-      newDivForChart.appendChild(template);
-
-
-      chartContainer.setAttribute('id', 'chartContainerDouble');
       chartContainer.appendChild(newDivForChart);
 
       this.resizeAllCanvas();
@@ -161,6 +180,9 @@ export class AppComponent implements OnInit {
     this.resizeAllCanvas();
   }
 
+  /**
+   * Permet de redimmensionner tous les canvas/tableaux lors d'un changement
+   */
   resizeAllCanvas() {
     if (this.containerRepeat == 2 || this.containerRepeat == 3) {
       const allCanvas = Array.from(document.getElementsByTagName('canvas'));
@@ -181,6 +203,9 @@ export class AppComponent implements OnInit {
 
   }
 
+  /**
+   * Permet de redimmensionner le container des charts (avec un fils) lors d'un changement
+   */
   resizeContainedCharts() {
     const containedCharts = document.getElementsByClassName('chartContained');
 
@@ -191,6 +216,9 @@ export class AppComponent implements OnInit {
     });
   }
 
+  /**
+   * Permet de redimensionner le container des charts (sans fils) lors d'un changement
+   */
   resizeBlankCharts() {
     const blankCharts = document.getElementsByClassName('charts');
 

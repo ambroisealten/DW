@@ -52,6 +52,9 @@ export class ChartViewComponent implements OnInit {
     this.resetCanvasHeightAndWidth();
   }
 
+  /**
+   * Changement des tailles du canvas et de la vue
+   */
   recheckValues() {
     if (this.currentType != "tab") {
       this.resetChartView();
@@ -77,6 +80,10 @@ export class ChartViewComponent implements OnInit {
     ev.preventDefault();
   }
 
+  /**
+   * Change le type du chart en fonction du type renseigné (tableau ou chart issu de la librairie Chart.js)
+   * @param type 
+   */
   changeChartView(type: string) {
     this.resetChartView();
 
@@ -100,6 +107,10 @@ export class ChartViewComponent implements OnInit {
     }
   }
 
+  /** 
+  * Définit si le canvas (template d'apparition du chart) doit apparaître ou non
+  * @param display 
+  */
   setCanvasSettings(display: boolean) {
     this.myCanvas.nativeElement.style = "display : none";
     if (display) this.myCanvas.nativeElement.style = "display : inline-block";
@@ -109,6 +120,10 @@ export class ChartViewComponent implements OnInit {
     this.resetCanvasHeightAndWidth();
   }
 
+  /**
+   * Création du chart en fonction des données inclues et du type donné
+   * @param chartType
+   */
   modifyChartView(chartType: string) {
     let testData = this.data[0].vls;
 
@@ -154,6 +169,9 @@ export class ChartViewComponent implements OnInit {
     });
   }
 
+  /**
+   * Détruit le chart compris dans le canvas en cas de destruction 
+   */
   resetChartView() {
     if (this.chart instanceof Chart) this.chart.destroy();
   }
@@ -178,10 +196,50 @@ export class ChartViewComponent implements OnInit {
         let mainContainer = document.getElementById("chartContainerDouble");
         mainContainer.setAttribute('id','chartContainerSimple');
       }
+      else if(chartsLength == 3){
+        this.resizeContainers();
+      }
     }
     else{
       console.log("You can't destroy your one and only chart !");
     }
+  }
+
+  /**
+   * Interprète les données reçues par le parent
+   * @param data 
+   */
+  handleData(data) {
+    // Si réception d'un nouveau filtre retransforme les données
+    this.filters = data;
+    this.multipleSort();
+    this.spans = [];
+    for (let i = 0; i < this.displayedColumns.length; i++) {
+      this.cacheSpan(this.displayedColumns[i], i + 1);
+    }
+  }
+
+  resizeContainers(){
+    const allContained = Array.from(document.getElementsByClassName('chartContainedFour'));
+
+    allContained.forEach( contained => {
+      contained.setAttribute('class','chartContained');
+    });
+
+    const allContainers = Array.from(document.getElementsByClassName('chartsFour'));
+
+    allContainers.forEach( container => {
+      container.setAttribute('class','charts');
+    })
+  }
+
+  /**
+   * Permet de déterminer si la valeur fait partie des données exclue ou non 
+   * @param data 
+   * @param column 
+   */
+  isNotExclude(data, column) {
+    return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + "");
   }
 
 }

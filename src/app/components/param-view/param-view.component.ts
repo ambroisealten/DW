@@ -282,7 +282,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
             bool = ((startDate >= filter.startDate) && (startDate <= filter.endDate)) || ((endDate >= filter.startDate) && (endDate <= filter.endDate))
           } else if (type == 'avant le') {
             bool = startDate > filter.startDate;
-          } else if ('jusqu\'au') {
+          } else if (type == 'jusqu\'au') {
             bool = startDate >= filter.startDate;
           } else if (type == 'après le') {
             bool = startDate < filter.endDate;
@@ -294,7 +294,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       if (!bool) {
         switch (type) {
           case ('avant le'):
-            if (type == 'avant le') {
+            if (filter.type == 'avant le') {
               bool = startDate >= filter.startDate;
             } else {
               bool = startDate > filter.startDate;
@@ -304,7 +304,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
             bool = startDate >= filter.startDate;
             break;
           case ('après le'):
-            if (type == 'après le') {
+            if (filter.type == 'après le') {
               bool = startDate <= filter.startDate;
             } else {
               bool = startDate < filter.startDate;
@@ -314,15 +314,15 @@ export class ParamViewComponent implements OnInit, OnDestroy {
             bool = startDate >= filter.startDate;
             break;
           case ('entre'):
-            if (type == 'entre') {
+            if (filter.type == 'entre') {
               bool = ((startDate <= filter.startDate) && (endDate >= filter.startDate)) || ((startDate <= filter.endDate) && (endDate >= filter.endDate))
-            } else if (type == 'avant le') {
+            } else if (filter.type == 'avant le') {
               bool = startDate < filter.startDate;
-            } else if ('jusqu\'au') {
+            } else if (filter.type == 'jusqu\'au') {
               bool = startDate <= filter.startDate;
-            } else if (type == 'après le') {
+            } else if (filter.type == 'après le') {
               bool = endDate > filter.startDate;
-            } else if (type == 'à partir') {
+            } else if (filter.type == 'à partir') {
               bool = endDate >= filter.startDate;
             }
             break;

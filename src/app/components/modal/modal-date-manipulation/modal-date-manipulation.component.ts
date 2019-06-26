@@ -27,7 +27,7 @@ export class ModalDateManipulationComponent implements OnInit {
   @ViewChild('compris', { static: true }) compris: MatCheckbox;
   startDate: Date;
   endDate: Date;
-  dateSolo: Date; 
+  dateSolo: Date;
   currentDate: Date;
   excludeOption: string;
 
@@ -70,7 +70,7 @@ export class ModalDateManipulationComponent implements OnInit {
       }
     } else if (this.compris.checked && this.startDate != undefined && this.endDate != undefined) {
       newFilter['type'] = 'entre';
-      newFilter['name'] = 'Entre le ' + new Date(this.startDate).toISOString().slice(0,10) + ' et le ' + new Date(this.endDate).toISOString().slice(0,10);
+      newFilter['name'] = 'Entre le ' + this.convertTimestamp(this.startDate) + ' et le ' + this.convertTimestamp(this.endDate);
       //Si l'onglet est le tri, on ne regarde pas le conflit avec les autres filtres 
       if (!this.isTri && this.isFiltered(this.startDate.getTime(), this.endDate.getTime(), newFilter['type'], newFilter['name'])) {
         return;
@@ -95,104 +95,117 @@ export class ModalDateManipulationComponent implements OnInit {
     this.toastr.success("Filtre ajouté avec succès", '', { 'positionClass': 'toast-bottom-full-width', 'closeButton': true });
   }
 
-  isFiltered(startDate, endDate, type, name): boolean { 
+  isFiltered(startDate, endDate, type, name): boolean {
     let bool = false;
     for (let i = 0; i < this.filters.length; i++) {
       if (this.filters[i].name == name) {
         return true;
       }
-      switch (this.filters[i].type) {
-        case ('avant le'):
-          if (type == 'avant le') {
-            bool = startDate <= this.filters[i].startDate;
-          } else {
-            bool = startDate < this.filters[i].startDate;
-          }
-          break;
-        case ('jusqu\'au'):
-          bool = startDate <= this.filters[i].startDate;
-          break;
-        case ('après le'):
-          if (type == 'après le') {
-            bool = startDate >= this.filters[i].startDate;
-          } else {
-            bool = startDate > this.filters[i].startDate;
-          }
-          break;
-        case ('à partir'):
-          bool = startDate >= this.filters[i].startDate;
-          break;
-        case ('entre'):
-          if (type == 'entre') {
-            bool = ((startDate >= this.filters[i].startDate) && (startDate <= this.filters[i].endDate)) || ((endDate >= this.filters[i].startDate) && (endDate <= this.filters[i].endDate))
-          } else if (type == 'avant le') {
-            bool = startDate > this.filters[i].startDate;
-          } else if ('jusqu\'au') {
-            bool = startDate >= this.filters[i].startDate; 
-          } else if (type == 'après le') {
-            bool = startDate < this.filters[i].endDate ; 
-          } else if (type == 'à partir') {
-            bool = startDate <= this.filters[i].endDate
-          }
-          break;
-      }
-      if (!bool) {
-        switch (type) {
+      if (this.filters[i].actif) {
+        switch (this.filters[i].type) {
           case ('avant le'):
-          if (type == 'avant le') {
-            bool = startDate >= this.filters[i].startDate;
-          } else {
-            bool = startDate > this.filters[i].startDate;
-          }
-          break;
-        case ('jusqu\'au'):
-          bool = startDate >= this.filters[i].startDate;
-          break;
-        case ('après le'):
-          if (type == 'après le') {
+            if (type == 'avant le') {
+              bool = startDate <= this.filters[i].startDate;
+            } else {
+              bool = startDate < this.filters[i].startDate;
+            }
+            break;
+          case ('jusqu\'au'):
             bool = startDate <= this.filters[i].startDate;
-          } else {
-            bool = startDate < this.filters[i].startDate;
-          }
-          break;
-        case ('à partir'):
-          bool = startDate >= this.filters[i].startDate;
-          break;
-        case ('entre'):
-          if (type == 'entre') {
-            bool = ((startDate <= this.filters[i].startDate) && (endDate >= this.filters[i].startDate)) || ((startDate <= this.filters[i].endDate) && (endDate >= this.filters[i].endDate))
-          } else if (type == 'avant le') {
-            bool = startDate < this.filters[i].startDate;
-          } else if ('jusqu\'au') {
-            bool = startDate <= this.filters[i].startDate; 
-          } else if (type == 'après le') {
-            bool = endDate > this.filters[i].startDate; 
-          } else if (type == 'à partir') {
-            bool = endDate >= this.filters[i].startDate; 
-          }
-          break;
+            break;
+          case ('après le'):
+            if (type == 'après le') {
+              bool = startDate >= this.filters[i].startDate;
+            } else {
+              bool = startDate > this.filters[i].startDate;
+            }
+            break;
+          case ('à partir'):
+            bool = startDate >= this.filters[i].startDate;
+            break;
+          case ('entre'):
+            if (type == 'entre') {
+              bool = ((startDate >= this.filters[i].startDate) && (startDate <= this.filters[i].endDate)) || ((endDate >= this.filters[i].startDate) && (endDate <= this.filters[i].endDate))
+            } else if (type == 'avant le') {
+              bool = startDate > this.filters[i].startDate;
+            } else if (type == 'jusqu\'au') {
+              bool = startDate >= this.filters[i].startDate;
+            } else if (type == 'après le') {
+              bool = startDate < this.filters[i].endDate;
+            } else if (type == 'à partir') {
+              bool = startDate <= this.filters[i].endDate
+            }
+            break;
         }
-      }
-      if (bool) {
-        return bool;
+        if (!bool) {
+          switch (type) {
+            case ('avant le'):
+              if (this.filters[i].type == 'avant le') {
+                bool = startDate >= this.filters[i].startDate;
+              } else {
+                bool = startDate > this.filters[i].startDate;
+              }
+              break;
+            case ('jusqu\'au'):
+              bool = startDate >= this.filters[i].startDate;
+              break;
+            case ('après le'):
+              if (this.filters[i].type == 'après le') {
+                bool = startDate <= this.filters[i].startDate;
+              } else {
+                bool = startDate < this.filters[i].startDate;
+              }
+              break;
+            case ('à partir'):
+              bool = startDate >= this.filters[i].startDate;
+              break;
+            case ('entre'):
+              if (this.filters[i].type == 'entre') {
+                bool = ((startDate <= this.filters[i].startDate) && (endDate >= this.filters[i].startDate)) || ((startDate <= this.filters[i].endDate) && (endDate >= this.filters[i].endDate))
+              } else if (this.filters[i].type == 'avant le') {
+                bool = startDate < this.filters[i].startDate;
+              } else if (this.filters[i].type == 'jusqu\'au') {
+                bool = startDate <= this.filters[i].startDate;
+              } else if (this.filters[i].type== 'après le') {
+                bool = endDate > this.filters[i].startDate;
+              } else if (this.filters[i].type == 'à partir') {
+                bool = endDate >= this.filters[i].startDate;
+              }
+              break;
+          }
+        }
+        if (bool) {
+          return bool;
+        }
       }
     }
     return bool;
   }
 
-  createName(startDate, type){
-    switch(type){
-      case('avant le'):
-        return "Avant le " + new Date(startDate).toISOString().slice(0,10);  
-      case('jusqu\'au'):
-        return "Jusqu'au " + new Date(startDate).toISOString().slice(0,10);
-      case('après le'):
-        return "Après le " + new Date(startDate).toISOString().slice(0,10);
-      case('à partir'):
-        return "A partir du " + new Date(startDate).toISOString().slice(0,10);
-    } 
+  createName(type, startDate) {
+    let date = this.convertTimestamp(startDate);
+    let name = ""
+    switch (type) {
+      case ('avant le'):
+        name = "Avant le " + date;
+        break;
+      case ('jusqu\'au'):
+        name = "Jusqu'au " + date;
+        break;
+      case ('après le'):
+        name = "Après le " + date;
+        break;
+      case ('à partir'):
+        name = "A partir du " + date;
+        break;
+    }
+    return name;
   }
 
+  convertTimestamp(timestamp) {
+    let date = new Date(timestamp);
+    return (date + "").slice(8, 10) + "/" + ("0" + (date.getMonth() + 1)).slice(-2) + '/' + date.getFullYear()
+  }
 
   myFilter() {
     this.startDate;

@@ -501,4 +501,15 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + '');
   }
 
+  /**
+   * Say to the parents the active child
+   */
+  emitActiveInstance(){
+    let message = "actif/" + this.instanceNumber + "/" ;
+    for(let i = 0 ; i < this.tableNames.length ; i++){
+      message += this.tableNames[i] + "/" ;
+    }
+    this.toParent.emit(message)
+  }
+
 }

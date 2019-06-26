@@ -20,6 +20,9 @@ export class AppComponent implements OnInit {
   //
   containerRepeat = 1;
 
+  //Nombre de templates
+  allTemplates = new Array(environment.maxTemplates);
+
   //Liste des entries pour les templates
   @ViewChildren('chartHost', { read: ViewContainerRef }) entries: QueryList<ViewContainerRef>;
 
@@ -44,6 +47,8 @@ export class AppComponent implements OnInit {
   value: any;
   elaspedTime: number;
   count: number;
+  activeTable = [];
+  allInstance: boolean[] = []
 
   //Instance active
   activeInstance: number;
@@ -70,6 +75,7 @@ export class AppComponent implements OnInit {
         });
         fields.sort((e1, e2) => e1.name > e2.name ? 1 : -1);
         this.datas.push({ name: element.name, fields: fields });
+        this.activeTable.push({ name: element.name, fields: fields })
       });
     });
   }
@@ -103,6 +109,10 @@ export class AppComponent implements OnInit {
     } else {
       console.log('DATA LOADED - Final charge : ' + this.charge);
       return this.dataTable.find(data => data.tableName === tableName);
+    }
+
+    for(let i = 0 ; i < environment.maxTemplates ; i++){
+      this.allInstance[i] = false ; 
     }
   }
 
@@ -141,6 +151,7 @@ export class AppComponent implements OnInit {
 
       //On récupère les données du drag
       const fieldName = ev.dataTransfer.getData('colName');
+      const tableName = ev.dataTransfer.getData('tableName')
 
       //On détermine l'id de l'enfant 
       const instanceNumber = parseInt(target.id, 10);
@@ -155,13 +166,17 @@ export class AppComponent implements OnInit {
       //On Initialise les variables 
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.activeInstance = instanceNumber;
+      console.log(instanceNumber)
+      this.allInstance[instanceNumber-1] = true;
 
       //!\ INUTILE TO SUPPR 
       this.componentRef.instance.droppedText = fieldName;
 
       this.componentRef.instance.displayedColumns = [fieldName];
-      this.componentRef.instance.tableNames.push(ev.dataTransfer.getData('tableName'));
-      const data = this.getData(ev.dataTransfer.getData('tableName'));
+      this.componentRef.instance.tableNames.push(tableName);
+      const data = this.getData(tableName);
+      this.activeTable = [];
+      this.activeTable.push(this.datas.find(element => element.name == tableName))
       this.componentRef.instance.data.push(data);
 
       //Initialisation de la communication Parent enfant
@@ -173,7 +188,7 @@ export class AppComponent implements OnInit {
       let sub = new Subject<any>();
       this.componentRef.instance.parentObs = sub.asObservable();
       this.componentRef.instance.setSubscription();
-      this.allComponentsObs.push(sub);
+      this.allComponentsObs[instanceNumber-1] = sub ; 
 
       //On initialise les données à destination de param view
       this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
@@ -201,7 +216,6 @@ export class AppComponent implements OnInit {
    * @param message 
    */
   handleMessageFromChild(message: string) {
-    console.log(message);
     const messageSplited = message.split('/');
     const instance: number = +messageSplited[1];
     switch (messageSplited[0]) {
@@ -209,8 +223,26 @@ export class AppComponent implements OnInit {
         const data = this.getData(messageSplited[2]);
         this.allComponentsObs[instance - 1].next('sendData/' + JSON.stringify(data) + '/' + messageSplited[2]);
         break;
+      case 'actif':
+        if (messageSplited.length > 3) {
+          this.setActiveTable(messageSplited);
+        }
+        break;
       default:
         break;
+    }
+  }
+
+  setActiveTable(message) {
+    this.activeTable = [];
+    for (let i = 2; i < message.length - 1; i++) {
+      this.activeTable.push(this.datas.find(element => message[i] == element.name));
+    }
+  }
+
+  resetActiveTable(event) {
+    if (+event['srcElement']['id']+"" != "NaN" && !this.allInstance[+event['srcElement']['id']-1]){
+      this.activeTable = this.datas
     }
   }
 
@@ -255,6 +287,7 @@ export class AppComponent implements OnInit {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'chartsFour');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
+      newDivForChart.addEventListener('click', (event) => this.resetActiveTable(event));
 
 
       const template = this.parseTemplateDiv(this.containerRepeat.toString());
@@ -269,6 +302,8 @@ export class AppComponent implements OnInit {
       const newDivForChart = document.createElement('div');
       newDivForChart.setAttribute('class', 'charts');
       newDivForChart.setAttribute('id', this.containerRepeat.toString());
+      newDivForChart.setAttribute('value', this.containerRepeat + "")
+      newDivForChart.addEventListener('click', (event) => this.resetActiveTable(event));
 
       const template = this.parseTemplateDiv(this.containerRepeat.toString());
       newDivForChart.appendChild(template);
@@ -279,7 +314,7 @@ export class AppComponent implements OnInit {
 
       this.resizeAllCanvas();
     }
-
+    this.activeTable = this.datas;
   }
 
   /**

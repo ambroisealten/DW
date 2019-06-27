@@ -478,7 +478,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       const mainContainer = document.getElementById('chartContainerDouble');
       mainContainer.setAttribute('id', 'chartContainerSimple');
     }
-    else if(chartsLength === 3) this.resizeContainers();
+    else if (chartsLength === 3) this.resizeContainers();
   }
 
   /**
@@ -501,6 +501,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         this.spans = [];
         for (let i = 0; i < this.displayedColumns.length; i++) {
           this.cacheSpan(this.displayedColumns[i], i + 1);
+        }
+        break;
+      case 'notifyDataFetched':
+        if (this.tableNames.includes(data)) {
+          this.toParent.emit('askForData/' + this.instanceNumber + '/' + data);
         }
         break;
       default:
@@ -528,8 +533,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * @param column 
    */
   isNotExclude(data, column) {
-    if(this.filters.length == 0){
-      return true ; 
+    if (this.filters.length == 0) {
+      return true;
     }
     return !this.filters.find(filter => filter.filterColumn == column)['excludeValue'].includes(data + '');
   }
@@ -539,8 +544,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   emitActiveInstance(event) {
     if (event.target.tagName != "I") {
-      let filtre = "filtres/" + JSON.stringify(this.filters) ; 
-      this.toParent.emit(filtre) ; 
+      let filtre = "filtres/" + JSON.stringify(this.filters);
+      this.toParent.emit(filtre);
       let message = "actif/" + this.instanceNumber + "/";
       for (let i = 0; i < this.tableNames.length; i++) {
         message += this.tableNames[i] + "/";

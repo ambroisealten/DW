@@ -776,6 +776,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   handleDataFromParent(datas) {
     let messageSplited = datas.split('/');
     if (messageSplited[0] == 'setColonnes') {
+      console.log(messageSplited) ;
       let data = JSON.parse(messageSplited[1]) ; 
       //Initialise les filtres 
       this.columns = [];

@@ -523,12 +523,15 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Permet de déterminer si la valeur fait partie des données exclue ou non 
+   * Permet de déterminer si la valeur fait partie des données exclues ou non 
    * @param data 
    * @param column 
    */
   isNotExclude(data, column) {
-    return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + '');
+    if(this.filters.length == 0){
+      return true ; 
+    }
+    return !this.filters.find(filter => filter.filterColumn == column)['excludeValue'].includes(data + '');
   }
 
   /**

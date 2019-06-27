@@ -200,9 +200,12 @@ export class AppComponent implements OnInit {
       this.allComponentsObs[instanceNumber - 1] = sub;
 
 
-      //Set border of the active one
-      let allChilds = Array.from(document.getElementsByTagName('nav')[0].nextSibling.childNodes) as HTMLElement[];
-      allChilds[this.allComponentsObs.length].setAttribute('id', 'containerActive');
+      //Remove the border of the (potentially) latest active child
+      let latestActive = document.getElementsByClassName('containerActive')[0];
+      if (latestActive != null) {
+        let latestActiveClass = latestActive.getAttribute('class').split('containerActive')[1];
+        latestActive.setAttribute('class', latestActiveClass);
+      }
 
       //On ré-initialise les tailles de l'instance créée
       this.componentRef.instance.recheckValues();
@@ -218,6 +221,10 @@ export class AppComponent implements OnInit {
       } else {
         target.setAttribute('class', 'chartContained');
       }
+
+      //Set border of the active one
+      let activeOne = document.getElementById(instanceNumber.toString());
+      activeOne.setAttribute('class', 'containerActive ' + activeOne.getAttribute('class'));
 
     }
     ev.preventDefault();
@@ -240,11 +247,14 @@ export class AppComponent implements OnInit {
         });
         break;
       case 'actif':
-        let inactiveChart = document.getElementById('containerActive');
-        if(inactiveChart != null) inactiveChart.removeAttribute('id');
+        let latestActive = document.getElementsByClassName('containerActive')[0];
+        if (latestActive != null) {
+          let latestActiveClass = latestActive.getAttribute('class').split('containerActive')[1];
+          latestActive.setAttribute('class', latestActiveClass);
+        }
 
-        let allChilds = Array.from(document.getElementsByTagName('nav')[0].nextSibling.childNodes) as HTMLElement[];
-        allChilds[instance].setAttribute('id', 'containerActive');
+        let testContainer = document.getElementById(instance.toString());
+        testContainer.setAttribute('class', 'containerActive ' + testContainer.getAttribute('class'));
         if (messageSplited.length > 3) {
           this.setActiveTable(messageSplited);
         }
@@ -338,8 +348,11 @@ export class AppComponent implements OnInit {
 
       this.resizeAllCanvas();
     }
-    let inactiveChart = document.getElementById('containerActive');
-    inactiveChart.removeAttribute('id');
+    let latestActive = document.getElementsByClassName('containerActive')[0];
+    if (latestActive != null) {
+      let latestActiveClass = latestActive.getAttribute('class').split('containerActive')[1];
+      latestActive.setAttribute('class', latestActiveClass);
+    }
 
     this.activeTable = this.datas;
     this.subjectRightPanel.next("reset")

@@ -45,7 +45,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   //Donnée du Tableau
   datas: any[] = [];
-  @Input() data: DataTable[] = [];
+  @Input() data: any[] = [];
   @Input() tableNames: string[] = [];
 
   //Ancien index lors du drag
@@ -372,8 +372,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   modifyChartView(chartType: string) {
     const chartData = [];
-    console.log(this.data);
-    const data = this.data.find(data => data.tableName === this.tableNames[0]).values.map(val => val[this.droppedText]);
+    const data = this.data.map(val => val[this.droppedText]);
 
     const labels = [];
 
@@ -401,6 +400,12 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         datasets: [
           {
             data: chartData as number[],
+            backgroundColor: test,
+            borderColor: '#00000',
+            fill: true
+          },
+          {
+            data: [4,8,89,9,7,5,9],
             backgroundColor: test,
             borderColor: '#00000',
             fill: true

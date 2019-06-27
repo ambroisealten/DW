@@ -4,6 +4,7 @@ import { Chart } from 'chart.js';
 import { Observable } from 'rxjs';
 import { DataTable } from 'src/app/models/data';
 import { FilterList } from '../../models/Filter';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-chart-view',
@@ -51,7 +52,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   //Ancien index lors du drag
   previousIndex: number;
 
-  constructor() {
+  constructor(private toastr: ToastrService) {
   }
 
   ngOnInit() {
@@ -401,30 +402,82 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       inter++;
     }
 
-    this.chart = new Chart(this.context, {
-      type: chartType,
-      data: {
-        labels,
-        datasets: [
-          {
-            data: chartData as number[],
-            backgroundColor: test,
-            borderColor: '#00000',
-            fill: true
-          }]
-      },
-      options: {
-        legend: {
-          display: false,
-          position: 'bottom',
-          labels: {
-            fontSize: this.canvasFontSize
+    switch (chartType) {
+      case 'pie':
+      case 'doughnut':
+        this.chart = new Chart(this.context, {
+          type: chartType,
+          data: {
+            labels,
+            datasets: [
+              {
+                data: chartData as number[],
+                backgroundColor: test,
+                borderColor: '#00000',
+                fill: true
+              }]
+          },
+          options: {
+            legend: {
+              display: false,
+              position: 'bottom',
+              labels: {
+                fontSize: this.canvasFontSize
+              }
+            },
+            responsive: false,
+            maintainAspectRatio: true,
+            'onClick': () => this.redirectTo(),
           }
-        },
-        responsive: false,
-        maintainAspectRatio: true
-      }
-    });
+        });
+        break;
+      default:
+        this.chart = new Chart(this.context, {
+          type: chartType,
+          data: {
+            labels,
+            datasets: [
+              {
+                data: chartData as number[],
+                backgroundColor: test,
+                borderColor: '#00000',
+                fill: true
+              }]
+          },
+          options: {
+            legend: {
+              display: false,
+              position: 'bottom',
+              labels: {
+                fontSize: this.canvasFontSize
+              }
+            },
+            responsive: false,
+            maintainAspectRatio: true,
+            'onClick': () => this.redirectTo(),
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                  fontColor: 'white'
+                },
+              }],
+              xAxes: [{
+                ticks: {
+                  fontColor: 'white'
+                }
+              }]
+            }
+          }
+        });
+        break;
+    }
+  }
+
+
+  redirectTo() {
+    console.log("Bonsoir");
+    this.toastr.info("We want to redirect to : some URL (must be defined)");
   }
 
   frequencies(array: any[]) {
@@ -467,7 +520,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       const mainContainer = document.getElementById('chartContainerDouble');
       mainContainer.setAttribute('id', 'chartContainerSimple');
     }
-    else if(chartsLength === 3) this.resizeContainers();
+    else if (chartsLength === 3) this.resizeContainers();
   }
 
   /**

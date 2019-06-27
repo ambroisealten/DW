@@ -76,7 +76,7 @@ export class AppComponent implements OnInit {
         });
         fields.sort((e1, e2) => e1.name > e2.name ? 1 : -1);
         this.datas.push({ name: element.name, fields: fields });
-        this.activeTable.push({ name: element.name, fields: fields })
+        this.activeTable.push({ name: element.name, fields: fields });
       });
     });
   }
@@ -155,7 +155,7 @@ export class AppComponent implements OnInit {
 
       //On récupère les données du drag
       const fieldName = ev.dataTransfer.getData('colName');
-      const tableName = ev.dataTransfer.getData('tableName')
+      const tableName = ev.dataTransfer.getData('tableName');
 
       //On détermine l'id de l'enfant 
       const instanceNumber = parseInt(target.id, 10);
@@ -178,7 +178,8 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.displayedColumns = [fieldName];
       this.componentRef.instance.tableNames.push(tableName);
       this.getData(tableName).subscribe(dataFetched => {
-        this.componentRef.instance.data.push(dataFetched);
+        this.componentRef.instance.datas = dataFetched;
+        this.componentRef.instance.change();
       });
 
       this.activeTable = [];
@@ -229,8 +230,9 @@ export class AppComponent implements OnInit {
     switch (messageSplited[0]) {
       case 'askForData':
         this.activeInstance = instance;
-        const data = this.getData(messageSplited[2]);
-        this.allComponentsObs[this.activeInstance - 1].next('sendData/' + JSON.stringify(data) + '/' + messageSplited[2]);
+        this.getData(messageSplited[2]).subscribe(dataFetched => {
+          this.allComponentsObs[this.activeInstance - 1].next('sendData/' + JSON.stringify(dataFetched) + '/' + messageSplited[2]);
+        });
         break;
       case 'actif':
         if (messageSplited.length > 3) {
@@ -255,7 +257,7 @@ export class AppComponent implements OnInit {
 
   resetActiveTable(event) {
     if (+event['srcElement']['id'] + "" != "NaN" && !this.allInstance[+event['srcElement']['id'] - 1]) {
-      this.activeTable = this.datas
+      this.activeTable = this.datas;
     }
   }
 

@@ -1,5 +1,5 @@
 import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { Chart } from 'chart.js';
 import { Observable } from 'rxjs';
 import { FilterList } from '../../models/Filter';
@@ -45,7 +45,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   //Donnée du Tableau
   @Input() datas: any[] = [];
   @Input() tableNames: string[] = [];
-  data: any[] = []
 
   //Ancien index lors du drag
   previousIndex: number;
@@ -61,7 +60,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     for (let i = 0; i < this.displayedColumns.length; i++) {
       this.cacheSpan(this.displayedColumns[i], i + 1);
     }
-
   }
 
   ngOnDestroy() {
@@ -129,9 +127,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       for (let i = 0; i < this.displayedColumns.length; i++) {
         this.cacheSpan(this.displayedColumns[i], i + 1);
       }
-      console.log(this.datas)
     }
-
+    console.log(this.datas)
     ev.preventDefault();
   }
 
@@ -204,6 +201,14 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       for (let i = 0; i < this.displayedColumns.length; i++) {
         this.cacheSpan(this.displayedColumns[i], i + 1);
       }
+    }
+  }
+
+  change() {
+    this.multipleSort();
+    this.spans = [];
+    for (let i = 0; i < this.displayedColumns.length; i++) {
+      this.cacheSpan(this.displayedColumns[i], i + 1);
     }
   }
 
@@ -381,7 +386,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   modifyChartView(chartType: string) {
     const chartData = [];
-    const data = this.data.map(val => val[this.droppedText]);
+    const data = this.datas.map(val => val[this.droppedText]);
 
     const labels = [];
 
@@ -414,7 +419,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
             fill: true
           },
           {
-            data: [4,8,89,9,7,5,9],
+            data: [4, 8, 89, 9, 7, 5, 9],
             backgroundColor: test,
             borderColor: '#00000',
             fill: true
@@ -487,6 +492,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     switch (messageSplited[0]) {
       case 'sendData':
         this.tableNames.push(messageSplited[2]);
+        this.datas = data;
         break;
       case 'sendFilter':
         // Si réception d'un nouveau filtre retransforme les données

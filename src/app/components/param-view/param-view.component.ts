@@ -44,7 +44,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   //Données tri 
   dataSource = new MatTableDataSource<any>();
   selectionTri = new SelectionModel<any>(true, []);
-  data: any[]= [] ; 
+  data: any[] = [];
 
   constructor(private dialog: MatDialog, private toastr: ToastrService) { }
 
@@ -67,8 +67,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     this.setDatasourceGpmt();
     this.selectionGpmt.clear();
     this.toggleFilterGpmt();
-    let tmp = this.uniqueArrayOfObject() ; 
-    this.dataSource = new MatTableDataSource(tmp) ; 
+    let tmp = this.uniqueArrayOfObject();
+    this.dataSource = new MatTableDataSource(tmp);
     this.selectionTri.clear();
     this.toggleFilter();
   }
@@ -417,11 +417,21 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    */
   excludeOrInclude(row) {
     let newFilter = row[this.displayedColumns[1]] + ""
-    let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(newFilter);
-    if (index == -1) {
-      this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(newFilter)
+    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]);
+    let index;
+    if (filterConcerned.filterType == "date") {
+      index = filterConcerned.excludeValue.indexOf((new Date(newFilter).getTime()) + "")
     } else {
-      this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
+      index = filterConcerned.excludeValue.indexOf(newFilter);
+    }
+    if (index == -1) {
+      if (filterConcerned.filterType == "date") {
+        filterConcerned.excludeValue.push((new Date(newFilter).getTime()) + "")
+      } else {
+        filterConcerned.excludeValue.push(newFilter)
+      }
+    } else {
+      filterConcerned.excludeValue.splice(index, 1);
     }
     this.selectionTri.toggle(row);
     this.sendFilterList();
@@ -776,7 +786,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   handleDataFromParent(datas) {
     let messageSplited = datas.split('/');
     if (messageSplited[0] == 'setColonnes') {
-      let data = JSON.parse(messageSplited[1]) ; 
+      let data = JSON.parse(messageSplited[1]);
       //Initialise les filtres 
       this.columns = [];
       this.filterList = [];
@@ -801,20 +811,20 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       this.column = this.filterList[0].filterColumn;
       this.changeColumn();
       this.sendFilterList();
-    } else if (messageSplited[0] == 'datas'){
-      this.data = JSON.parse(messageSplited[1]) ; 
-    } else if (messageSplited[0] == 'reset'){
+    } else if (messageSplited[0] == 'datas') {
+      this.data = JSON.parse(messageSplited[1]);
+    } else if (messageSplited[0] == 'reset') {
       this.columns = [];
       this.filterList = [];
-      this.displayedColumns = []; 
-      this.dataSourceGpmt = new MatTableDataSource() ;
-      this.dataSource = new MatTableDataSource() ; 
+      this.displayedColumns = [];
+      this.dataSourceGpmt = new MatTableDataSource();
+      this.dataSource = new MatTableDataSource();
     } else if (messageSplited[0] == 'filtres') {
-      this.filterList = JSON.parse(messageSplited[1]) ; 
-      this.dataSourceGpmt = new MatTableDataSource(this.filterList) ; 
-    } else if (messageSplited[0] == 'colonnes'){
+      this.filterList = JSON.parse(messageSplited[1]);
+      this.dataSourceGpmt = new MatTableDataSource(this.filterList);
+    } else if (messageSplited[0] == 'colonnes') {
       let data = JSON.parse(messageSplited[1])
-      this.columns = [] ; 
+      this.columns = [];
       data.forEach(element => {
         this.columns.push(element.name)
       });
@@ -842,10 +852,10 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     return Object.values(this.data.reduce((tmp, x) => {
       // You already get a value
       if (tmp[x[this.column]]) return tmp;
-  
+
       // You never envcountered this key
       tmp[x[this.column]] = x;
-  
+
       return tmp;
     }, {}));
   }

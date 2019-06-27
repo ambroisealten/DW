@@ -274,6 +274,7 @@ export class AppComponent implements OnInit {
    * Reception des messages venus du panel de droite
    */
   messageReceiveFromRightPanel($event) {
+    console.log(this.allComponentsObs)
     //Envoi des filtres vers l'enfant
     this.allComponentsObs[this.activeInstance - 1].next('sendFilter/' + JSON.stringify($event));
   }

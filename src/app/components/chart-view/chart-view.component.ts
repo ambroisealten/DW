@@ -487,7 +487,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * @param data
    */
   handleData(message: string) {
+    
     const messageSplited = message.split('/');
+    
+    console.log(messageSplited)
     const data = JSON.parse(messageSplited[1]);
     switch (messageSplited[0]) {
       case 'sendData':
@@ -502,6 +505,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         for (let i = 0; i < this.displayedColumns.length; i++) {
           this.cacheSpan(this.displayedColumns[i], i + 1);
         }
+        console.log(this.filters)
         break;
       case 'notifyDataFetched':
         if (this.tableNames.includes(data)) {
@@ -538,11 +542,21 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
     let bool = false ; 
     for(let i = 0 ; i < this.filters.length ; i++){
-      if(this.filters[i].excludeValue.includes(data[this.filters[i].filterColumn]+'')){
-        bool = true ; 
+      if(this.filters[i].filterType == "date"){
+        console.log((new Date(data[this.filters[i].filterColumn])).getTime())
+        if(this.filters[i].excludeValue.includes((new Date(data[this.filters[i].filterColumn])).getTime()+'')){
+          bool = true ; 
+        }
+      } else {
+        if(this.filters[i].excludeValue.includes(data[this.filters[i].filterColumn]+'')){
+          bool = true ; 
+        }
+      }
+      if(bool){
+        return false ; 
       }
     }
-    return !bool ; 
+    return true ; 
   }
 
   /**

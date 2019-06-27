@@ -92,13 +92,11 @@ export class AppComponent implements OnInit {
   loadDataAsync(tableName: string) {
     this.charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
     if (this.i === 0) {
-      console.log('Start data loading');
     }
     if (this.charge < 1000) {
       this.dataService.getData(tableName, this.i * environment.maxSizePacket, environment.maxSizePacket).subscribe((response: any[]) => {
         if (response.length === 0) {
           this.i = 0;
-          console.log('DATA LOADED - Final charge : ' + this.charge);
           return this.dataTable.find(data => data.tableName === tableName);
         }
         const datasFetched = response;
@@ -108,7 +106,6 @@ export class AppComponent implements OnInit {
       });
       this.i += 1;
     } else {
-      console.log('DATA LOADED - Final charge : ' + this.charge);
       return this.dataTable.find(data => data.tableName === tableName);
     }
 
@@ -167,7 +164,6 @@ export class AppComponent implements OnInit {
       //On Initialise les variables 
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.activeInstance = instanceNumber;
-      console.log(instanceNumber)
       this.allInstance[instanceNumber - 1] = true;
 
       //!\ INUTILE TO SUPPR 

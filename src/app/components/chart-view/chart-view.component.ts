@@ -390,11 +390,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
     const labels = [];
 
-    const lol = this.frequencies(data).values;
+    const frequencies = this.frequencies(data).values;
     // tslint:disable-next-line: forin
-    for (const key in lol) {
+    for (const key in frequencies) {
       labels.push(key);
-      chartData.push(lol[key]);
+      chartData.push(frequencies[key]);
     }
 
     const test = [];
@@ -432,7 +432,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
             },
             responsive: false,
             maintainAspectRatio: true,
-            'onClick': () => this.redirectTo(),
+            'onClick': (event,item) => this.redirectTo(item),
           }
         });
         break;
@@ -459,7 +459,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
             },
             responsive: false,
             maintainAspectRatio: true,
-            'onClick': () => this.redirectTo(),
+            'onClick': (event,item) => this.redirectTo(item),
             scales: {
               yAxes: [{
                 ticks: {
@@ -480,9 +480,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
 
-  redirectTo() {
-    console.log("Bonsoir");
-    this.toastr.info("We want to redirect to : some URL (must be defined)");
+  redirectTo(item) {
+    if(item.length > 0) {this.toastr.info("We want to redirect to : some URL (must be defined)");}
   }
 
   frequencies(array: any[]) {

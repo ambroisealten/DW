@@ -26,15 +26,15 @@
     </div>
   </nav>
   <div id="chartContainerSimple" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
-
-    <div class='charts' id='1'>
-      <template #chartHost></template>
-    </div>
     <div class="fab">
       <span class="fab-action-button">
         <i class="fab-action-button_icon icon-material_add" (click)="diviseChartsSegment()"></i>
       </span>
     </div>
+    <div class='charts' id='1'>
+      <template #chartHost></template>
+    </div>
+
   </div>
   <aside class="right_panel">
     <app-param-view [parentObs]="obsRightPanel" (messageEvent)="messageReceiveFromRightPanel($event)" class="paramview">

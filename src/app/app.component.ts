@@ -205,6 +205,10 @@ export class AppComponent implements OnInit {
       this.allComponentsObs[instanceNumber - 1] = sub;
 
 
+      //Set border of the active one
+      let allChilds = Array.from(document.getElementsByTagName('nav')[0].nextSibling.childNodes) as HTMLElement[];
+      allChilds[this.allComponentsObs.length].setAttribute('id', 'containerActive');
+
       //On ré-initialise les tailles de l'instance créée
       this.componentRef.instance.recheckValues();
 
@@ -241,6 +245,11 @@ export class AppComponent implements OnInit {
         });
         break;
       case 'actif':
+        let inactiveChart = document.getElementById('containerActive');
+        if(inactiveChart != null) inactiveChart.removeAttribute('id');
+
+        let allChilds = Array.from(document.getElementsByTagName('nav')[0].nextSibling.childNodes) as HTMLElement[];
+        allChilds[instance].setAttribute('id', 'containerActive');
         if (messageSplited.length > 3) {
           this.setActiveTable(messageSplited);
         }
@@ -307,7 +316,6 @@ export class AppComponent implements OnInit {
    * Permet d'ajouter les charts au DOM et de le dimensionner différemment selon le nombre de chart
    */
   diviseChartsSegment() {
-    console.log(this.dataTable);
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 
@@ -335,6 +343,9 @@ export class AppComponent implements OnInit {
 
       this.resizeAllCanvas();
     }
+    let inactiveChart = document.getElementById('containerActive');
+    inactiveChart.removeAttribute('id');
+
     this.activeTable = this.datas;
     this.subjectRightPanel.next("reset")
   }

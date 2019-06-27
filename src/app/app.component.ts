@@ -176,7 +176,7 @@ export class AppComponent implements OnInit {
       const data = this.getData(tableName);
       this.activeTable = [];
       this.activeTable.push(this.datas.find(element => element.name === tableName));
-      this.componentRef.instance.data.push(data);
+      this.componentRef.instance.datas = data ;
 
       //Initialisation de la communication Parent enfant
       //Enfant vers Parent

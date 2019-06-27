@@ -61,7 +61,6 @@ export class ModalDataManipulationComponent implements OnInit {
       newFilter['type'] = this.type.selectedOptions.selected[0].value;
       //Si l'onglet est le tri, on ne regarde pas le conflit avec les autres filtres 
       if (!this.isTri && this.isFiltered(this.valueSolo, null, newFilter['type'])) {
-        this.toastr.error("L'entité existe déjà", '');
         return;
       }
       newFilter['min'] = this.valueSolo;

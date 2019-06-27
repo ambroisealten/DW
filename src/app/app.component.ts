@@ -274,7 +274,6 @@ export class AppComponent implements OnInit {
    * Reception des messages venus du panel de droite
    */
   messageReceiveFromRightPanel($event) {
-    console.log(this.allComponentsObs)
     //Envoi des filtres vers l'enfant
     this.allComponentsObs[this.activeInstance - 1].next('sendFilter/' + JSON.stringify($event));
   }
@@ -303,7 +302,6 @@ export class AppComponent implements OnInit {
    * Permet d'ajouter les charts au DOM et de le dimensionner différemment selon le nombre de chart
    */
   diviseChartsSegment() {
-    console.log(this.dataTable);
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 

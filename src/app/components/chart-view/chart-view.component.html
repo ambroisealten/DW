@@ -1,4 +1,4 @@
-<div class="container" (click)="emitActiveInstance()" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
+<div class="container" (click)="emitActiveInstance($event)" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
   <ng-container *ngIf="currentType == 'tab'">
     <table cdkDropListGroup>
       <tr>

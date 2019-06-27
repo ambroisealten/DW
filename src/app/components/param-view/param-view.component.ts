@@ -64,13 +64,13 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   //Lors d'un changement de colonne reset les sélections et les données affichées
   changeColumn() {
     this.displayedColumns = ['select', this.column];
-    this.selectionTri.clear();
-    this.toggleFilter();
     this.setDatasourceGpmt();
     this.selectionGpmt.clear();
     this.toggleFilterGpmt();
     let tmp = this.uniqueArrayOfObject() ; 
     this.dataSource = new MatTableDataSource(tmp) ; 
+    this.selectionTri.clear();
+    this.toggleFilter();
   }
 
   /**************************************************************************************************\
@@ -776,7 +776,6 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   handleDataFromParent(datas) {
     let messageSplited = datas.split('/');
     if (messageSplited[0] == 'setColonnes') {
-      console.log(messageSplited) ;
       let data = JSON.parse(messageSplited[1]) ; 
       //Initialise les filtres 
       this.columns = [];

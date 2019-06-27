@@ -197,7 +197,8 @@ export class AppComponent implements OnInit {
       this.allComponentsObs[instanceNumber - 1] = sub;
 
       //On initialise les données à destination de param view
-      this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
+      this.subjectRightPanel.next("datas/" + JSON.stringify(this.getData(tableName)));
+      this.subjectRightPanel.next("setColonnes/" + JSON.stringify(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName'))));
 
       //On ré-initialise les tailles de l'instance créée
       this.componentRef.instance.recheckValues();
@@ -239,6 +240,9 @@ export class AppComponent implements OnInit {
           this.setActiveTable(messageSplited);
         }
         break;
+      case 'filtres':
+        this.subjectRightPanel.next('filtres/' + messageSplited[1]) ; 
+        break ; 
       case 'destroyed':
         this.activeTable = this.datas;
         if(document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
@@ -253,11 +257,14 @@ export class AppComponent implements OnInit {
     for (let i = 2; i < message.length - 1; i++) {
       this.activeTable.push(this.datas.find(element => message[i] == element.name));
     }
+    this.subjectRightPanel.next("colonnes/" + JSON.stringify(this.activeTable[0].fields)) ; 
+    this.subjectRightPanel.next("datas/" + JSON.stringify(this.getData(this.activeTable[0].name)))
   }
 
   resetActiveTable(event) {
     if (+event['srcElement']['id'] + "" != "NaN" && !this.allInstance[+event['srcElement']['id'] - 1]) {
-      this.activeTable = this.datas;
+      this.activeTable = this.datas
+      this.subjectRightPanel.next("reset")
     }
   }
 
@@ -303,7 +310,8 @@ export class AppComponent implements OnInit {
     newDivForChart.setAttribute('id', this.containerRepeat.toString());
     const template = this.parseTemplateDiv(this.containerRepeat.toString());
     newDivForChart.appendChild(template);
-    if (allChartChilds < 2) chartContainer.setAttribute('id', 'chartContainerSimple');
+    newDivForChart.addEventListener('click', (event) => this.resetActiveTable(event)) ; 
+    if(allChartChilds < 2) chartContainer.setAttribute('id', 'chartContainerSimple');
     else chartContainer.setAttribute('id', 'chartContainerDouble');
 
     if (allChartChilds > 2) {
@@ -320,6 +328,7 @@ export class AppComponent implements OnInit {
       this.resizeAllCanvas();
     }
     this.activeTable = this.datas;
+    this.subjectRightPanel.next("reset") 
   }
 
   /**

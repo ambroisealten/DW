@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatDialogConfig, MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogConfig, MatDialog, MatDialogRef, MAT_DIALOG_DATA, TransitionCheckState } from '@angular/material';
 import { ModalDataManipulationComponent } from '../modal/modal-data-manipulation/modal-data-manipulation.component';
 import { ModalStringManipulationComponent } from '../modal/modal-string-manipulation/modal-string-manipulation.component';
 import { FilterList } from 'src/app/models/Filter';
@@ -44,6 +44,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   //Données tri 
   dataSource = new MatTableDataSource<any>();
   selectionTri = new SelectionModel<any>(true, []);
+  data: any[]= [] ; 
 
   constructor(private dialog: MatDialog, private toastr: ToastrService) { }
 
@@ -68,6 +69,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     this.setDatasourceGpmt();
     this.selectionGpmt.clear();
     this.toggleFilterGpmt();
+    let tmp = this.uniqueArrayOfObject() ; 
+    this.dataSource = new MatTableDataSource(tmp) ; 
   }
 
   /**************************************************************************************************\
@@ -351,16 +354,16 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Inclut ou exclut toutes les valeurs 
   */
   masterToggle() {
-    let filterConcerned =   this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1])
+    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1])
     if (this.isAllSelected()) {
       this.selectionTri.clear();
-      if(filterConcerned.filterType == 'date'){
+      if (filterConcerned.filterType == 'date') {
         this.dataSource.data.forEach(row => {
           filterConcerned.excludeValue.push((new Date(row[this.displayedColumns[1]])).getTime() + "");
         })
       } else {
         this.dataSource.data.forEach(row => {
-          filterConcerned.excludeValue.push(row[this.displayedColumns[1]]+"");
+          filterConcerned.excludeValue.push(row[this.displayedColumns[1]] + "");
         })
       }
     } else {
@@ -398,8 +401,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param row 
    */
   isExclude(row) {
-    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]) ; 
-    if(filterConcerned.filterType == "date"){
+    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]);
+    if (filterConcerned.filterType == "date") {
       return filterConcerned.excludeValue.includes((new Date(row[this.displayedColumns[1]])).getTime() + "")
     } else {
       return filterConcerned.excludeValue.includes(row[this.displayedColumns[1]] + "")
@@ -694,7 +697,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       });
     } else if (filter['excludeValue'] == "n'inclure que") {
       this.dataSource.data.forEach(element => {
-        if (this.isDateFiltered(element[this.displayedColumns[1]],filter)) {
+        if (this.isDateFiltered(element[this.displayedColumns[1]], filter)) {
           let index = filterConcerned.excludeValue.indexOf("" + (new Date(element[this.displayedColumns[1]])).getTime());
           if (index != -1) {
             filterConcerned.excludeValue.splice(index, 1);
@@ -712,7 +715,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param value 
    * @param filter 
    */
-  isDateFiltered(value,filter){
+  isDateFiltered(value, filter) {
     let bool: boolean = false;
     switch (filter.type) {
       case ('avant le'):
@@ -770,31 +773,54 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Permet gérer la donnée reçu du Parent 
    * @param data Donnée envoyée par le parent
    */
-  handleDataFromParent(data) {
-    //Initialise les filtres 
-    this.columns = [];
-    this.filterList = [];
-    this.dataSource = new MatTableDataSource();
-    data.fields.forEach(element => {
-      this.columns.push(element.name);
-      let filter = new FilterList();
-      filter.filterColumn = element.name;
-      filter.excludeValue = [];
-      filter.filters = [];
-      if (this.isNumber(element.type)) {
-        filter.filterType = "number"
-      } else if (element.type == "String") {
-        filter.filterType = "string"
-      } else if (element.type == "Timestamp") {
-        filter.filterType = "date";
-      } else {
-        filter.filterType = element.type;
-      }
-      this.filterList.push(filter);
-    });
-    this.column = this.filterList[0].filterColumn;
-    this.changeColumn();
-    this.sendFilterList();
+  handleDataFromParent(datas) {
+    let messageSplited = datas.split('/');
+    if (messageSplited[0] == 'setColonnes') {
+      let data = JSON.parse(messageSplited[1]) ; 
+      //Initialise les filtres 
+      this.columns = [];
+      this.filterList = [];
+      this.dataSource = new MatTableDataSource();
+      data.fields.forEach(element => {
+        this.columns.push(element.name);
+        let filter = new FilterList();
+        filter.filterColumn = element.name;
+        filter.excludeValue = [];
+        filter.filters = [];
+        if (this.isNumber(element.type)) {
+          filter.filterType = "number"
+        } else if (element.type == "String") {
+          filter.filterType = "string"
+        } else if (element.type == "Timestamp") {
+          filter.filterType = "date";
+        } else {
+          filter.filterType = element.type;
+        }
+        this.filterList.push(filter);
+      });
+      this.column = this.filterList[0].filterColumn;
+      this.changeColumn();
+      this.sendFilterList();
+    } else if (messageSplited[0] == 'datas'){
+      this.data = JSON.parse(messageSplited[1]) ; 
+    } else if (messageSplited[0] == 'reset'){
+      this.columns = [];
+      this.filterList = [];
+      this.displayedColumns = []; 
+      this.dataSourceGpmt = new MatTableDataSource() ;
+      this.dataSource = new MatTableDataSource() ; 
+    } else if (messageSplited[0] == 'filtres') {
+      this.filterList = JSON.parse(messageSplited[1]) ; 
+      this.dataSourceGpmt = new MatTableDataSource(this.filterList) ; 
+    } else if (messageSplited[0] == 'colonnes'){
+      let data = JSON.parse(messageSplited[1])
+      this.columns = [] ; 
+      data.forEach(element => {
+        this.columns.push(element.name)
+      });
+      this.column = data[0].name;
+      this.changeColumn();
+    }
   }
 
   /**
@@ -810,5 +836,17 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    */
   sendFilterList() {
     this.messageEvent.emit(this.filterList);
+  }
+
+  uniqueArrayOfObject() {
+    return Object.values(this.data.reduce((tmp, x) => {
+      // You already get a value
+      if (tmp[x[this.column]]) return tmp;
+  
+      // You never envcountered this key
+      tmp[x[this.column]] = x;
+  
+      return tmp;
+    }, {}));
   }
 }

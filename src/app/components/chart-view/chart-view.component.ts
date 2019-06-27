@@ -3,6 +3,7 @@ import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, 
 import { Chart } from 'chart.js';
 import { Observable } from 'rxjs';
 import { FilterList } from '../../models/Filter';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-chart-view',
@@ -49,7 +50,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   //Ancien index lors du drag
   previousIndex: number;
 
-  constructor() {
+  constructor(private toastr: ToastrService) {
   }
 
   ngOnInit() {
@@ -389,11 +390,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
     const labels = [];
 
-    const lol = this.frequencies(data).values;
+    const frequencies = this.frequencies(data).values;
     // tslint:disable-next-line: forin
-    for (const key in lol) {
+    for (const key in frequencies) {
       labels.push(key);
-      chartData.push(lol[key]);
+      chartData.push(frequencies[key]);
     }
 
     const test = [];
@@ -406,36 +407,81 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       inter++;
     }
 
-    this.chart = new Chart(this.context, {
-      type: chartType,
-      data: {
-        labels,
-        datasets: [
-          {
-            data: chartData as number[],
-            backgroundColor: test,
-            borderColor: '#00000',
-            fill: true
+    switch (chartType) {
+      case 'pie':
+      case 'doughnut':
+        this.chart = new Chart(this.context, {
+          type: chartType,
+          data: {
+            labels,
+            datasets: [
+              {
+                data: chartData as number[],
+                backgroundColor: test,
+                borderColor: '#00000',
+                fill: true
+              }]
           },
-          {
-            data: [4, 8, 89, 9, 7, 5, 9],
-            backgroundColor: test,
-            borderColor: '#00000',
-            fill: true
-          }]
-      },
-      options: {
-        legend: {
-          display: false,
-          position: 'bottom',
-          labels: {
-            fontSize: this.canvasFontSize
+          options: {
+            legend: {
+              display: false,
+              position: 'bottom',
+              labels: {
+                fontSize: this.canvasFontSize
+              }
+            },
+            responsive: false,
+            maintainAspectRatio: true,
+            'onClick': (event,item) => this.redirectTo(item),
           }
-        },
-        responsive: false,
-        maintainAspectRatio: true
-      }
-    });
+        });
+        break;
+      default:
+        this.chart = new Chart(this.context, {
+          type: chartType,
+          data: {
+            labels,
+            datasets: [
+              {
+                data: chartData as number[],
+                backgroundColor: test,
+                borderColor: '#00000',
+                fill: true
+              }]
+          },
+          options: {
+            legend: {
+              display: false,
+              position: 'bottom',
+              labels: {
+                fontSize: this.canvasFontSize
+              }
+            },
+            responsive: false,
+            maintainAspectRatio: true,
+            'onClick': (event,item) => this.redirectTo(item),
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                  fontColor: 'white'
+                },
+              }],
+              xAxes: [{
+                ticks: {
+                  fontColor: 'white'
+                }
+              }]
+            }
+          }
+        });
+        break;
+    }
+  }
+
+
+  redirectTo(item) {
+    if(item.length > 0) {this.toastr.info("We want to redirect to : some URL (must be defined)");}
   }
 
   frequencies(array: any[]) {

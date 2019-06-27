@@ -80,13 +80,13 @@ export class AppComponent implements OnInit {
       setTimeout(() => {
         for (const table of this.datas) {
           this.dataTable.push(new DataTable(table.name, []));
-          this.loadDataAsync(0, table.name, 0, this.dataTable);
+          this.loadDataAsync(0, table.name, 0, this.dataTable, this.allComponentsObs);
         }
       }, 30);
     });
   }
 
-  loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[]) {
+  loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[], allComponentsObs) {
     const charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
     if (i === 0) {
     }
@@ -94,15 +94,18 @@ export class AppComponent implements OnInit {
       this.dataService.getData(tableName, i * environment.maxSizePacket, environment.maxSizePacket)
         .subscribe((datasFetched: any[]) => {
           if (datasFetched.length === 0) {
+            this.allComponentsObs.forEach(component => {
+              component.next('notifyDataFetched/' + tableName);
+            });
             return;
           }
           Array.prototype.push.apply(dataTable.find(data => data.tableName === tableName).values, datasFetched);
           i += 1;
-          this.loadDataAsync(0, tableName, i, dataTable);
+          this.loadDataAsync(0, tableName, i, dataTable, allComponentsObs);
         });
     } else {
       if (count < 3) {
-        setTimeout(() => { this.loadDataAsync(count + 1, tableName, i, dataTable); }, 2000);
+        setTimeout(() => { this.loadDataAsync(count + 1, tableName, i, dataTable, allComponentsObs); }, 2000);
       } else {
         return;
       }

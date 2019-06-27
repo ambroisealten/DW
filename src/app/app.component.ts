@@ -67,7 +67,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     //Récupération des données sur les tables et les champs
-    this.i = 0;
     this.dataService.fetchDataScheme().subscribe(response => {
       (response as any[]).forEach(element => {
         const fields = [];
@@ -78,7 +77,40 @@ export class AppComponent implements OnInit {
         this.datas.push({ name: element.name, fields: fields });
         this.activeTable.push({ name: element.name, fields: fields });
       });
+      setTimeout(() => {
+        for (const table of this.datas) {
+          this.dataTable.push(new DataTable(table.name, []));
+          this.loadDataAsync(0, table.name, 0, this.dataTable);
+        }
+      }, 30);
     });
+  }
+
+  loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[]) {
+    const charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
+    if (i === 0) {
+      console.log('Start data loading');
+    }
+    if (this.charge < environment.maxLoadDataCharge) {
+      this.dataService.getData(tableName, i * environment.maxSizePacket, environment.maxSizePacket)
+        .subscribe((datasFetched: any[]) => {
+          if (datasFetched.length === 0) {
+            console.log('DATA LOADED - Final charge : ' + charge);
+            return;
+          }
+          Array.prototype.push.apply(dataTable.find(data => data.tableName === tableName).values, datasFetched);
+          i += 1;
+          this.loadDataAsync(0, tableName, i, dataTable);
+        });
+    } else {
+      if (count < 3) {
+        setTimeout(() => { this.loadDataAsync(count + 1, tableName, i, dataTable); }, 2000);
+      } else {
+        console.log('DATA LOADED - Final charge : ' + charge);
+        return;
+      }
+    }
+
   }
 
   getData(tableName: string) {
@@ -90,33 +122,6 @@ export class AppComponent implements OnInit {
         this.dataTable.push(new DataTable(tableName, dataFetched));
       });
       return req;
-    }
-  }
-
-  loadDataAsync(tableName: string) {
-    this.charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
-    if (this.i === 0) {
-    }
-    if (this.charge < environment.maxLoadDataCharge) {
-      this.dataService.getData(tableName, this.i * environment.maxSizePacket, environment.maxSizePacket).subscribe((response: any[]) => {
-        if (response.length === 0) {
-          this.i = 0;
-          console.log('DATA LOADED - Final charge : ' + this.charge);
-          return this.dataTable.find(data => data.tableName === tableName).values;
-        }
-        const datasFetched = response;
-        this.dataTable.push(new DataTable(tableName, datasFetched));
-        this.tableStored.push(tableName);
-        this.loadDataAsync(tableName);
-      });
-      this.i += 1;
-    } else {
-      console.log('DATA LOADED - Final charge : ' + this.charge);
-      return this.dataTable.find(data => data.tableName === tableName).values;
-    }
-
-    for (let i = 0; i < environment.maxTemplates; i++) {
-      this.allInstance[i] = false;
     }
   }
 
@@ -293,6 +298,7 @@ export class AppComponent implements OnInit {
    * Permet d'ajouter les charts au DOM et de le dimensionner différemment selon le nombre de chart
    */
   diviseChartsSegment() {
+    console.log(this.dataTable);
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 

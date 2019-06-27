@@ -128,7 +128,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         this.cacheSpan(this.displayedColumns[i], i + 1);
       }
     }
-    console.log(this.datas)
     ev.preventDefault();
   }
 

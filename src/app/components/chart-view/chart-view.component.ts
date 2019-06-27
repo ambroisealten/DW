@@ -478,6 +478,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       const mainContainer = document.getElementById('chartContainerDouble');
       mainContainer.setAttribute('id', 'chartContainerSimple');
     }
+    else if(chartsLength === 3) this.resizeContainers();
   }
 
   /**
@@ -522,12 +523,15 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Permet de déterminer si la valeur fait partie des données exclue ou non 
+   * Permet de déterminer si la valeur fait partie des données exclues ou non 
    * @param data 
    * @param column 
    */
   isNotExclude(data, column) {
-    return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + '');
+    if(this.filters.length == 0){
+      return true ; 
+    }
+    return !this.filters.find(filter => filter.filterColumn == column)['excludeValue'].includes(data + '');
   }
 
   /**
@@ -535,6 +539,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   emitActiveInstance(event) {
     if (event.target.tagName != "I") {
+      let filtre = "filtres/" + JSON.stringify(this.filters) ; 
+      this.toParent.emit(filtre) ; 
       let message = "actif/" + this.instanceNumber + "/";
       for (let i = 0; i < this.tableNames.length; i++) {
         message += this.tableNames[i] + "/";

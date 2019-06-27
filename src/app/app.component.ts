@@ -83,7 +83,7 @@ export class AppComponent implements OnInit {
 
   getData(tableName: string) {
     if (this.tableStored.includes(tableName)) {
-      return this.dataTable.find(data => data.tableName === tableName);
+      return this.dataTable.find(data => data.tableName === tableName).values;
     } else {
       return this.loadDataAsync(tableName);
     }
@@ -97,7 +97,8 @@ export class AppComponent implements OnInit {
       this.dataService.getData(tableName, this.i * environment.maxSizePacket, environment.maxSizePacket).subscribe((response: any[]) => {
         if (response.length === 0) {
           this.i = 0;
-          return this.dataTable.find(data => data.tableName === tableName);
+          console.log('DATA LOADED - Final charge : ' + this.charge);
+          return this.dataTable.find(data => data.tableName === tableName).values;
         }
         const datasFetched = response;
         this.dataTable.push(new DataTable(tableName, datasFetched));
@@ -106,7 +107,8 @@ export class AppComponent implements OnInit {
       });
       this.i += 1;
     } else {
-      return this.dataTable.find(data => data.tableName === tableName);
+      console.log('DATA LOADED - Final charge : ' + this.charge);
+      return this.dataTable.find(data => data.tableName === tableName).values;
     }
 
     for (let i = 0; i < environment.maxTemplates; i++) {
@@ -173,7 +175,7 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.tableNames.push(tableName);
       const data = this.getData(tableName);
       this.activeTable = [];
-      this.activeTable.push(this.datas.find(element => element.name == tableName));
+      this.activeTable.push(this.datas.find(element => element.name === tableName));
       this.componentRef.instance.data.push(data);
 
       //Initialisation de la communication Parent enfant

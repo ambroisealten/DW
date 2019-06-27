@@ -43,11 +43,6 @@ export class AppComponent implements OnInit {
   datas: DataScheme[] = [];
   dataTable: DataTable[] = [];
   tableStored: string[] = [];
-  i: number;
-  charge = 0;
-  value: any;
-  elaspedTime: number;
-  count: number;
   activeTable = [];
   allInstance: boolean[] = [];
 
@@ -90,7 +85,7 @@ export class AppComponent implements OnInit {
     const charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
     if (i === 0) {
     }
-    if (this.charge < environment.maxLoadDataCharge) {
+    if (charge < environment.maxLoadDataCharge) {
       this.dataService.getData(tableName, i * environment.maxSizePacket, environment.maxSizePacket)
         .subscribe((datasFetched: any[]) => {
           if (datasFetched.length === 0) {

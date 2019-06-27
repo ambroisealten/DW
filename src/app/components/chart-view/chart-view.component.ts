@@ -129,7 +129,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       this.multipleSort();
       this.cacheSpan(this.displayedColumns[this.displayedColumns.length - 1], this.displayedColumns.length);
     }
-
     ev.preventDefault();
   }
 
@@ -468,6 +467,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       const mainContainer = document.getElementById('chartContainerDouble');
       mainContainer.setAttribute('id', 'chartContainerSimple');
     }
+    else if(chartsLength === 3) this.resizeContainers();
   }
 
   /**

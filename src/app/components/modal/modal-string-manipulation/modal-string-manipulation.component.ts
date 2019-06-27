@@ -23,13 +23,13 @@ export class ModalStringManipulationComponent implements OnInit {
   displayedColumnsright: string[] = [];
 
   //Option d'exclusion
-  excludeOption:string ;
-  
+  excludeOption: string;
+
   //Filtres déjà existants 
-  filters: Filter[] = []  ;
+  filters: Filter[] = [];
 
   //Permet de savoir si le but est de grouper ou d'excluse
-  isTri: boolean; 
+  isTri: boolean;
 
   constructor(private dialogRef: MatDialogRef<ModalStringManipulationComponent>,
     @Inject(MAT_DIALOG_DATA) public data, private changeDetectorRefs: ChangeDetectorRef,
@@ -37,13 +37,13 @@ export class ModalStringManipulationComponent implements OnInit {
     //Initialisation des données envoyées par param view
     this.isTri = data.bool;
     //On assign un nouvel espace mémoire pour éviter de modifier le tableau de donnée 
-    this.dataSource = new MatTableDataSource(Object.assign([],data.data.data));
+    this.dataSource = new MatTableDataSource(Object.assign([], data.data.data));
     this.displayedColumns = data.displayedColumns;
-    this.dataSources = new MatTableDataSource() ; 
+    this.dataSources = new MatTableDataSource();
     //On assigne un nouvel espace mémoire pour éviter les conflits d'adressage 
     this.displayedColumnsright = Object.assign([], this.displayedColumns);
-    this.displayedColumnsright.push('delete') ; 
-    this.filters = data.filters ; 
+    this.displayedColumnsright.push('delete');
+    this.filters = data.filters;
   }
 
   ngOnInit() {
@@ -56,8 +56,8 @@ export class ModalStringManipulationComponent implements OnInit {
    */
   clicked(element) {
     //Ajout de l'élement dans le tableau de droite avec un sort 
-    this.dataSources.data.push(element) ; 
-    this.dataSources.data.sort((e1,e2) => e1[this.displayedColumns[0]] > e2[this.displayedColumns[0]] ? 1 : -1) ;
+    this.dataSources.data.push(element);
+    this.dataSources.data.sort((e1, e2) => e1[this.displayedColumns[0]] > e2[this.displayedColumns[0]] ? 1 : -1);
     this.dataSources = new MatTableDataSource<any>(this.dataSources.data)
 
     //Suppression de l'élément dans le tableau de gauche 
@@ -72,37 +72,39 @@ export class ModalStringManipulationComponent implements OnInit {
    * sont seulement les données non conflictuelles avec des filtres actifs existants 
    */
   onSave() {
-
-    if(this.dataSources.data.length == 0){
-      return ; 
+    if (this.dataSources.data.length == 0) {
+      this.toastr.error("Aucune donnée sélectionné", '');
+      return;
     }
 
-    let newFilter: Filter = new Filter() ; 
-    newFilter['listElem'] = [] ; 
+    let newFilter: Filter = new Filter();
+    newFilter['listElem'] = [];
     this.dataSources.data.forEach(element => {
       newFilter['listElem'].push(element[this.displayedColumnsright[0]]);
     })
 
     //Vérifie l'unicité
-    let taille = newFilter.listElem.length ; 
-    for(let i  = 0 ; i < this.filters.length ; i++){
-      let count = 0 ; 
-      for(let j = 0 ; j < taille ; j++){
-        if(this.filters[i].listElem.includes(newFilter.listElem[j])){
-          count++; 
+    let taille = newFilter.listElem.length;
+    for (let i = 0; i < this.filters.length; i++) {
+      let count = 0;
+      for (let j = 0; j < taille; j++) {
+        if (this.filters[i].listElem.includes(newFilter.listElem[j])) {
+          count++;
         }
       }
-      if(count == taille && this.filters[i].listElem.length == taille){
-        return ; 
+      if (count == taille && this.filters[i].listElem.length == taille) {
+        this.toastr.error("Le filtre existe déjà : " + this.filters[i].name, '');
+        return;
       }
     }
 
-    newFilter['name'] = this.createName(newFilter['listElem']) ; 
-    newFilter.actif = true ;
+    newFilter['name'] = this.createName(newFilter['listElem']);
+    newFilter.actif = true;
     //Ajout d'un attribut désignant la politique de tri en cas de tri 
-    if(this.isTri){
-      if(this.excludeOption == undefined){
-        return ; 
+    if (this.isTri) {
+      if (this.excludeOption == undefined) {
+        this.toastr.error("Sélectionnez une option de tri", '');
+        return;
       }
       newFilter['excludeValue'] = this.excludeOption;
     } else {
@@ -110,15 +112,16 @@ export class ModalStringManipulationComponent implements OnInit {
     }
     //Envoi du filtre au parent - param-view
     this.addFilter.emit(newFilter);
+    this.toastr.success("Filtre ajouté avec succès", '');
   }
 
   /**
    * Crée le nom en fonction des éléments 
    * @param listElem 
    */
-  createName(listElem: string[]):string{
-    let name = "[" ; 
-    for(let i = 0 ; i < listElem.length-1 ; i++){
+  createName(listElem: string[]): string {
+    let name = "[";
+    for (let i = 0; i < listElem.length - 1; i++) {
       name += listElem[i] + ", "
     }
     name += listElem[listElem.length - 1] + "]";

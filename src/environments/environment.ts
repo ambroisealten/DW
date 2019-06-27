@@ -6,7 +6,8 @@ export const environment = {
   production: false,
   baseUrl: 'http://localhost:8080',
   maxTemplates: 100,
-  maxSizePacket: 10000
+  maxSizePacket: 10000,
+  maxLoadDataCharge: 100
 };
 
 /*

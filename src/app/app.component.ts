@@ -1,11 +1,11 @@
-import { Component, Directive, ViewContainerRef, ViewChild, ComponentFactoryResolver, OnInit, ViewChildren, QueryList, ElementRef } from '@angular/core';
-import { DataService } from './services/dataService';
-import { DataScheme } from './models/dataScheme';
-import { ChartViewComponent } from './components/chart-view/chart-view.component';
-import { Subject, Subscription, Observable } from 'rxjs';
-import { DataTable } from './models/data';
+import { Component, ComponentFactoryResolver, OnInit, QueryList, ViewChildren, ViewContainerRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { Observable, Subject, Subscription, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { ChartViewComponent } from './components/chart-view/chart-view.component';
+import { DataTable } from './models/data';
+import { DataScheme } from './models/dataScheme';
+import { DataService } from './services/dataService';
 
 @Component({
   selector: 'app-root',
@@ -49,7 +49,7 @@ export class AppComponent implements OnInit {
   elaspedTime: number;
   count: number;
   activeTable = [];
-  allInstance: boolean[] = []
+  allInstance: boolean[] = [];
 
   //Instance active
   activeInstance: number;
@@ -67,7 +67,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     //Récupération des données sur les tables et les champs
-    this.i = 0;
     this.dataService.fetchDataScheme().subscribe(response => {
       (response as any[]).forEach(element => {
         const fields = [];
@@ -76,44 +75,53 @@ export class AppComponent implements OnInit {
         });
         fields.sort((e1, e2) => e1.name > e2.name ? 1 : -1);
         this.datas.push({ name: element.name, fields: fields });
-        this.activeTable.push({ name: element.name, fields: fields })
+        this.activeTable.push({ name: element.name, fields: fields });
       });
+      setTimeout(() => {
+        for (const table of this.datas) {
+          this.dataTable.push(new DataTable(table.name, []));
+          this.loadDataAsync(0, table.name, 0, this.dataTable, this.allComponentsObs);
+        }
+      }, 30);
     });
+  }
+
+  loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[], allComponentsObs) {
+    const charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
+    if (i === 0) {
+    }
+    if (this.charge < environment.maxLoadDataCharge) {
+      this.dataService.getData(tableName, i * environment.maxSizePacket, environment.maxSizePacket)
+        .subscribe((datasFetched: any[]) => {
+          if (datasFetched.length === 0) {
+            this.allComponentsObs.forEach(component => {
+              component.next('notifyDataFetched/' + tableName);
+            });
+            return;
+          }
+          Array.prototype.push.apply(dataTable.find(data => data.tableName === tableName).values, datasFetched);
+          i += 1;
+          this.loadDataAsync(0, tableName, i, dataTable, allComponentsObs);
+        });
+    } else {
+      if (count < 3) {
+        setTimeout(() => { this.loadDataAsync(count + 1, tableName, i, dataTable, allComponentsObs); }, 2000);
+      } else {
+        return;
+      }
+    }
+
   }
 
   getData(tableName: string) {
     if (this.tableStored.includes(tableName)) {
-      return this.dataTable.find(data => data.tableName === tableName);
+      return of(this.dataTable.find(data => data.tableName === tableName).values);
     } else {
-      return this.loadDataAsync(tableName);
-    }
-  }
-
-  loadDataAsync(tableName: string) {
-    this.charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
-    if (this.i === 0) {
-      console.log('Start data loading');
-    }
-    if (this.charge < 1000) {
-      this.dataService.getData(tableName, this.i * environment.maxSizePacket, environment.maxSizePacket).subscribe((response: any[]) => {
-        if (response.length === 0) {
-          this.i = 0;
-          console.log('DATA LOADED - Final charge : ' + this.charge);
-          return this.dataTable.find(data => data.tableName === tableName);
-        }
-        const datasFetched = response;
-        this.dataTable.push(new DataTable(tableName, datasFetched));
-        this.tableStored.push(tableName);
-        this.loadDataAsync(tableName);
+      const req = this.dataService.getData(tableName, 0, 10000);
+      req.subscribe((dataFetched: any[]) => {
+        this.dataTable.push(new DataTable(tableName, dataFetched));
       });
-      this.i += 1;
-    } else {
-      console.log('DATA LOADED - Final charge : ' + this.charge);
-      return this.dataTable.find(data => data.tableName === tableName);
-    }
-
-    for(let i = 0 ; i < environment.maxTemplates ; i++){
-      this.allInstance[i] = false ; 
+      return req;
     }
   }
 
@@ -152,7 +160,7 @@ export class AppComponent implements OnInit {
 
       //On récupère les données du drag
       const fieldName = ev.dataTransfer.getData('colName');
-      const tableName = ev.dataTransfer.getData('tableName')
+      const tableName = ev.dataTransfer.getData('tableName');
 
       //On détermine l'id de l'enfant 
       const instanceNumber = parseInt(target.id, 10);
@@ -167,18 +175,23 @@ export class AppComponent implements OnInit {
       //On Initialise les variables 
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.activeInstance = instanceNumber;
-      console.log(instanceNumber)
-      this.allInstance[instanceNumber-1] = true;
+      this.allInstance[instanceNumber - 1] = true;
 
       //!\ INUTILE TO SUPPR 
       this.componentRef.instance.droppedText = fieldName;
 
       this.componentRef.instance.displayedColumns = [fieldName];
       this.componentRef.instance.tableNames.push(tableName);
-      const data = this.getData(tableName);
+      this.getData(tableName).subscribe(dataFetched => {
+        this.componentRef.instance.datas = dataFetched;
+        this.componentRef.instance.change();
+        //On initialise les données à destination de param view
+        this.subjectRightPanel.next("datas/" + JSON.stringify(dataFetched));
+        this.subjectRightPanel.next("setColonnes/" + JSON.stringify(this.datas.find(data => data.name == tableName)));
+      });
+
       this.activeTable = [];
-      this.activeTable.push(this.datas.find(element => element.name == tableName));
-      this.componentRef.instance.data.push(data);
+      this.activeTable.push(this.datas.find(element => element.name === tableName));
 
       //Initialisation de la communication Parent enfant
       //Enfant vers Parent
@@ -189,10 +202,8 @@ export class AppComponent implements OnInit {
       let sub = new Subject<any>();
       this.componentRef.instance.parentObs = sub.asObservable();
       this.componentRef.instance.setSubscription();
-      this.allComponentsObs[instanceNumber-1] = sub ; 
+      this.allComponentsObs[instanceNumber - 1] = sub;
 
-      //On initialise les données à destination de param view
-      this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
 
       //On ré-initialise les tailles de l'instance créée
       this.componentRef.instance.recheckValues();
@@ -217,24 +228,29 @@ export class AppComponent implements OnInit {
   /**
    * [0] message type
    * [1] instance
-   * @param message 
+   * @param message
    */
   handleMessageFromChild(message: string) {
     const messageSplited = message.split('/');
     const instance: number = +messageSplited[1];
     switch (messageSplited[0]) {
       case 'askForData':
-        const data = this.getData(messageSplited[2]);
-        this.allComponentsObs[instance - 1].next('sendData/' + JSON.stringify(data) + '/' + messageSplited[2]);
+        this.activeInstance = instance;
+        this.getData(messageSplited[2]).subscribe(dataFetched => {
+          this.allComponentsObs[this.activeInstance - 1].next('sendData/' + JSON.stringify(dataFetched) + '/' + messageSplited[2]);
+        });
         break;
       case 'actif':
         if (messageSplited.length > 3) {
           this.setActiveTable(messageSplited);
         }
         break;
+      case 'filtres':
+        this.subjectRightPanel.next('filtres/' + messageSplited[1]);
+        break;
       case 'destroyed':
         this.activeTable = this.datas;
-        if(document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
+        if (document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
         break;
       default:
         break;
@@ -246,11 +262,16 @@ export class AppComponent implements OnInit {
     for (let i = 2; i < message.length - 1; i++) {
       this.activeTable.push(this.datas.find(element => message[i] == element.name));
     }
+    this.getData(this.activeTable[0].name).subscribe(dataFetched => {
+      this.subjectRightPanel.next("colonnes/" + JSON.stringify(this.activeTable[0].fields));
+      this.subjectRightPanel.next("datas/" + JSON.stringify(dataFetched))
+    });
   }
 
   resetActiveTable(event) {
-    if (+event['srcElement']['id']+"" != "NaN" && !this.allInstance[+event['srcElement']['id']-1]){
+    if (+event['srcElement']['id'] + "" != "NaN" && !this.allInstance[+event['srcElement']['id'] - 1]) {
       this.activeTable = this.datas
+      this.subjectRightPanel.next("reset")
     }
   }
 
@@ -286,6 +307,7 @@ export class AppComponent implements OnInit {
    * Permet d'ajouter les charts au DOM et de le dimensionner différemment selon le nombre de chart
    */
   diviseChartsSegment() {
+    console.log(this.dataTable);
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 
@@ -296,7 +318,8 @@ export class AppComponent implements OnInit {
     newDivForChart.setAttribute('id', this.containerRepeat.toString());
     const template = this.parseTemplateDiv(this.containerRepeat.toString());
     newDivForChart.appendChild(template);
-    if(allChartChilds < 2) chartContainer.setAttribute('id', 'chartContainerSimple');
+    newDivForChart.addEventListener('click', (event) => this.resetActiveTable(event));
+    if (allChartChilds < 2) chartContainer.setAttribute('id', 'chartContainerSimple');
     else chartContainer.setAttribute('id', 'chartContainerDouble');
 
     if (allChartChilds > 2) {
@@ -313,6 +336,7 @@ export class AppComponent implements OnInit {
       this.resizeAllCanvas();
     }
     this.activeTable = this.datas;
+    this.subjectRightPanel.next("reset")
   }
 
   /**

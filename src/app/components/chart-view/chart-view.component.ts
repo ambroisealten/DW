@@ -1,8 +1,7 @@
 import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { Chart } from 'chart.js';
 import { Observable } from 'rxjs';
-import { DataTable } from 'src/app/models/data';
 import { FilterList } from '../../models/Filter';
 import { ToastrService } from 'ngx-toastr';
 
@@ -45,8 +44,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   spans = [];
 
   //Donnée du Tableau
-  datas: any[] = [];
-  @Input() data: DataTable[] = [];
+  @Input() datas: any[] = [];
   @Input() tableNames: string[] = [];
 
   //Ancien index lors du drag
@@ -63,7 +61,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     for (let i = 0; i < this.displayedColumns.length; i++) {
       this.cacheSpan(this.displayedColumns[i], i + 1);
     }
-
   }
 
   ngOnDestroy() {
@@ -124,11 +121,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     //Récupération de la colonne 
     const colName = ev.dataTransfer.getData('colName');
     if (colName != "") {
-
       //On ajoute la colonne et on ajout le span correspondant  
       this.displayedColumns.push(colName);
       this.multipleSort();
-      this.cacheSpan(this.displayedColumns[this.displayedColumns.length - 1], this.displayedColumns.length);
+      this.spans = [];
+      for (let i = 0; i < this.displayedColumns.length; i++) {
+        this.cacheSpan(this.displayedColumns[i], i + 1);
+      }
     }
     ev.preventDefault();
   }
@@ -198,11 +197,18 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     if (event && index != this.previousIndex) {
       moveItemInArray(this.displayedColumns, this.previousIndex, index);
       this.multipleSort();
-      this.dataSource = this.datas;
       this.spans = [];
       for (let i = 0; i < this.displayedColumns.length; i++) {
         this.cacheSpan(this.displayedColumns[i], i + 1);
       }
+    }
+  }
+
+  change() {
+    this.multipleSort();
+    this.spans = [];
+    for (let i = 0; i < this.displayedColumns.length; i++) {
+      this.cacheSpan(this.displayedColumns[i], i + 1);
     }
   }
 
@@ -380,8 +386,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   modifyChartView(chartType: string) {
     const chartData = [];
-
-    const data = this.data.find(data => data.tableName === this.tableNames[0]).values.map(val => val[this.droppedText]);
+    const data = this.datas.map(val => val[this.droppedText]);
 
     const labels = [];
 
@@ -534,7 +539,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     switch (messageSplited[0]) {
       case 'sendData':
         this.tableNames.push(messageSplited[2]);
-        this.data.push(data);
+        this.datas = data;
         break;
       case 'sendFilter':
         // Si réception d'un nouveau filtre retransforme les données
@@ -543,6 +548,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         this.spans = [];
         for (let i = 0; i < this.displayedColumns.length; i++) {
           this.cacheSpan(this.displayedColumns[i], i + 1);
+        }
+        break;
+      case 'notifyDataFetched':
+        if (this.tableNames.includes(data)) {
+          this.toParent.emit('askForData/' + this.instanceNumber + '/' + data);
         }
         break;
       default:
@@ -565,12 +575,21 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Permet de déterminer si la valeur fait partie des données exclue ou non 
+   * Permet de déterminer si la valeur fait partie des données exclues ou non 
    * @param data 
    * @param column 
    */
   isNotExclude(data, column) {
-    return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + '');
+    if (this.filters.length == 0) {
+      return true;
+    }
+    let bool = false ; 
+    for(let i = 0 ; i < this.filters.length ; i++){
+      if(this.filters[i].excludeValue.includes(data[this.filters[i].filterColumn]+'')){
+        bool = true ; 
+      }
+    }
+    return !bool ; 
   }
 
   /**
@@ -578,6 +597,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   emitActiveInstance(event) {
     if (event.target.tagName != "I") {
+      let filtre = "filtres/" + JSON.stringify(this.filters);
+      this.toParent.emit(filtre);
       let message = "actif/" + this.instanceNumber + "/";
       for (let i = 0; i < this.tableNames.length; i++) {
         message += this.tableNames[i] + "/";

@@ -531,7 +531,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     if(this.filters.length == 0){
       return true ; 
     }
-    return !this.filters.find(filter => filter.filterColumn == column)['excludeValue'].includes(data + '');
+    let bool = false ; 
+    for(let i = 0 ; i < this.filters.length ; i++){
+      if(this.filters[i].excludeValue.includes(data[this.filters[i].filterColumn]+'')){
+        bool = true ; 
+      }
+    }
+    return !bool ; 
   }
 
   /**

@@ -89,13 +89,11 @@ export class AppComponent implements OnInit {
   loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[]) {
     const charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
     if (i === 0) {
-      console.log('Start data loading');
     }
     if (this.charge < environment.maxLoadDataCharge) {
       this.dataService.getData(tableName, i * environment.maxSizePacket, environment.maxSizePacket)
         .subscribe((datasFetched: any[]) => {
           if (datasFetched.length === 0) {
-            console.log('DATA LOADED - Final charge : ' + charge);
             return;
           }
           Array.prototype.push.apply(dataTable.find(data => data.tableName === tableName).values, datasFetched);
@@ -106,7 +104,6 @@ export class AppComponent implements OnInit {
       if (count < 3) {
         setTimeout(() => { this.loadDataAsync(count + 1, tableName, i, dataTable); }, 2000);
       } else {
-        console.log('DATA LOADED - Final charge : ' + charge);
         return;
       }
     }

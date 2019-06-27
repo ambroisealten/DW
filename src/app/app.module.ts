@@ -61,7 +61,11 @@ import { ToastrModule } from 'ngx-toastr';
     DragDropModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot({
+      positionClass: 'toast-bottom-full-width',
+      closeButton: true,
+      preventDuplicates: true
+    }),
   ],
   providers: [
     DataService,

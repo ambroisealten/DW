@@ -241,7 +241,7 @@ export class AppComponent implements OnInit {
         break;
       case 'destroyed':
         this.activeTable = this.datas;
-        this.diviseChartsSegment();
+        if(document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
         break;
       default:
         break;

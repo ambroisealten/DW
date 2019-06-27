@@ -128,7 +128,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         this.cacheSpan(this.displayedColumns[i], i + 1);
       }
     }
-    console.log(this.datas)
     ev.preventDefault();
   }
 
@@ -479,6 +478,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       const mainContainer = document.getElementById('chartContainerDouble');
       mainContainer.setAttribute('id', 'chartContainerSimple');
     }
+    else if(chartsLength === 3) this.resizeContainers();
   }
 
   /**

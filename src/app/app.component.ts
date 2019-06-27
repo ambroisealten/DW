@@ -1,6 +1,6 @@
 import { Component, ComponentFactoryResolver, OnInit, QueryList, ViewChildren, ViewContainerRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { Observable, Subject, Subscription, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { DataTable } from './models/data';
@@ -49,7 +49,7 @@ export class AppComponent implements OnInit {
   elaspedTime: number;
   count: number;
   activeTable = [];
-  allInstance: boolean[] = []
+  allInstance: boolean[] = [];
 
   //Instance active
   activeInstance: number;
@@ -83,9 +83,13 @@ export class AppComponent implements OnInit {
 
   getData(tableName: string) {
     if (this.tableStored.includes(tableName)) {
-      return this.dataTable.find(data => data.tableName === tableName).values;
+      return of(this.dataTable.find(data => data.tableName === tableName).values);
     } else {
-      return this.loadDataAsync(tableName);
+      const req = this.dataService.getData(tableName, 0, 10000);
+      req.subscribe((dataFetched: any[]) => {
+        this.dataTable.push(new DataTable(tableName, dataFetched));
+      });
+      return req;
     }
   }
 
@@ -93,7 +97,7 @@ export class AppComponent implements OnInit {
     this.charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
     if (this.i === 0) {
     }
-    if (this.charge < 1000) {
+    if (this.charge < environment.maxLoadDataCharge) {
       this.dataService.getData(tableName, this.i * environment.maxSizePacket, environment.maxSizePacket).subscribe((response: any[]) => {
         if (response.length === 0) {
           this.i = 0;
@@ -173,10 +177,12 @@ export class AppComponent implements OnInit {
 
       this.componentRef.instance.displayedColumns = [fieldName];
       this.componentRef.instance.tableNames.push(tableName);
-      const data = this.getData(tableName);
+      this.getData(tableName).subscribe(dataFetched => {
+        this.componentRef.instance.data.push(dataFetched);
+      });
+
       this.activeTable = [];
       this.activeTable.push(this.datas.find(element => element.name === tableName));
-      this.componentRef.instance.data.push(data);
 
       //Initialisation de la communication Parent enfant
       //Enfant vers Parent
@@ -295,7 +301,7 @@ export class AppComponent implements OnInit {
     newDivForChart.setAttribute('id', this.containerRepeat.toString());
     const template = this.parseTemplateDiv(this.containerRepeat.toString());
     newDivForChart.appendChild(template);
-    if(allChartChilds < 2) chartContainer.setAttribute('id', 'chartContainerSimple');
+    if (allChartChilds < 2) chartContainer.setAttribute('id', 'chartContainerSimple');
     else chartContainer.setAttribute('id', 'chartContainerDouble');
 
     if (allChartChilds > 2) {

@@ -61,6 +61,7 @@ export class ModalDataManipulationComponent implements OnInit {
       newFilter['type'] = this.type.selectedOptions.selected[0].value;
       //Si l'onglet est le tri, on ne regarde pas le conflit avec les autres filtres 
       if (!this.isTri && this.isFiltered(this.valueSolo, null, newFilter['type'])) {
+        this.toastr.error("L'entité existe déjà", '');
         return;
       }
       newFilter['min'] = this.valueSolo;
@@ -68,7 +69,7 @@ export class ModalDataManipulationComponent implements OnInit {
     } else if (this.compris.checked && this.valueMin != undefined && this.valueMax != undefined) {
       newFilter['type'] = 'compris';
       //Si l'onglet est le tri, on ne regarde pas le conflit avec les autres filtres 
-      if (!this.isTri && this.isFiltered(this.valueMin,this.valueMax, newFilter['type'])) {
+      if (!this.isTri && this.isFiltered(this.valueMin, this.valueMax, newFilter['type'])) {
         return;
       }
       newFilter['min'] = this.valueMin;
@@ -76,11 +77,13 @@ export class ModalDataManipulationComponent implements OnInit {
       newFilter['name'] = '[' + this.valueMin + ',' + this.valueMax + ']';
     } else {
       //Si aucune option sélectionné on stop
+      this.toastr.error("Pas de valeur sélectionné", '');
       return;
     }
     //On ajoute un attribut déterminant le type de traitement de la donnée en cas de tri
     if (this.isTri) {
       if (this.excludeOption == undefined) {
+        this.toastr.error("Sélectionnez une option de tri", '');
         return;
       }
       newFilter['excludeValue'] = this.excludeOption;
@@ -89,7 +92,7 @@ export class ModalDataManipulationComponent implements OnInit {
     newFilter['actif'] = true;
     //On transmet le filtre à param-view
     this.addFilter.emit(newFilter);
-    this.toastr.success("Filtre ajouté avec succès", '' , {'positionClass': 'toast-bottom-full-width','closeButton':true});
+    this.toastr.success("Filtre ajouté avec succès", '');
   }
 
   close() {
@@ -104,20 +107,21 @@ export class ModalDataManipulationComponent implements OnInit {
    */
   isFiltered(valueMin, valueMax, type) {
     let bool: boolean = false;
-    for(let i = 0 ; i < this.filters.length ; i++){
-      if(valueMax == null){
+    for (let i = 0; i < this.filters.length; i++) {
+      if (valueMax == null) {
         bool = (this.filters[i].min == valueMin) && (type == this.filters[i].type)
       } else {
         bool = (this.filters[i].min == valueMin) && (type == this.filters[i].type) && (this.filters[i].max == valueMax)
       }
-      if(bool){
-        return bool ; 
+      if (bool) {
+        this.toastr.error("Le filtre existe déjà : " + this.filters[i].name, '');
+        return bool;
       }
       if (this.filters[i].actif) {
         if (!bool) {
           switch (this.filters[i].type) {
             case ('inf. à'):
-              if(type == 'inf. à' || type == 'inf. égal à'){
+              if (type == 'inf. à' || type == 'inf. égal à') {
                 bool = valueMin <= this.filters[i].min
               } else {
                 bool = (valueMin < this.filters[i].min);
@@ -127,7 +131,7 @@ export class ModalDataManipulationComponent implements OnInit {
               bool = (valueMin <= this.filters[i].min);
               break;
             case ('sup. à'):
-              if(type == 'sup. à' || type == 'sup. égal à'){
+              if (type == 'sup. à' || type == 'sup. égal à') {
                 bool = valueMin >= this.filters[i].min
               } else {
                 bool = (valueMin > this.filters[i].min);
@@ -139,11 +143,11 @@ export class ModalDataManipulationComponent implements OnInit {
             case ('compris'):
               if (type == 'compris') {
                 bool = (((valueMin >= this.filters[i].min) && (valueMin <= this.filters[i].max)) || ((valueMax >= this.filters[i].min) && (valueMax <= this.filters[i].max)));
-              } else if (type == 'inf. à'){
+              } else if (type == 'inf. à') {
                 bool = valueMin > this.filters[i].min;
-              } else if (type == 'inf. égal à'){
+              } else if (type == 'inf. égal à') {
                 bool = valueMin >= this.filters[i].min;
-              } else if (type == 'sup. égal à'){
+              } else if (type == 'sup. égal à') {
                 bool = valueMin <= this.filters[i].max;
               } else if (type == 'sup. à') {
                 bool = valueMin < this.filters[i].max;
@@ -170,11 +174,11 @@ export class ModalDataManipulationComponent implements OnInit {
             case ('compris'):
               if (this.filters[i].type == 'compris') {
                 bool = (((valueMin <= this.filters[i].min) && (valueMax >= this.filters[i].min)) || ((valueMin <= this.filters[i].max) && (valueMax >= this.filters[i].max)));
-              }  else if (type == 'inf. à'){
+              } else if (type == 'inf. à') {
                 bool = valueMin < this.filters[i].min;
-              } else if (type == 'inf. égal à'){
+              } else if (type == 'inf. égal à') {
                 bool = valueMin <= this.filters[i].min;
-              } else if (type == 'sup. égal à'){
+              } else if (type == 'sup. égal à') {
                 bool = valueMin >= this.filters[i].min;
               } else if (type == 'sup. à') {
                 bool = valueMin > this.filters[i].min;
@@ -183,8 +187,9 @@ export class ModalDataManipulationComponent implements OnInit {
               }
               break;
           }
-          if(bool){
-            return bool; 
+          if (bool) {
+            this.toastr.error("Le filtre est en conflit avec : " + this.filters[i].name, '');
+            return bool;
           }
         }
       }

@@ -43,9 +43,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   spans = [];
 
   //Donnée du Tableau
-  datas: any[] = [];
-  @Input() data: any[] = [];
+  @Input() datas: any[] = [];
   @Input() tableNames: string[] = [];
+  data: any[] = []
 
   //Ancien index lors du drag
   previousIndex: number;
@@ -122,11 +122,14 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     //Récupération de la colonne 
     const colName = ev.dataTransfer.getData('colName');
     if (colName != "") {
-
       //On ajoute la colonne et on ajout le span correspondant  
       this.displayedColumns.push(colName);
       this.multipleSort();
-      this.cacheSpan(this.displayedColumns[this.displayedColumns.length - 1], this.displayedColumns.length);
+      this.spans = [];
+      for (let i = 0; i < this.displayedColumns.length; i++) {
+        this.cacheSpan(this.displayedColumns[i], i + 1);
+      }
+      console.log(this.datas)
     }
 
     ev.preventDefault();
@@ -197,7 +200,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     if (event && index != this.previousIndex) {
       moveItemInArray(this.displayedColumns, this.previousIndex, index);
       this.multipleSort();
-      this.dataSource = this.datas;
       this.spans = [];
       for (let i = 0; i < this.displayedColumns.length; i++) {
         this.cacheSpan(this.displayedColumns[i], i + 1);
@@ -485,7 +487,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     switch (messageSplited[0]) {
       case 'sendData':
         this.tableNames.push(messageSplited[2]);
-        this.data.push(data);
         break;
       case 'sendFilter':
         // Si réception d'un nouveau filtre retransforme les données

@@ -1,9 +1,11 @@
 import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { Chart } from 'chart.js';
+import { Chart, ChartData } from 'chart.js';
 import { Observable } from 'rxjs';
 import { FilterList } from '../../models/Filter';
 import { ToastrService } from 'ngx-toastr';
+
+import 'chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.js';
 
 @Component({
   selector: 'app-chart-view',
@@ -52,7 +54,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   previousIndex: number;
 
   //DataSource tableau
-  datasourceTable: any[] = [] ; 
+  datasourceTable: any[] = [];
 
   constructor(private toastr: ToastrService) {
   }
@@ -119,7 +121,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       this.toParent.emit('askForData/' + this.instanceNumber + '/' + tableName);
       //On ajoute la colonne et on ajoute le span correspondant  
       this.displayedColumns.push(colName);
-      this.calculData() ; 
+      this.calculData();
     }
     ev.preventDefault();
   }
@@ -188,7 +190,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   dropListDropped(event: CdkDropList, index: number) {
     if (event && index != this.previousIndex) {
       moveItemInArray(this.displayedColumns, this.previousIndex, index);
-      this.calculData() ; 
+      this.calculData();
     }
   }
 
@@ -336,6 +338,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       case 'pie':
       case 'doughnut':
       case 'bar':
+      case 'boxplot':
       case 'line':
         this.setCanvasSettings(true);
         this.modifyChartView(this.currentType);
@@ -388,6 +391,39 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
 
     switch (chartType) {
+      case 'boxplot':
+        const boxplotData = {
+          // define label tree
+          labels,
+          datasets: [{
+            label: 'Dataset 1',
+            backgroundColor: 'rgba(255,0,0,0.5)',
+            borderColor: 'red',
+            borderWidth: 1,
+            outlierColor: '#000000',
+            padding: 10,
+            itemRadius: 0,
+            data: [
+              data
+            ]
+          }]
+        };
+        this.chart = new Chart(this.context, {
+          type: 'horizontalBoxplot',
+          data: boxplotData as ChartData,
+          options: {
+            responsive: true,
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: 'Chart.js Box Plot Chart'
+            }
+          }
+        });
+
+        break;
       case 'pie':
       case 'doughnut':
         this.chart = new Chart(this.context, {
@@ -521,13 +557,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         data = JSON.parse(messageSplited[1]);
         this.tableNames.push(messageSplited[2]);
         this.datas = data;
-        this.calculData() ; 
+        this.calculData();
         break;
       case 'sendFilter':
         data = JSON.parse(messageSplited[1]);
         // Si réception d'un nouveau filtre retransforme les données
         this.filters = data;
-        this.calculData() ; 
+        this.calculData();
         break;
       case 'notifyDataFetched':
         if (this.tableNames.includes(messageSplited[1])) {
@@ -595,8 +631,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  calculData(){
-    this.datasourceTable = [] ; 
+  calculData() {
+    this.datasourceTable = [];
     this.datasourceTable = this.datas.filter(element => this.isNotExclude(element))
     this.multipleSort();
     this.spans = [];

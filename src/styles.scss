@@ -2,184 +2,189 @@
 @import "~@angular/material/prebuilt-themes/pink-bluegrey.css";
 @import "~bootstrap/dist/css/bootstrap.min.css";
 
-
-@media (max-width :400px){
-  a,body{
-      font-size: 2.3vw;
+@media (max-width: 400px) {
+  a,
+  body {
+    font-size: 2.3vw;
   }
 
-  h6{
-      font-size: 2.35vw;
+  h6 {
+    font-size: 2.35vw;
   }
 
-  h5{
-      font-size: 2.45vw;
+  h5 {
+    font-size: 2.45vw;
   }
 
-  h4{
-      font-size: 2.55vw; 
+  h4 {
+    font-size: 2.55vw;
   }
 
-  h3{
-      font-size: 2.65vw;
+  h3 {
+    font-size: 2.65vw;
   }
 
-  h2{
-      font-size: 2.8vw;
+  h2 {
+    font-size: 2.8vw;
   }
 
-  h1{
-      font-size: 3vw;
-  } 
-}
-
-@media (min-width : 400px) and (max-width:600px){
-  a,body{
-      font-size: 2.2vw;
-  }
-
-  h6{
-      font-size: 2.25vw;
-  }
-
-  h5{
-      font-size: 2.35vw;
-  }
-
-  h4{
-      font-size: 2.45vw; 
-  }
-
-  h3{
-      font-size: 2.55vw;
-  }
-
-  h2{
-      font-size: 2.7vw;
-  }
-
-  h1{
-      font-size: 2.9vw;
+  h1 {
+    font-size: 3vw;
   }
 }
 
-@media (min-width:600px) and (max-width:900px) {
-  a,body{
-      font-size : 1.7vw;
+@media (min-width: 400px) and (max-width: 600px) {
+  a,
+  body {
+    font-size: 2.2vw;
   }
 
-  h6{
-      font-size: 1.75vw;
+  h6 {
+    font-size: 2.25vw;
   }
 
-  h5{
-      font-size: 1.85vw;
+  h5 {
+    font-size: 2.35vw;
   }
 
-  h4{
-      font-size: 1.95vw; 
+  h4 {
+    font-size: 2.45vw;
   }
 
-  h3{
-      font-size: 2.05vw;
+  h3 {
+    font-size: 2.55vw;
   }
 
-  h2{
-      font-size: 2.2vw;
+  h2 {
+    font-size: 2.7vw;
   }
 
-  h1{
-      font-size: 2.35vw;
-  }
-}
-
-@media (min-width:900px) and (max-width:1200px){
-  a,body{
-      font-size : 1.35vw;
-  }
-
-  h6{
-      font-size: 1.39vw;
-  }
-
-  h5{
-      font-size: 1.5vw;
-  }
-
-  h4{
-      font-size: 1.6vw; 
-  }
-
-  h3{
-      font-size: 1.7vw;
-  }
-
-  h2{
-      font-size: 1.85vw;
-  }
-
-  h1{
-      font-size: 2vw;
-  }  
-} 
-
-@media (min-width:1200px) and (max-width:1500px){
-  a,body{
-      font-size: 1.1vw;
-  }
-
-  h6{
-      font-size: 1.16vw;
-  }
-
-  h5{
-      font-size: 1.25vw;
-  }
-
-  h4{
-      font-size: 1.35vw; 
-  }
-
-  h3{
-      font-size: 1.45vw;
-  }
-
-  h2{
-      font-size: 1.6vw;
-  }
-
-  h1{
-      font-size: 1.8vw;
+  h1 {
+    font-size: 2.9vw;
   }
 }
 
-@media (min-width:1500px) {
-  a,body{
-      font-size: .95vw; 
+@media (min-width: 600px) and (max-width: 900px) {
+  a,
+  body {
+    font-size: 1.7vw;
   }
 
-  h6{
-      font-size: .99vw;
+  h6 {
+    font-size: 1.75vw;
   }
 
-  h5{
-      font-size: 1.1vw;
+  h5 {
+    font-size: 1.85vw;
   }
 
-  h4{
-      font-size: 1.2vw; 
+  h4 {
+    font-size: 1.95vw;
   }
 
-  h3{
-      font-size: 1.3vw;
+  h3 {
+    font-size: 2.05vw;
   }
 
-  h2{
-      font-size: 1.45vw;
+  h2 {
+    font-size: 2.2vw;
   }
 
-  h1{
-      font-size: 1.6vw;
+  h1 {
+    font-size: 2.35vw;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1200px) {
+  a,
+  body {
+    font-size: 1.35vw;
+  }
+
+  h6 {
+    font-size: 1.39vw;
+  }
+
+  h5 {
+    font-size: 1.5vw;
+  }
+
+  h4 {
+    font-size: 1.6vw;
+  }
+
+  h3 {
+    font-size: 1.7vw;
+  }
+
+  h2 {
+    font-size: 1.85vw;
+  }
+
+  h1 {
+    font-size: 2vw;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1500px) {
+  a,
+  body {
+    font-size: 1.1vw;
+  }
+
+  h6 {
+    font-size: 1.16vw;
+  }
+
+  h5 {
+    font-size: 1.25vw;
+  }
+
+  h4 {
+    font-size: 1.35vw;
+  }
+
+  h3 {
+    font-size: 1.45vw;
+  }
+
+  h2 {
+    font-size: 1.6vw;
+  }
+
+  h1 {
+    font-size: 1.8vw;
+  }
+}
+
+@media (min-width: 1500px) {
+  a,
+  body {
+    font-size: 0.95vw;
+  }
+
+  h6 {
+    font-size: 0.99vw;
+  }
+
+  h5 {
+    font-size: 1.1vw;
+  }
+
+  h4 {
+    font-size: 1.2vw;
+  }
+
+  h3 {
+    font-size: 1.3vw;
+  }
+
+  h2 {
+    font-size: 1.45vw;
+  }
+
+  h1 {
+    font-size: 1.6vw;
   }
 }
 
@@ -249,8 +254,7 @@ header img {
   opacity: 0.5;
 }
 
-
-.containerActive{
+.containerActive {
   border: dotted 2px blue;
 }
 
@@ -304,7 +308,6 @@ ul {
   list-style: none;
 }
 
-
 //scrollbar
 /* width */
 ::-webkit-scrollbar {
@@ -340,7 +343,7 @@ ul {
   height: inherit;
 }
 
-.fab-buttons:hover{
+.fab-buttons:hover {
   opacity: 1;
   visibility: visible;
 }
@@ -373,7 +376,8 @@ ul {
   height: 0;
 }
 
-.fab-buttons-line, .fab-buttons-line li{
+.fab-buttons-line,
+.fab-buttons-line li {
   display: inline;
 }
 
@@ -464,6 +468,11 @@ ul {
     center no-repeat;
 }
 
+.icon-material_boxplot {
+  background: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gU3ZnIFZlY3RvciBJY29ucyA6IGh0dHA6Ly93d3cub25saW5ld2ViZm9udHMuY29tL2ljb24gLS0+DQo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgMTAwMCAxMDAwIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMDAwIDEwMDAiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPG1ldGFkYXRhPiBTdmcgVmVjdG9yIEljb25zIDogaHR0cDovL3d3dy5vbmxpbmV3ZWJmb250cy5jb20vaWNvbiA8L21ldGFkYXRhPg0KPGc+PHBhdGggZD0iTTEwLDM2Ni40aDY2Ljh2MTExLjRoMjIyLjdWMjk5LjVoNTEyLjN2MTc4LjJoMTExLjRWMzY2LjRIOTkwdjI2Ny4zaC02Ni44VjUyMi4zSDgxMS44djE3OC4ySDI5OS41VjUyMi4zSDc2Ljh2MTExLjRIMTBWMzY2LjR6IE0zNjYuNCwzNjYuNHYyNjcuM2gxNzguMlYzNjYuNEgzNjYuNHogTTYxMS40LDM2Ni40djI2Ny4zSDc0NVYzNjYuNEg2MTEuNHoiLz48L2c+DQo8L3N2Zz4=")
+    center no-repeat;
+}
+
 .icon-material_tab {
   background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJub25lIiBkPSJNMCAwaDI0djI0SDBWMHoiLz48cGF0aCBkPSJNMTAgMTAuMDJoNVYyMWgtNVYxMC4wMnpNMTcgMjFoM2MxLjEgMCAyLS45IDItMnYtOWgtNXYxMXptMy0xOEg1Yy0xLjEgMC0yIC45LTIgMnYzaDE5VjVjMC0xLjEtLjktMi0yLTJ6TTMgMTljMCAxLjEuOSAyIDIgMmgzVjEwSDN2OXoiLz48L3N2Zz4=")
     center no-repeat;
@@ -479,13 +488,12 @@ ul {
     center no-repeat;
 }
 
-.icon-material_close{
+.icon-material_close {
   background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJub25lIiBkPSJNMCAwaDI0djI0SDBWMHoiLz48cGF0aCBkPSJNMTYgMTZoMmMuNTUgMCAxIC40NSAxIDFzLS40NSAxLTEgMWgtMmMtLjU1IDAtMS0uNDUtMS0xcy40NS0xIDEtMXptMC04aDVjLjU1IDAgMSAuNDUgMSAxcy0uNDUgMS0xIDFoLTVjLS41NSAwLTEtLjQ1LTEtMXMuNDUtMSAxLTF6bTAgNGg0Yy41NSAwIDEgLjQ1IDEgMXMtLjQ1IDEtMSAxaC00Yy0uNTUgMC0xLS40NS0xLTFzLjQ1LTEgMS0xek0zIDE4YzAgMS4xLjkgMiAyIDJoNmMxLjEgMCAyLS45IDItMlY4SDN2MTB6TTEzIDVoLTJsLS43MS0uNzFjLS4xOC0uMTgtLjQ0LS4yOS0uNy0uMjlINi40MWMtLjI2IDAtLjUyLjExLS43LjI5TDUgNUgzYy0uNTUgMC0xIC40NS0xIDFzLjQ1IDEgMSAxaDEwYy41NSAwIDEtLjQ1IDEtMXMtLjQ1LTEtMS0xeiIvPjwvc3ZnPg==")
-  center no-repeat;
+    center no-repeat;
 }
 
-
-.overlay-container{
+.overlay-container {
   position: fixed;
   bottom: 0;
   left: 40vw;

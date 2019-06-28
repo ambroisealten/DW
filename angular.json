@@ -32,7 +32,9 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              // "nodes_modules/chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.js"
+            ]
           },
           "configurations": {
             "production": {

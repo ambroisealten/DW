@@ -3,6 +3,7 @@ import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, 
 import { Chart } from 'chart.js';
 import { Observable } from 'rxjs';
 import { FilterList } from '../../models/Filter';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-chart-view',
@@ -19,6 +20,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   @Input() droppedText: string;
   @Input() displayedColumns: string[];
   @Input() dataSource: any[] = [];
+  @Input() tableInfo: any;
 
   //Observable parents - canal de communication entre ce composant et son Parent
   @Input() parentObs: Observable<any>;
@@ -49,7 +51,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   //Ancien index lors du drag
   previousIndex: number;
 
-  constructor() {
+  constructor(private toastr: ToastrService) {
   }
 
   ngOnInit() {
@@ -116,10 +118,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   onDrop(ev) {
     const tableName = ev.dataTransfer.getData('tableName');
     this.toParent.emit('askForData/' + this.instanceNumber + '/' + tableName);
-    this.tableNames.push(tableName);
     //Récupération de la colonne 
     const colName = ev.dataTransfer.getData('colName');
-    if (colName != "") {
+    if (colName != "" && this.tableInfo.name == tableName && !this.displayedColumns.includes(colName)) {
       //On ajoute la colonne et on ajout le span correspondant  
       this.displayedColumns.push(colName);
       this.multipleSort();
@@ -389,11 +390,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
     const labels = [];
 
-    const lol = this.frequencies(data).values;
+    const frequencies = this.frequencies(data).values;
     // tslint:disable-next-line: forin
-    for (const key in lol) {
+    for (const key in frequencies) {
       labels.push(key);
-      chartData.push(lol[key]);
+      chartData.push(frequencies[key]);
     }
 
     const test = [];
@@ -406,36 +407,81 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       inter++;
     }
 
-    this.chart = new Chart(this.context, {
-      type: chartType,
-      data: {
-        labels,
-        datasets: [
-          {
-            data: chartData as number[],
-            backgroundColor: test,
-            borderColor: '#00000',
-            fill: true
+    switch (chartType) {
+      case 'pie':
+      case 'doughnut':
+        this.chart = new Chart(this.context, {
+          type: chartType,
+          data: {
+            labels,
+            datasets: [
+              {
+                data: chartData as number[],
+                backgroundColor: test,
+                borderColor: '#00000',
+                fill: true
+              }]
           },
-          {
-            data: [4, 8, 89, 9, 7, 5, 9],
-            backgroundColor: test,
-            borderColor: '#00000',
-            fill: true
-          }]
-      },
-      options: {
-        legend: {
-          display: false,
-          position: 'bottom',
-          labels: {
-            fontSize: this.canvasFontSize
+          options: {
+            legend: {
+              display: false,
+              position: 'bottom',
+              labels: {
+                fontSize: this.canvasFontSize
+              }
+            },
+            responsive: false,
+            maintainAspectRatio: true,
+            'onClick': (event, item) => this.redirectTo(item),
           }
-        },
-        responsive: false,
-        maintainAspectRatio: true
-      }
-    });
+        });
+        break;
+      default:
+        this.chart = new Chart(this.context, {
+          type: chartType,
+          data: {
+            labels,
+            datasets: [
+              {
+                data: chartData as number[],
+                backgroundColor: test,
+                borderColor: '#00000',
+                fill: true
+              }]
+          },
+          options: {
+            legend: {
+              display: false,
+              position: 'bottom',
+              labels: {
+                fontSize: this.canvasFontSize
+              }
+            },
+            responsive: false,
+            maintainAspectRatio: true,
+            'onClick': (event, item) => this.redirectTo(item),
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                  fontColor: 'white'
+                },
+              }],
+              xAxes: [{
+                ticks: {
+                  fontColor: 'white'
+                }
+              }]
+            }
+          }
+        });
+        break;
+    }
+  }
+
+
+  redirectTo(item) {
+    if (item.length > 0) { this.toastr.info("We want to redirect to : some URL (must be defined)"); }
   }
 
   frequencies(array: any[]) {
@@ -478,7 +524,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       const mainContainer = document.getElementById('chartContainerDouble');
       mainContainer.setAttribute('id', 'chartContainerSimple');
     }
-    else if(chartsLength === 3) this.resizeContainers();
+    else if (chartsLength === 3) this.resizeContainers();
   }
 
   /**
@@ -487,20 +533,33 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * @param data
    */
   handleData(message: string) {
+
     const messageSplited = message.split('/');
-    const data = JSON.parse(messageSplited[1]);
+    let data;
     switch (messageSplited[0]) {
       case 'sendData':
+        data = JSON.parse(messageSplited[1]);
         this.tableNames.push(messageSplited[2]);
         this.datas = data;
+        this.multipleSort();
+        this.spans = [];
+        for (let i = 0; i < this.displayedColumns.length; i++) {
+          this.cacheSpan(this.displayedColumns[i], i + 1);
+        }
         break;
       case 'sendFilter':
+        data = JSON.parse(messageSplited[1]);
         // Si réception d'un nouveau filtre retransforme les données
         this.filters = data;
         this.multipleSort();
         this.spans = [];
         for (let i = 0; i < this.displayedColumns.length; i++) {
           this.cacheSpan(this.displayedColumns[i], i + 1);
+        }
+        break;
+      case 'notifyDataFetched':
+        if (this.tableNames.includes(messageSplited[1])) {
+          this.toParent.emit('askForData/' + this.instanceNumber + '/' + messageSplited[1]);
         }
         break;
       default:
@@ -523,12 +582,30 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Permet de déterminer si la valeur fait partie des données exclue ou non 
+   * Permet de déterminer si la valeur fait partie des données exclues ou non 
    * @param data 
    * @param column 
    */
   isNotExclude(data, column) {
-    return !this.filters.find(filter => filter.filterColumn == column).excludeValue.includes(data + '');
+    if (this.filters.length == 0) {
+      return true;
+    }
+    let bool = false;
+    for (let i = 0; i < this.filters.length; i++) {
+      if (this.filters[i].filterType == "date") {
+        if (this.filters[i].excludeValue.includes((new Date(data[this.filters[i].filterColumn])).getTime() + '')) {
+          bool = true;
+        }
+      } else {
+        if (this.filters[i].excludeValue.includes(data[this.filters[i].filterColumn] + '')) {
+          bool = true;
+        }
+      }
+      if (bool) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -536,6 +613,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   emitActiveInstance(event) {
     if (event.target.tagName != "I") {
+      let filtre = "filtres/" + JSON.stringify(this.filters);
+      this.toParent.emit(filtre);
       let message = "actif/" + this.instanceNumber + "/";
       for (let i = 0; i < this.tableNames.length; i++) {
         message += this.tableNames[i] + "/";

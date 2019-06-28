@@ -43,11 +43,6 @@ export class AppComponent implements OnInit {
   datas: DataScheme[] = [];
   dataTable: DataTable[] = [];
   tableStored: string[] = [];
-  i: number;
-  charge = 0;
-  value: any;
-  elaspedTime: number;
-  count: number;
   activeTable = [];
   allInstance: boolean[] = [];
 
@@ -67,7 +62,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     //Récupération des données sur les tables et les champs
-    this.i = 0;
     this.dataService.fetchDataScheme().subscribe(response => {
       (response as any[]).forEach(element => {
         const fields = [];
@@ -78,7 +72,40 @@ export class AppComponent implements OnInit {
         this.datas.push({ name: element.name, fields: fields });
         this.activeTable.push({ name: element.name, fields: fields });
       });
+      setTimeout(() => {
+        for (const table of this.datas) {
+          this.dataTable.push(new DataTable(table.name, []));
+          this.loadDataAsync(0, table.name, 0, this.dataTable, this.allComponentsObs);
+        }
+      }, 30);
     });
+  }
+
+  loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[], allComponentsObs) {
+    const charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
+    if (i === 0) {
+    }
+    if (charge < environment.maxLoadDataCharge) {
+      this.dataService.getData(tableName, i * environment.maxSizePacket, environment.maxSizePacket)
+        .subscribe((datasFetched: any[]) => {
+          if (datasFetched.length === 0) {
+            this.allComponentsObs.forEach(component => {
+              component.next('notifyDataFetched/' + tableName);
+            });
+            return;
+          }
+          Array.prototype.push.apply(dataTable.find(data => data.tableName === tableName).values, datasFetched);
+          i += 1;
+          this.loadDataAsync(0, tableName, i, dataTable, allComponentsObs);
+        });
+    } else {
+      if (count < 3) {
+        setTimeout(() => { this.loadDataAsync(count + 1, tableName, i, dataTable, allComponentsObs); }, 2000);
+      } else {
+        return;
+      }
+    }
+
   }
 
   getData(tableName: string) {
@@ -90,33 +117,6 @@ export class AppComponent implements OnInit {
         this.dataTable.push(new DataTable(tableName, dataFetched));
       });
       return req;
-    }
-  }
-
-  loadDataAsync(tableName: string) {
-    this.charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
-    if (this.i === 0) {
-    }
-    if (this.charge < environment.maxLoadDataCharge) {
-      this.dataService.getData(tableName, this.i * environment.maxSizePacket, environment.maxSizePacket).subscribe((response: any[]) => {
-        if (response.length === 0) {
-          this.i = 0;
-          console.log('DATA LOADED - Final charge : ' + this.charge);
-          return this.dataTable.find(data => data.tableName === tableName).values;
-        }
-        const datasFetched = response;
-        this.dataTable.push(new DataTable(tableName, datasFetched));
-        this.tableStored.push(tableName);
-        this.loadDataAsync(tableName);
-      });
-      this.i += 1;
-    } else {
-      console.log('DATA LOADED - Final charge : ' + this.charge);
-      return this.dataTable.find(data => data.tableName === tableName).values;
-    }
-
-    for (let i = 0; i < environment.maxTemplates; i++) {
-      this.allInstance[i] = false;
     }
   }
 
@@ -156,6 +156,7 @@ export class AppComponent implements OnInit {
       //On récupère les données du drag
       const fieldName = ev.dataTransfer.getData('colName');
       const tableName = ev.dataTransfer.getData('tableName');
+      const tableInfo = this.datas.find(data => data.name == tableName) ; 
 
       //On détermine l'id de l'enfant 
       const instanceNumber = parseInt(target.id, 10);
@@ -168,6 +169,7 @@ export class AppComponent implements OnInit {
       this.componentRef = entryUsed.createComponent(componentFactory);
 
       //On Initialise les variables 
+      this.componentRef.instance.tableInfo = tableInfo ; 
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.activeInstance = instanceNumber;
       this.allInstance[instanceNumber - 1] = true;
@@ -180,6 +182,9 @@ export class AppComponent implements OnInit {
       this.getData(tableName).subscribe(dataFetched => {
         this.componentRef.instance.datas = dataFetched;
         this.componentRef.instance.change();
+        //On initialise les données à destination de param view
+        this.subjectRightPanel.next("datas/" + JSON.stringify(dataFetched));
+        this.subjectRightPanel.next("setColonnes/" + JSON.stringify(tableInfo));
       });
 
       this.activeTable = [];
@@ -196,8 +201,13 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.setSubscription();
       this.allComponentsObs[instanceNumber - 1] = sub;
 
-      //On initialise les données à destination de param view
-      this.subjectRightPanel.next(this.datas.find(data => data.name == ev.dataTransfer.getData('tableName')));
+
+      //Remove the border of the (potentially) latest active child
+      let latestActive = document.getElementsByClassName('containerActive')[0];
+      if (latestActive != null) {
+        let latestActiveClass = latestActive.getAttribute('class').split('containerActive')[1];
+        latestActive.setAttribute('class', latestActiveClass);
+      }
 
       //On ré-initialise les tailles de l'instance créée
       this.componentRef.instance.recheckValues();
@@ -213,6 +223,10 @@ export class AppComponent implements OnInit {
       } else {
         target.setAttribute('class', 'chartContained');
       }
+
+      //Set border of the active one
+      let activeOne = document.getElementById(instanceNumber.toString());
+      activeOne.setAttribute('class', 'containerActive ' + activeOne.getAttribute('class'));
 
     }
     ev.preventDefault();
@@ -235,13 +249,24 @@ export class AppComponent implements OnInit {
         });
         break;
       case 'actif':
+        let latestActive = document.getElementsByClassName('containerActive')[0];
+        if (latestActive != null) {
+          let latestActiveClass = latestActive.getAttribute('class').split('containerActive')[1];
+          latestActive.setAttribute('class', latestActiveClass);
+        }
+
+        let testContainer = document.getElementById(instance.toString());
+        testContainer.setAttribute('class', 'containerActive ' + testContainer.getAttribute('class'));
         if (messageSplited.length > 3) {
           this.setActiveTable(messageSplited);
         }
         break;
+      case 'filtres':
+        this.subjectRightPanel.next('filtres/' + messageSplited[1]);
+        break;
       case 'destroyed':
         this.activeTable = this.datas;
-        if(document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
+        if (document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
         break;
       default:
         break;
@@ -253,11 +278,16 @@ export class AppComponent implements OnInit {
     for (let i = 2; i < message.length - 1; i++) {
       this.activeTable.push(this.datas.find(element => message[i] == element.name));
     }
+    this.getData(this.activeTable[0].name).subscribe(dataFetched => {
+      this.subjectRightPanel.next("colonnes/" + JSON.stringify(this.activeTable[0].fields));
+      this.subjectRightPanel.next("datas/" + JSON.stringify(dataFetched))
+    });
   }
 
   resetActiveTable(event) {
     if (+event['srcElement']['id'] + "" != "NaN" && !this.allInstance[+event['srcElement']['id'] - 1]) {
-      this.activeTable = this.datas;
+      this.activeTable = this.datas
+      this.subjectRightPanel.next("reset")
     }
   }
 
@@ -303,6 +333,7 @@ export class AppComponent implements OnInit {
     newDivForChart.setAttribute('id', this.containerRepeat.toString());
     const template = this.parseTemplateDiv(this.containerRepeat.toString());
     newDivForChart.appendChild(template);
+    newDivForChart.addEventListener('click', (event) => this.resetActiveTable(event));
     if (allChartChilds < 2) chartContainer.setAttribute('id', 'chartContainerSimple');
     else chartContainer.setAttribute('id', 'chartContainerDouble');
 
@@ -319,7 +350,14 @@ export class AppComponent implements OnInit {
 
       this.resizeAllCanvas();
     }
+    let latestActive = document.getElementsByClassName('containerActive')[0];
+    if (latestActive != null) {
+      let latestActiveClass = latestActive.getAttribute('class').split('containerActive')[1];
+      latestActive.setAttribute('class', latestActiveClass);
+    }
+
     this.activeTable = this.datas;
+    this.subjectRightPanel.next("reset")
   }
 
   /**

@@ -584,6 +584,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   emitActiveInstance(event) {
     if (event.target.tagName != "I") {
+      console.log("ici")
       let filtre = "filtres/" + JSON.stringify(this.filters);
       this.toParent.emit(filtre);
       let message = "actif/" + this.instanceNumber + "/";

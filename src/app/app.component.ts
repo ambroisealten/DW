@@ -279,13 +279,13 @@ export class AppComponent implements OnInit {
       this.activeTable.push(this.datas.find(element => message[i] == element.name));
     }
     this.getData(this.activeTable[0].name).subscribe(dataFetched => {
-      this.subjectRightPanel.next("colonnes/" + JSON.stringify(this.activeTable[0].fields));
       this.subjectRightPanel.next("datas/" + JSON.stringify(dataFetched))
+      this.subjectRightPanel.next("colonnes/" + JSON.stringify(this.activeTable[0].fields));
     });
   }
 
   resetActiveTable(event) {
-    if (+event['srcElement']['id'] + "" != "NaN" && !this.allInstance[+event['srcElement']['id'] - 1]) {
+    if (+event['srcElement']['id'] + "" != "NaN" && event['srcElement']['id'] != "" && !this.allInstance[+event['srcElement']['id'] - 1]) {
       this.activeTable = this.datas
       this.subjectRightPanel.next("reset")
     }

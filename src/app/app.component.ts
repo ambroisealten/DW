@@ -181,7 +181,7 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.tableNames.push(tableName);
       this.getData(tableName).subscribe(dataFetched => {
         this.componentRef.instance.datas = dataFetched;
-        this.componentRef.instance.change();
+        this.componentRef.instance.calculData();
         //On initialise les données à destination de param view
         this.subjectRightPanel.next("datas/" + JSON.stringify(dataFetched));
         this.subjectRightPanel.next("setColonnes/" + JSON.stringify(tableInfo));

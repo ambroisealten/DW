@@ -51,17 +51,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   //Ancien index lors du drag
   previousIndex: number;
 
+  //DataSource tableau
+  datasourceTable: any[] = [] ; 
+
   constructor(private toastr: ToastrService) {
   }
 
   ngOnInit() {
-    //Sort le tableau pour que le spanning soit correct
-    this.multipleSort();
-    //Réalise le spanning
-    this.spans = [];
-    for (let i = 0; i < this.displayedColumns.length; i++) {
-      this.cacheSpan(this.displayedColumns[i], i + 1);
-    }
   }
 
   ngOnDestroy() {
@@ -117,17 +113,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   onDrop(ev) {
     const tableName = ev.dataTransfer.getData('tableName');
-    this.toParent.emit('askForData/' + this.instanceNumber + '/' + tableName);
     //Récupération de la colonne 
     const colName = ev.dataTransfer.getData('colName');
     if (colName != "" && this.tableInfo.name == tableName && !this.displayedColumns.includes(colName)) {
-      //On ajoute la colonne et on ajout le span correspondant  
+      this.toParent.emit('askForData/' + this.instanceNumber + '/' + tableName);
+      //On ajoute la colonne et on ajoute le span correspondant  
       this.displayedColumns.push(colName);
-      this.multipleSort();
-      this.spans = [];
-      for (let i = 0; i < this.displayedColumns.length; i++) {
-        this.cacheSpan(this.displayedColumns[i], i + 1);
-      }
+      this.calculData() ; 
     }
     ev.preventDefault();
   }
@@ -139,25 +131,25 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   cacheSpan(key, accessor) {
     //On boucle sur les données 
-    for (let i = 0; i < this.datas.length;) {
+    for (let i = 0; i < this.datasourceTable.length;) {
 
       //On construit la donnée elle est représentée par object[key1]+object[key2]+object[key3]+....
       let currentValue = "";
       for (let k = 0; k < accessor; k++) {
         //On transforme la donnée selon les filtres afin de convertir des données qui n'ont pas la même valeur en une même valeur afin de les "spans" ensemble
-        currentValue += this.transform(this.datas[i][this.displayedColumns[k]], this.displayedColumns[k]);
+        currentValue += this.transform(this.datasourceTable[i][this.displayedColumns[k]], this.displayedColumns[k]);
       }
 
       let count = 1;
 
       // On itère sur les données restantes
-      for (let j = i + 1; j < this.datas.length; j++) {
+      for (let j = i + 1; j < this.datasourceTable.length; j++) {
 
         //On construit la donnée elle est représentée par object[key1]+object[key2]+object[key3]+....
         let checkedValue = "";
         for (let h = 0; h < accessor; h++) {
           //On transforme la donnée selon les filtres afin de convertir des données qui n'ont pas la même valeur en une même valeur afin de les "spans" ensemble
-          checkedValue += this.transform(this.datas[j][this.displayedColumns[h]], this.displayedColumns[h]);
+          checkedValue += this.transform(this.datasourceTable[j][this.displayedColumns[h]], this.displayedColumns[h]);
         }
         //Si les valeurs sont différentes, on casse la boucle 
         if (currentValue != checkedValue) {
@@ -196,19 +188,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   dropListDropped(event: CdkDropList, index: number) {
     if (event && index != this.previousIndex) {
       moveItemInArray(this.displayedColumns, this.previousIndex, index);
-      this.multipleSort();
-      this.spans = [];
-      for (let i = 0; i < this.displayedColumns.length; i++) {
-        this.cacheSpan(this.displayedColumns[i], i + 1);
-      }
-    }
-  }
-
-  change() {
-    this.multipleSort();
-    this.spans = [];
-    for (let i = 0; i < this.displayedColumns.length; i++) {
-      this.cacheSpan(this.displayedColumns[i], i + 1);
+      this.calculData() ; 
     }
   }
 
@@ -219,7 +199,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * Les données sont transformer selon leur filtre 
    */
   multipleSort() {
-    this.datas.sort((a, b) => {
+    this.datasourceTable.sort((a, b) => {
       for (let i = 0; i < this.displayedColumns.length; i++) {
         if (this.transform(a[this.displayedColumns[i]], this.displayedColumns[i]) !== this.transform(b[this.displayedColumns[i]], this.displayedColumns[i])) {
           return a[this.displayedColumns[i]] > b[this.displayedColumns[i]] ? 1 : -1;
@@ -386,7 +366,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   modifyChartView(chartType: string) {
     const chartData = [];
-    const data = this.datas.map(val => val[this.droppedText]);
+    const data = this.datasourceTable.map(val => val[this.droppedText]);
 
     const labels = [];
 
@@ -541,21 +521,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         data = JSON.parse(messageSplited[1]);
         this.tableNames.push(messageSplited[2]);
         this.datas = data;
-        this.multipleSort();
-        this.spans = [];
-        for (let i = 0; i < this.displayedColumns.length; i++) {
-          this.cacheSpan(this.displayedColumns[i], i + 1);
-        }
+        this.calculData() ; 
         break;
       case 'sendFilter':
         data = JSON.parse(messageSplited[1]);
         // Si réception d'un nouveau filtre retransforme les données
         this.filters = data;
-        this.multipleSort();
-        this.spans = [];
-        for (let i = 0; i < this.displayedColumns.length; i++) {
-          this.cacheSpan(this.displayedColumns[i], i + 1);
-        }
+        this.calculData() ; 
         break;
       case 'notifyDataFetched':
         if (this.tableNames.includes(messageSplited[1])) {
@@ -584,9 +556,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   /**
    * Permet de déterminer si la valeur fait partie des données exclues ou non 
    * @param data 
-   * @param column 
    */
-  isNotExclude(data, column) {
+  isNotExclude(data) {
     if (this.filters.length == 0) {
       return true;
     }
@@ -620,6 +591,16 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         message += this.tableNames[i] + "/";
       }
       this.toParent.emit(message)
+    }
+  }
+
+  calculData(){
+    this.datasourceTable = [] ; 
+    this.datasourceTable = this.datas.filter(element => this.isNotExclude(element))
+    this.multipleSort();
+    this.spans = [];
+    for (let i = 0; i < this.displayedColumns.length; i++) {
+      this.cacheSpan(this.displayedColumns[i], i + 1);
     }
   }
 

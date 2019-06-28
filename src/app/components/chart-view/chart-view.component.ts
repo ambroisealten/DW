@@ -20,6 +20,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   @Input() droppedText: string;
   @Input() displayedColumns: string[];
   @Input() dataSource: any[] = [];
+  @Input() tableInfo: any;
 
   //Observable parents - canal de communication entre ce composant et son Parent
   @Input() parentObs: Observable<any>;
@@ -117,10 +118,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   onDrop(ev) {
     const tableName = ev.dataTransfer.getData('tableName');
     this.toParent.emit('askForData/' + this.instanceNumber + '/' + tableName);
-    this.tableNames.push(tableName);
     //Récupération de la colonne 
     const colName = ev.dataTransfer.getData('colName');
-    if (colName != "") {
+    if (colName != "" && this.tableInfo.name == tableName && !this.displayedColumns.includes(colName)) {
       //On ajoute la colonne et on ajout le span correspondant  
       this.displayedColumns.push(colName);
       this.multipleSort();
@@ -432,7 +432,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
             },
             responsive: false,
             maintainAspectRatio: true,
-            'onClick': (event,item) => this.redirectTo(item),
+            'onClick': (event, item) => this.redirectTo(item),
           }
         });
         break;
@@ -459,7 +459,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
             },
             responsive: false,
             maintainAspectRatio: true,
-            'onClick': (event,item) => this.redirectTo(item),
+            'onClick': (event, item) => this.redirectTo(item),
             scales: {
               yAxes: [{
                 ticks: {
@@ -481,7 +481,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
 
   redirectTo(item) {
-    if(item.length > 0) {this.toastr.info("We want to redirect to : some URL (must be defined)");}
+    if (item.length > 0) { this.toastr.info("We want to redirect to : some URL (must be defined)"); }
   }
 
   frequencies(array: any[]) {
@@ -535,15 +535,20 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   handleData(message: string) {
 
     const messageSplited = message.split('/');
-    let data ;
+    let data;
     switch (messageSplited[0]) {
       case 'sendData':
         data = JSON.parse(messageSplited[1]);
         this.tableNames.push(messageSplited[2]);
         this.datas = data;
+        this.multipleSort();
+        this.spans = [];
+        for (let i = 0; i < this.displayedColumns.length; i++) {
+          this.cacheSpan(this.displayedColumns[i], i + 1);
+        }
         break;
       case 'sendFilter':
-         data = JSON.parse(messageSplited[1]);
+        data = JSON.parse(messageSplited[1]);
         // Si réception d'un nouveau filtre retransforme les données
         this.filters = data;
         this.multipleSort();

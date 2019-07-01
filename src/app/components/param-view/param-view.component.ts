@@ -56,9 +56,13 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.dialog.closeAll();
     //Unsubscribe au canal
-    if (this.parentSub != undefined) {
+    if (this.parentSub !== undefined) {
       this.parentSub.unsubscribe();
     }
+  }
+
+  thereIsNoData(): boolean {
+    return this.displayedColumns.length === 0;
   }
 
   //Lors d'un changement de colonne reset les sélections et les données affichées
@@ -67,7 +71,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     this.setDatasourceGpmt();
     this.selectionGpmt.clear();
     this.toggleFilterGpmt();
-    let tmp = this.uniqueArrayOfObject();
+    const tmp = this.uniqueArrayOfObject();
     this.dataSource = new MatTableDataSource(tmp);
     this.selectionTri.clear();
     this.toggleFilter();
@@ -90,8 +94,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Du fait des conflits, impossible de tout sélectionner les filtres
    */
   masterToggleGpmt() {
-    this.selectionGpmt.clear()
-    this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => filter.actif = false)
+    this.selectionGpmt.clear();
+    this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => filter.actif = false);
     this.sendFilterList();
   }
 
@@ -101,7 +105,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   toggleFilterGpmt() {
     this.dataSourceGpmt.data.forEach(row => {
       if (row['actif']) {
-        this.selectionGpmt.select(row)
+        this.selectionGpmt.select(row);
       } else {
         this.selectionGpmt.deselect(row);
       }
@@ -124,12 +128,12 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   setActifInactif(row) {
     //En laissant le filtre inactif on évite de tester le filtre avec lui-même 
     if (!row['actif']) {
-      let type = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filterType
-      if (type == "number") {
+      const type = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filterType;
+      if (type === 'number') {
         this.checkConflictGpmtNumber(row.min, row.max, row.type);
-      } else if (type == "string") {
+      } else if (type === 'string') {
         this.checkConflictGpmtString(row.listElem);
-      } else if (type == "date") {
+      } else if (type === 'date') {
         this.checkConflictGpmtDate(row.startDate, row.endDate, row.type);
       }
     }
@@ -142,7 +146,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Initialise les données du tableau de l'onglet groupement 
    */
   setDatasourceGpmt() {
-    this.dataSourceGpmt = new MatTableDataSource<any>(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters)
+    this.dataSourceGpmt = new MatTableDataSource<any>(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
   }
 
   /**
@@ -158,8 +162,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         if (!bool) {
           switch (filter.type) {
             case ('inf. à'):
-              if (type == 'inf. à' || type == 'inf. égal à') {
-                bool = valueMin <= filter.min
+              if (type === 'inf. à' || type === 'inf. égal à') {
+                bool = valueMin <= filter.min;
               } else {
                 bool = (valueMin < filter.min);
               }
@@ -168,8 +172,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
               bool = (valueMin <= filter.min);
               break;
             case ('sup. à'):
-              if (type == 'sup. à' || type == 'sup. égal à') {
-                bool = valueMin >= filter.min
+              if (type === 'sup. à' || type === 'sup. égal à') {
+                bool = valueMin >= filter.min;
               } else {
                 bool = (valueMin > filter.min);
               }
@@ -178,18 +182,18 @@ export class ParamViewComponent implements OnInit, OnDestroy {
               bool = (valueMin > filter.min);
               break;
             case ('compris'):
-              if (type == 'compris') {
+              if (type === 'compris') {
                 bool = (((valueMin >= filter.min) && (valueMin <= filter.max)) || ((valueMax >= filter.min) && (valueMax <= filter.max)));
-              } else if (type == 'inf. à') {
+              } else if (type === 'inf. à') {
                 bool = valueMin > filter.min;
-              } else if (type == 'inf. égal à') {
+              } else if (type === 'inf. égal à') {
                 bool = valueMin >= filter.min;
-              } else if (type == 'sup. égal à') {
+              } else if (type === 'sup. égal à') {
                 bool = valueMin <= filter.max;
-              } else if (type == 'sup. à') {
+              } else if (type === 'sup. à') {
                 bool = valueMin < filter.max;
               } else {
-                bool = (valueMin >= filter.min) && (valueMin <= filter.max)
+                bool = (valueMin >= filter.min) && (valueMin <= filter.max);
               }
               break;
           }
@@ -209,26 +213,27 @@ export class ParamViewComponent implements OnInit, OnDestroy {
               bool = (filter.min >= valueMin);
               break;
             case ('compris'):
-              if (filter.type == 'compris') {
+              if (filter.type === 'compris') {
                 bool = (((valueMin <= filter.min) && (valueMax >= filter.min)) || ((valueMin <= filter.max) && (valueMax >= filter.max)));
-              } else if (type == 'inf. à') {
+              } else if (type === 'inf. à') {
                 bool = valueMin < filter.min;
-              } else if (type == 'inf. égal à') {
+              } else if (type === 'inf. égal à') {
                 bool = valueMin <= filter.min;
-              } else if (type == 'sup. égal à') {
+              } else if (type === 'sup. égal à') {
                 bool = valueMin >= filter.min;
-              } else if (type == 'sup. à') {
+              } else if (type === 'sup. à') {
                 bool = valueMin > filter.min;
               } else {
-                bool = (valueMin <= filter.min) && (valueMax >= filter.min)
+                bool = (valueMin <= filter.min) && (valueMax >= filter.min);
               }
               break;
           }
         }
       }
-      if (bool)
+      if (bool) {
         filter['actif'] = false;
-    })
+      }
+    });
   }
 
   /**
@@ -236,18 +241,18 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param listElem 
    */
   checkConflictGpmtString(listElem) {
-    this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filtre => {
+    this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters.forEach(filtre => {
       let bool = false;
       listElem.forEach(element => {
         if (filtre.listElem.includes(element)) {
           bool = true;
           return;
         }
-      })
+      });
       if (bool) {
         filtre.actif = false;
       }
-    })
+    });
   }
 
   /**
@@ -257,11 +262,11 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param type 
    */
   checkConflictGpmtDate(startDate, endDate, type) {
-    this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => {
+    this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters.forEach(filter => {
       let bool = false;
       switch (filter.type) {
         case ('avant le'):
-          if (type == 'avant le') {
+          if (type === 'avant le') {
             bool = startDate <= filter.startDate;
           } else {
             bool = startDate < filter.startDate;
@@ -271,7 +276,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
           bool = startDate <= filter.startDate;
           break;
         case ('après le'):
-          if (type == 'après le') {
+          if (type === 'après le') {
             bool = startDate >= filter.startDate;
           } else {
             bool = startDate > filter.startDate;
@@ -281,23 +286,23 @@ export class ParamViewComponent implements OnInit, OnDestroy {
           bool = startDate >= filter.startDate;
           break;
         case ('entre'):
-          if (type == 'entre') {
-            bool = ((startDate >= filter.startDate) && (startDate <= filter.endDate)) || ((endDate >= filter.startDate) && (endDate <= filter.endDate))
-          } else if (type == 'avant le') {
+          if (type === 'entre') {
+            bool = ((startDate >= filter.startDate) && (startDate <= filter.endDate)) || ((endDate >= filter.startDate) && (endDate <= filter.endDate));
+          } else if (type === 'avant le') {
             bool = startDate > filter.startDate;
-          } else if (type == 'jusqu\'au') {
+          } else if (type === 'jusqu\'au') {
             bool = startDate >= filter.startDate;
-          } else if (type == 'après le') {
+          } else if (type === 'après le') {
             bool = startDate < filter.endDate;
-          } else if (type == 'à partir') {
-            bool = startDate <= filter.endDate
+          } else if (type === 'à partir') {
+            bool = startDate <= filter.endDate;
           }
           break;
       }
       if (!bool) {
         switch (type) {
           case ('avant le'):
-            if (filter.type == 'avant le') {
+            if (filter.type === 'avant le') {
               bool = startDate >= filter.startDate;
             } else {
               bool = startDate > filter.startDate;
@@ -307,7 +312,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
             bool = startDate >= filter.startDate;
             break;
           case ('après le'):
-            if (filter.type == 'après le') {
+            if (filter.type === 'après le') {
               bool = startDate <= filter.startDate;
             } else {
               bool = startDate < filter.startDate;
@@ -317,15 +322,15 @@ export class ParamViewComponent implements OnInit, OnDestroy {
             bool = startDate >= filter.startDate;
             break;
           case ('entre'):
-            if (filter.type == 'entre') {
-              bool = ((startDate <= filter.startDate) && (endDate >= filter.startDate)) || ((startDate <= filter.endDate) && (endDate >= filter.endDate))
-            } else if (filter.type == 'avant le') {
+            if (filter.type === 'entre') {
+              bool = ((startDate <= filter.startDate) && (endDate >= filter.startDate)) || ((startDate <= filter.endDate) && (endDate >= filter.endDate));
+            } else if (filter.type === 'avant le') {
               bool = startDate < filter.startDate;
-            } else if (filter.type == 'jusqu\'au') {
+            } else if (filter.type === 'jusqu\'au') {
               bool = startDate <= filter.startDate;
-            } else if (filter.type == 'après le') {
+            } else if (filter.type === 'après le') {
               bool = endDate > filter.startDate;
-            } else if (filter.type == 'à partir') {
+            } else if (filter.type === 'à partir') {
               bool = endDate >= filter.startDate;
             }
             break;
@@ -334,7 +339,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       if (bool) {
         filter['actif'] = false;
       }
-    })
+    });
   }
 
 
@@ -354,21 +359,21 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Inclut ou exclut toutes les valeurs 
   */
   masterToggle() {
-    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1])
+    const filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]);
     if (this.isAllSelected()) {
       this.selectionTri.clear();
-      if (filterConcerned.filterType == 'date') {
+      if (filterConcerned.filterType === 'date') {
         this.dataSource.data.forEach(row => {
-          filterConcerned.excludeValue.push((new Date(row[this.displayedColumns[1]])).getTime() + "");
-        })
+          filterConcerned.excludeValue.push((new Date(row[this.displayedColumns[1]])).getTime() + '');
+        });
       } else {
         this.dataSource.data.forEach(row => {
-          filterConcerned.excludeValue.push(row[this.displayedColumns[1]] + "");
-        })
+          filterConcerned.excludeValue.push(row[this.displayedColumns[1]] + '');
+        });
       }
     } else {
       this.dataSource.data.forEach(row => {
-        this.selectionTri.select(row)
+        this.selectionTri.select(row);
         filterConcerned.excludeValue = [];
       });
     }
@@ -381,7 +386,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   toggleFilter() {
     this.dataSource.data.forEach(row => {
       if (!this.isExclude(row)) {
-        this.selectionTri.select(row)
+        this.selectionTri.select(row);
       } else {
         this.selectionTri.deselect(row);
       }
@@ -401,11 +406,11 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param row 
    */
   isExclude(row) {
-    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]);
-    if (filterConcerned.filterType == "date") {
-      return filterConcerned.excludeValue.includes((new Date(row[this.displayedColumns[1]])).getTime() + "")
+    const filterConcerned = this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]);
+    if (filterConcerned.filterType === 'date') {
+      return filterConcerned.excludeValue.includes((new Date(row[this.displayedColumns[1]])).getTime() + '');
     } else {
-      return filterConcerned.excludeValue.includes(row[this.displayedColumns[1]] + "")
+      return filterConcerned.excludeValue.includes(row[this.displayedColumns[1]] + '');
     }
   }
 
@@ -416,19 +421,19 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param row 
    */
   excludeOrInclude(row) {
-    let newFilter = row[this.displayedColumns[1]] + ""
-    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]);
+    const newFilter = row[this.displayedColumns[1]] + '';
+    const filterConcerned = this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]);
     let index;
-    if (filterConcerned.filterType == "date") {
-      index = filterConcerned.excludeValue.indexOf((new Date(newFilter).getTime()) + "")
+    if (filterConcerned.filterType === 'date') {
+      index = filterConcerned.excludeValue.indexOf((new Date(newFilter).getTime()) + '');
     } else {
       index = filterConcerned.excludeValue.indexOf(newFilter);
     }
     if (index == -1) {
-      if (filterConcerned.filterType == "date") {
-        filterConcerned.excludeValue.push((new Date(newFilter).getTime()) + "")
+      if (filterConcerned.filterType === 'date') {
+        filterConcerned.excludeValue.push((new Date(newFilter).getTime()) + '');
       } else {
-        filterConcerned.excludeValue.push(newFilter)
+        filterConcerned.excludeValue.push(newFilter);
       }
     } else {
       filterConcerned.excludeValue.splice(index, 1);
@@ -447,7 +452,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Permet de déterminer quel modale ouvrir selon le type de la donnée 
    */
   whichDialog() {
-    switch (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filterType) {
+    switch (this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filterType) {
       case ('number'):
         this.AddFilter(this.isTri());
         break;
@@ -455,7 +460,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.AddFilterString(this.isTri());
         break;
       case ('date'):
-        this.AddFilterDate(this.isTri())
+        this.AddFilterDate(this.isTri());
     }
   }
 
@@ -463,7 +468,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Permet de déterminer si l'onglet est tri ou groupement 
    */
   isTri(): boolean {
-    return this.selectedIndex == "1";
+    return this.selectedIndex === '1';
   }
 
   /**
@@ -482,10 +487,10 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     //Initialise les données 
     dialogConfig.data = {
       bool: istri,
-      filters: this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters
-    }
+      filters: this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters
+    };
 
-    let dialogRef = this.dialog.open(ModalDataManipulationComponent, dialogConfig);
+    const dialogRef = this.dialog.open(ModalDataManipulationComponent, dialogConfig);
 
     //Souscrit à l'ajout de nouveaux filtres 
     const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
@@ -522,19 +527,19 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.data = {
       bool: istri,
       data: this.filteredDataSource(),
-      filters: this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters,
+      filters: this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters,
       displayedColumns: [this.displayedColumns[1]]
-    }
+    };
 
-    let dialogRef = this.dialog.open(ModalStringManipulationComponent, dialogConfig);
+    const dialogRef = this.dialog.open(ModalStringManipulationComponent, dialogConfig);
 
     //Souscrit à l'ajout de nouveau filtres 
     const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
       if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
         this.excludeOrIncludeFromFilterString(newFilter);
       } else {
-        this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.push(newFilter);
-        this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
+        this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters.push(newFilter);
+        this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters);
         this.toggleFilterGpmt();
       }
       this.sendFilterList();
@@ -558,18 +563,18 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
     dialogConfig.data = {
       bool: istri,
-      filters: this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters
-    }
+      filters: this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters
+    };
 
-    let dialogRef = this.dialog.open(ModalDateManipulationComponent, dialogConfig);
+    const dialogRef = this.dialog.open(ModalDateManipulationComponent, dialogConfig);
 
     //Souscrit à l'ajout de nouveau filtres 
     const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
       if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
         this.excludeOrIncludeFromFilterDate(newFilter);
       } else {
-        this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.push(newFilter);
-        this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
+        this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters.push(newFilter);
+        this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters);
         this.toggleFilterGpmt();
       }
       this.sendFilterList();
@@ -586,31 +591,31 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param filter 
    */
   excludeOrIncludeFromFilter(filter) {
-    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]);
-    if (filter['excludeValue'] == 'exclure') {
+    const filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]);
+    if (filter['excludeValue'] === 'exclure') {
       this.dataSource.data.forEach(element => {
-        if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max']) && filterConcerned.excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1) {
-          filterConcerned.excludeValue.push(element[this.displayedColumns[1]] + "");
+        if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max']) && filterConcerned.excludeValue.indexOf(element[this.displayedColumns[1]] + '') == -1) {
+          filterConcerned.excludeValue.push(element[this.displayedColumns[1]] + '');
         }
       });
-    } else if (filter['excludeValue'] == 'inclure') {
+    } else if (filter['excludeValue'] === 'inclure') {
       this.dataSource.data.forEach(element => {
         if (this.isFiltered(element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max'])) {
-          let index = filterConcerned.excludeValue.indexOf("" + element[this.displayedColumns[1]]);
-          if (index != -1) {
+          const index = filterConcerned.excludeValue.indexOf('' + element[this.displayedColumns[1]]);
+          if (index !== -1) {
             filterConcerned.excludeValue.splice(index, 1);
           }
         }
       });
-    } else if (filter['excludeValue'] == "n'inclure que") {
+    } else if (filter['excludeValue'] === 'n\'inclure que') {
       this.dataSource.data.forEach(element => {
         if (this.isFiltered(+element[this.displayedColumns[1]], filter['type'], filter['min'], filter['max'])) {
-          let index = filterConcerned.excludeValue.indexOf("" + element[this.displayedColumns[1]]);
+          const index = filterConcerned.excludeValue.indexOf('' + element[this.displayedColumns[1]]);
           if (index != -1) {
             filterConcerned.excludeValue.splice(index, 1);
           }
-        } else if (filterConcerned.excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1) {
-          filterConcerned.excludeValue.push(element[this.displayedColumns[1]] + "");
+        } else if (filterConcerned.excludeValue.indexOf(element[this.displayedColumns[1]] + '') === -1) {
+          filterConcerned.excludeValue.push(element[this.displayedColumns[1]] + '');
         }
       });
     }
@@ -625,7 +630,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param comparatorMax 
    */
   isFiltered(value, type, comparatorMin, comparatorMax) {
-    let bool: boolean = false;
+    let bool = false;
     switch (type) {
       case ('inf. à'):
         bool = (value < comparatorMin);
@@ -634,7 +639,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         bool = (value <= comparatorMin);
         break;
       case ('égal'):
-        bool = (value == comparatorMin);
+        bool = (value === comparatorMin);
         break;
       case ('sup. à'):
         bool = (value > comparatorMin);
@@ -654,30 +659,30 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param filter 
    */
   excludeOrIncludeFromFilterString(filter) {
-    if (filter['excludeValue'] == 'exclure') {
+    if (filter['excludeValue'] === 'exclure') {
       this.dataSource.data.forEach(element => {
-        if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1 && filter['listElem'].includes(element[this.displayedColumns[1]])) {
-          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]);
+        if (this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + '') === -1 && filter['listElem'].includes(element[this.displayedColumns[1]])) {
+          this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]);
         }
       });
     } else if (filter['excludeValue'] == 'inclure') {
       this.dataSource.data.forEach(element => {
         if (filter['listElem'].includes(element[this.displayedColumns[1]])) {
-          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]]);
-          if (index != -1) {
-            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
+          const index = this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]]);
+          if (index !== -1) {
+            this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).excludeValue.splice(index, 1);
           }
         }
       });
-    } else if (filter['excludeValue'] == "n'inclure que") {
+    } else if (filter['excludeValue'] === 'n\'inclure que') {
       this.dataSource.data.forEach(element => {
         if (filter['listElem'].includes(element[this.displayedColumns[1]])) {
-          let index = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]]);
+          const index = this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]]);
           if (index != -1) {
-            this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.splice(index, 1);
+            this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).excludeValue.splice(index, 1);
           }
-        } else if (this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + "") == -1) {
-          this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]);
+        } else if (this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).excludeValue.indexOf(element[this.displayedColumns[1]] + '') === -1) {
+          this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).excludeValue.push(element[this.displayedColumns[1]]);
         }
       });
     }
@@ -689,31 +694,31 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param filter 
    */
   excludeOrIncludeFromFilterDate(filter) {
-    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]);
-    if (filter['excludeValue'] == 'exclure') {
+    const filterConcerned = this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]);
+    if (filter['excludeValue'] === 'exclure') {
       this.dataSource.data.forEach(element => {
-        if (this.isDateFiltered(element[this.displayedColumns[1]], filter) && filterConcerned.excludeValue.indexOf((new Date(element[this.displayedColumns[1]])).getTime() + "") == -1) {
-          filterConcerned.excludeValue.push(element[this.displayedColumns[1]] + "");
+        if (this.isDateFiltered(element[this.displayedColumns[1]], filter) && filterConcerned.excludeValue.indexOf((new Date(element[this.displayedColumns[1]])).getTime() + '') === -1) {
+          filterConcerned.excludeValue.push(element[this.displayedColumns[1]] + '');
         }
       });
-    } else if (filter['excludeValue'] == 'inclure') {
+    } else if (filter['excludeValue'] === 'inclure') {
       this.dataSource.data.forEach(element => {
         if (this.isDateFiltered(element[this.displayedColumns[1]], filter)) {
-          let index = filterConcerned.excludeValue.indexOf("" + (new Date(element[this.displayedColumns[1]])).getTime());
-          if (index != -1) {
+          const index = filterConcerned.excludeValue.indexOf('' + (new Date(element[this.displayedColumns[1]])).getTime());
+          if (index !== -1) {
             filterConcerned.excludeValue.splice(index, 1);
           }
         }
       });
-    } else if (filter['excludeValue'] == "n'inclure que") {
+    } else if (filter['excludeValue'] === 'n\'inclure que') {
       this.dataSource.data.forEach(element => {
         if (this.isDateFiltered(element[this.displayedColumns[1]], filter)) {
-          let index = filterConcerned.excludeValue.indexOf("" + (new Date(element[this.displayedColumns[1]])).getTime());
-          if (index != -1) {
+          const index = filterConcerned.excludeValue.indexOf('' + (new Date(element[this.displayedColumns[1]])).getTime());
+          if (index !== -1) {
             filterConcerned.excludeValue.splice(index, 1);
           }
-        } else if (filterConcerned.excludeValue.indexOf((new Date(element[this.displayedColumns[1]])).getTime() + "") == -1) {
-          filterConcerned.excludeValue.push((new Date(element[this.displayedColumns[1]])).getTime() + "");
+        } else if (filterConcerned.excludeValue.indexOf((new Date(element[this.displayedColumns[1]])).getTime() + '') === -1) {
+          filterConcerned.excludeValue.push((new Date(element[this.displayedColumns[1]])).getTime() + '');
         }
       });
     }
@@ -726,7 +731,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param filter 
    */
   isDateFiltered(value, filter) {
-    let bool: boolean = false;
+    let bool = false;
     switch (filter.type) {
       case ('avant le'):
         bool = (value < filter.startDate);
@@ -753,23 +758,23 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Permet de n'envoyer à la modale de string que les valeurs qui ne sont pas conflictuelles avec des filtres actifs 
    */
   filteredDataSource() {
-    if (this.isTri() || this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.length == 0) {
+    if (this.isTri() || this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters.length === 0) {
       return this.dataSource;
     }
-    let dialogDataSource = new MatTableDataSource();
-    let excludes: any[] = [];
+    const dialogDataSource = new MatTableDataSource();
+    const excludes: any[] = [];
     this.dataSource.data.forEach(data => {
-      this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => {
+      this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters.forEach(filter => {
         if (filter.actif && filter.listElem.includes(data[this.displayedColumns[1]])) {
           excludes.push(data);
         }
-      })
-    })
+      });
+    });
     this.dataSource.data.forEach(data => {
       if (!excludes.includes(data)) {
         dialogDataSource.data.push(data);
       }
-    })
+    });
     return dialogDataSource;
   }
 
@@ -784,25 +789,25 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * @param data Donnée envoyée par le parent
    */
   handleDataFromParent(datas) {
-    let messageSplited = datas.split('/');
+    const messageSplited = datas.split('/');
     if (messageSplited[0] == 'setColonnes') {
-      let data = JSON.parse(messageSplited[1]);
+      const data = JSON.parse(messageSplited[1]);
       //Initialise les filtres 
       this.columns = [];
       this.filterList = [];
       this.dataSource = new MatTableDataSource();
       data.fields.forEach(element => {
         this.columns.push(element.name);
-        let filter = new FilterList();
+        const filter = new FilterList();
         filter.filterColumn = element.name;
         filter.excludeValue = [];
         filter.filters = [];
         if (this.isNumber(element.type)) {
-          filter.filterType = "number"
-        } else if (element.type == "String") {
-          filter.filterType = "string"
-        } else if (element.type == "Timestamp") {
-          filter.filterType = "date";
+          filter.filterType = 'number';
+        } else if (element.type == 'String') {
+          filter.filterType = 'string';
+        } else if (element.type == 'Timestamp') {
+          filter.filterType = 'date';
         } else {
           filter.filterType = element.type;
         }
@@ -823,10 +828,10 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       this.filterList = JSON.parse(messageSplited[1]);
       this.dataSourceGpmt = new MatTableDataSource(this.filterList);
     } else if (messageSplited[0] == 'colonnes') {
-      let data = JSON.parse(messageSplited[1])
+      const data = JSON.parse(messageSplited[1]);
       this.columns = [];
       data.forEach(element => {
-        this.columns.push(element.name)
+        this.columns.push(element.name);
       });
       this.column = data[0].name;
       this.changeColumn();
@@ -837,7 +842,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Permet de déterminer si le type sauvegarder en BDD est un number 
    */
   isNumber(type): boolean {
-    let numberElement = ["Long", "Double", "Integer"]
+    const numberElement = ['Long', 'Double', 'Integer'];
     return numberElement.includes(type);
   }
 
@@ -851,7 +856,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   uniqueArrayOfObject() {
     return Object.values(this.data.reduce((tmp, x) => {
       // You already get a value
-      if (tmp[x[this.column]]) return tmp;
+      if (tmp[x[this.column]]) { return tmp; }
 
       // You never envcountered this key
       tmp[x[this.column]] = x;

@@ -1,10 +1,10 @@
-<mat-select class="select_param" [(value)]="column" (selectionChange)="changeColumn()">
+<mat-select class="select_param" [(value)]="column" (selectionChange)="changeColumn()" [hidden]="thereIsNoData()">
   <mat-option *ngFor="let column of columns" [value]="column">
     {{column}}
   </mat-option>
 </mat-select>
 
-<mat-tab-group [(selectedIndex)]="selectedIndex">
+<mat-tab-group [(selectedIndex)]="selectedIndex" [hidden]="thereIsNoData()">
   <mat-tab label="Groupement" class="titre_tab">
     <table mat-table [dataSource]="dataSourceGpmt" class="mat-elevation-z8">
       <!-- Checkbox Column -->

@@ -649,6 +649,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
     else {
       this.displayedColumns.splice(id, 1);
+      this.calculData();
     }
   }
 }

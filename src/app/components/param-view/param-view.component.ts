@@ -8,6 +8,7 @@ import { FilterList } from 'src/app/models/Filter';
 import { Observable } from 'rxjs';
 import { ModalDateManipulationComponent } from '../modal/modal-date-manipulation/modal-date-manipulation.component';
 import { ToastrService } from 'ngx-toastr';
+import { filter } from 'minimatch';
 
 @Component({
   selector: 'app-param-view',
@@ -26,13 +27,15 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
   //Colonne de l'onglet 
   displayedColumns: string[] = [];
+  @Input() tableInfo: any[] = [];
 
   //Information du DropDown
   columns: string[] = [];
   column;
 
   //Filtres 
-  filterList: FilterList[] = [];
+  @Input() filterList: FilterList[] = [];
+  @Input() actif: number;
 
   //Information concernant l'onglet actuel de l'utilisateur 
   selectedIndex: string;
@@ -44,7 +47,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   //Données tri 
   dataSource = new MatTableDataSource<any>();
   selectionTri = new SelectionModel<any>(true, []);
-  data: any[] = [];
+  @Input() data: any[] = [];
 
   constructor(private dialog: MatDialog, private toastr: ToastrService) { }
 
@@ -94,9 +97,9 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Du fait des conflits, impossible de tout sélectionner les filtres
    */
   masterToggleGpmt() {
-    this.selectionGpmt.clear();
-    this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => filter.actif = false);
-    this.sendFilterList();
+    this.selectionGpmt.clear()
+    this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters.forEach(filter => filter.actif = false)
+    this.sendFilterList({ actif: this.actif, filter: this.filterList });
   }
 
   /**
@@ -139,7 +142,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     }
     row['actif'] = !row['actif'];
     this.toggleFilterGpmt();
-    this.sendFilterList();
+    this.sendFilterList({ actif: this.actif, filter: this.filterList });
   }
 
   /**
@@ -377,7 +380,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         filterConcerned.excludeValue = [];
       });
     }
-    this.sendFilterList();
+    this.sendFilterList({ actif: this.actif, filter: this.filterList });
   }
 
   /**
@@ -439,7 +442,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       filterConcerned.excludeValue.splice(index, 1);
     }
     this.selectionTri.toggle(row);
-    this.sendFilterList();
+    this.sendFilterList({ actif: this.actif, filter: this.filterList });
   }
 
   /**************************************************************************************************\
@@ -452,15 +455,18 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Permet de déterminer quel modale ouvrir selon le type de la donnée 
    */
   whichDialog() {
-    switch (this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filterType) {
-      case ('number'):
-        this.AddFilter(this.isTri());
-        break;
-      case ('string'):
-        this.AddFilterString(this.isTri());
-        break;
-      case ('date'):
-        this.AddFilterDate(this.isTri());
+    let filterConcerned = this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]);
+    if (filterConcerned != undefined) {
+      switch (filterConcerned.filterType) {
+        case ('number'):
+          this.AddFilter(this.isTri());
+          break;
+        case ('string'):
+          this.AddFilterString(this.isTri());
+          break;
+        case ('date'):
+          this.AddFilterDate(this.isTri())
+      }
     }
   }
 
@@ -501,7 +507,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn == this.displayedColumns[1]).filters);
         this.toggleFilterGpmt();
       }
-      this.sendFilterList();
+      this.sendFilterList({ actif: this.actif, filter: this.filterList });
     });
 
     //Unsubscribe on close 
@@ -542,7 +548,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters);
         this.toggleFilterGpmt();
       }
-      this.sendFilterList();
+      this.sendFilterList({ actif: this.actif, filter: this.filterList });
     });
 
     //Unsubscribe on close
@@ -577,7 +583,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         this.dataSourceGpmt = new MatTableDataSource(this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters);
         this.toggleFilterGpmt();
       }
-      this.sendFilterList();
+      this.sendFilterList({ actif: this.actif, filter: this.filterList });
     });
 
     //Unsubscribe on close
@@ -788,15 +794,15 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Permet gérer la donnée reçu du Parent 
    * @param data Donnée envoyée par le parent
    */
-  handleDataFromParent(datas) {
-    const messageSplited = datas.split('/');
-    if (messageSplited[0] == 'setColonnes') {
-      const data = JSON.parse(messageSplited[1]);
+  handleDataFromParent(message) {
+    if (message == 'setColonnes') {
       //Initialise les filtres 
       this.columns = [];
       this.filterList = [];
+      let tmpFilterList = [];
+      let actif = this.actif;
       this.dataSource = new MatTableDataSource();
-      data.fields.forEach(element => {
+      this.tableInfo['fields'].forEach(element => {
         this.columns.push(element.name);
         const filter = new FilterList();
         filter.filterColumn = element.name;
@@ -811,29 +817,30 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         } else {
           filter.filterType = element.type;
         }
-        this.filterList.push(filter);
+        tmpFilterList.push(filter);
       });
+      if (actif == this.actif) {
+        this.filterList = tmpFilterList;
+      }
       this.column = this.filterList[0].filterColumn;
       this.changeColumn();
-      this.sendFilterList();
-    } else if (messageSplited[0] == 'datas') {
-      this.data = JSON.parse(messageSplited[1]);
-    } else if (messageSplited[0] == 'reset') {
+      this.sendFilterList({ actif: actif, filter: tmpFilterList });
+
+    } else if (message == 'reset') {
       this.columns = [];
+
       this.filterList = [];
       this.displayedColumns = [];
       this.dataSourceGpmt = new MatTableDataSource();
       this.dataSource = new MatTableDataSource();
-    } else if (messageSplited[0] == 'filtres') {
-      this.filterList = JSON.parse(messageSplited[1]);
+    } else if (message == 'filtres') {
       this.dataSourceGpmt = new MatTableDataSource(this.filterList);
-    } else if (messageSplited[0] == 'colonnes') {
-      const data = JSON.parse(messageSplited[1]);
+    } else if (message == 'colonnes') {
       this.columns = [];
-      data.forEach(element => {
-        this.columns.push(element.name);
+      this.tableInfo['fields'].forEach(element => {
+        this.columns.push(element.name)
       });
-      this.column = data[0].name;
+      this.column = this.tableInfo['fields'][0].name;
       this.changeColumn();
     }
   }
@@ -849,8 +856,8 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   /**
    * Envoie vers le Parent la liste des filtres 
    */
-  sendFilterList() {
-    this.messageEvent.emit(this.filterList);
+  sendFilterList(filtreInfo) {
+    this.messageEvent.emit(filtreInfo);
   }
 
   uniqueArrayOfObject() {

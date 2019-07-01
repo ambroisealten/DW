@@ -1,4 +1,4 @@
-import { Component, ComponentFactoryResolver, OnInit, QueryList, ViewChildren, ViewContainerRef } from '@angular/core';
+import { Component, ComponentFactoryResolver, OnInit, QueryList, ViewChildren, ViewContainerRef, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, Subject, Subscription, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -6,6 +6,7 @@ import { ChartViewComponent } from './components/chart-view/chart-view.component
 import { DataTable } from './models/data';
 import { DataScheme } from './models/dataScheme';
 import { DataService } from './services/dataService';
+import { ParamViewComponent } from './components/param-view/param-view.component';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +31,7 @@ export class AppComponent implements OnInit {
   //Communication vers le panel droit c-à-d gestion des groupements & tris
   subjectRightPanel: Subject<any>;
   obsRightPanel: Observable<any>;
+  @ViewChild(ParamViewComponent, { static: true }) paramView;
 
   //Tableau des sujets liées aux child pour communiquer
   allComponentsObs: Subject<any>[] = [];
@@ -89,13 +91,13 @@ export class AppComponent implements OnInit {
       this.dataService.getData(tableName, i * environment.maxSizePacket, environment.maxSizePacket)
         .subscribe((datasFetched: any[]) => {
           if (datasFetched.length === 0) {
-            this.allComponentsObs.forEach(component => {
-              component.next('notifyDataFetched/' + tableName);
-            });
             return;
           }
           Array.prototype.push.apply(dataTable.find(data => data.tableName === tableName).values, datasFetched);
           i += 1;
+          this.allComponentsObs.forEach(component => {
+            component.next('notifyDataFetched/' + tableName);
+          });
           this.loadDataAsync(0, tableName, i, dataTable, allComponentsObs);
         });
     } else {
@@ -137,8 +139,6 @@ export class AppComponent implements OnInit {
     ev.dataTransfer.setData('colName', field);
     ev.dataTransfer.setData('colNameDetail', field);
     ev.dataTransfer.setData('tableName', name);
-    //INUTILE
-    ev.dataTransfer.setData('data', JSON.stringify(this.getData(name)));
   }
 
 
@@ -156,7 +156,7 @@ export class AppComponent implements OnInit {
       //On récupère les données du drag
       const fieldName = ev.dataTransfer.getData('colName');
       const tableName = ev.dataTransfer.getData('tableName');
-      const tableInfo = this.datas.find(data => data.name == tableName) ; 
+      const tableInfo = this.datas.find(data => data.name == tableName);
 
       //On détermine l'id de l'enfant 
       const instanceNumber = parseInt(target.id, 10);
@@ -169,7 +169,7 @@ export class AppComponent implements OnInit {
       this.componentRef = entryUsed.createComponent(componentFactory);
 
       //On Initialise les variables 
-      this.componentRef.instance.tableInfo = tableInfo ; 
+      this.componentRef.instance.tableInfo = tableInfo;
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.activeInstance = instanceNumber;
       this.allInstance[instanceNumber - 1] = true;
@@ -182,9 +182,11 @@ export class AppComponent implements OnInit {
       this.getData(tableName).subscribe(dataFetched => {
         this.componentRef.instance.datas = dataFetched;
         this.componentRef.instance.calculData();
+        this.paramView.data = dataFetched;
+        this.paramView.tableInfo = tableInfo;
+        this.paramView.actif = instanceNumber;
         //On initialise les données à destination de param view
-        this.subjectRightPanel.next("datas/" + JSON.stringify(dataFetched));
-        this.subjectRightPanel.next("setColonnes/" + JSON.stringify(tableInfo));
+        this.subjectRightPanel.next("setColonnes");
       });
 
       this.activeTable = [];
@@ -213,7 +215,7 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.recheckValues();
 
       //"Sauvegarde" de la ref
-      this.allComponentRefs.push(this.componentRef);
+      this.allComponentRefs[this.activeInstance - 1] = this.componentRef;
 
       const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
 
@@ -243,9 +245,9 @@ export class AppComponent implements OnInit {
     const instance: number = +messageSplited[1];
     switch (messageSplited[0]) {
       case 'askForData':
-        this.activeInstance = instance;
         this.getData(messageSplited[2]).subscribe(dataFetched => {
-          this.allComponentsObs[this.activeInstance - 1].next('sendData/' + JSON.stringify(dataFetched) + '/' + messageSplited[2]);
+          this.allComponentRefs[instance - 1].instance.datas = dataFetched;
+          this.allComponentsObs[instance - 1].next('sendData');
         });
         break;
       case 'actif':
@@ -262,11 +264,16 @@ export class AppComponent implements OnInit {
         }
         break;
       case 'filtres':
-        this.subjectRightPanel.next('filtres/' + messageSplited[1]);
+        this.paramView.filterList = this.allComponentRefs[instance - 1].instance.filters;
+        this.subjectRightPanel.next('filtres');
         break;
       case 'destroyed':
         this.activeTable = this.datas;
         if (document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
+        break;
+      case 'setActif':
+        this.activeInstance = instance;
+        this.paramView.actif = instance;
         break;
       default:
         break;
@@ -279,8 +286,9 @@ export class AppComponent implements OnInit {
       this.activeTable.push(this.datas.find(element => message[i] == element.name));
     }
     this.getData(this.activeTable[0].name).subscribe(dataFetched => {
-      this.subjectRightPanel.next("datas/" + JSON.stringify(dataFetched))
-      this.subjectRightPanel.next("colonnes/" + JSON.stringify(this.activeTable[0].fields));
+      this.paramView.data = dataFetched;
+      this.paramView.tableInfo = this.activeTable[0];
+      this.subjectRightPanel.next("colonnes");
     });
   }
 
@@ -294,9 +302,10 @@ export class AppComponent implements OnInit {
   /**
    * Reception des messages venus du panel de droite
    */
-  messageReceiveFromRightPanel($event) {
+  messageReceiveFromRightPanel(filtreInfo) {
     //Envoi des filtres vers l'enfant
-    this.allComponentsObs[this.activeInstance - 1].next('sendFilter/' + JSON.stringify($event));
+    this.allComponentRefs[filtreInfo.actif - 1].instance.filters = filtreInfo.filter;
+    this.allComponentsObs[filtreInfo.actif - 1].next("sendFilter");
   }
 
   /**

@@ -40,7 +40,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   allColors = ["blue", "red", "green", "yellow", "pink", "cyan", "orange", "white", "salmon", "grey"];
 
   //Liste des filtres à appliquer sur les données 
-  filters: FilterList[] = [];
+  @Input() filters: FilterList[] = [];
   tasksList = [{ 'name': 'Tab', 'function': 'test()' }, { 'name': 'Pie', 'function': 'test()' }, { 'name': 'Doughnut', 'function': 'test()' }, { 'name': 'Bar', 'function': 'test()' }, { 'name': 'Line', 'function': 'test()' }];
 
   //Permet de mettre ensemble les lignes qui en ont besoin 
@@ -549,20 +549,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * @param data
    */
   handleData(message: string) {
-
-    const messageSplited = message.split('/');
-    let data;
-    switch (messageSplited[0]) {
+    let messageSplited = message.split('/');
+    switch (message) {
       case 'sendData':
-        data = JSON.parse(messageSplited[1]);
-        this.tableNames.push(messageSplited[2]);
-        this.datas = data;
         this.calculData();
         break;
       case 'sendFilter':
-        data = JSON.parse(messageSplited[1]);
         // Si réception d'un nouveau filtre retransforme les données
-        this.filters = data;
         this.calculData();
         break;
       case 'notifyDataFetched':
@@ -620,8 +613,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   emitActiveInstance(event) {
     if (event.target.tagName != "I") {
-      console.log("ici")
-      let filtre = "filtres/" + JSON.stringify(this.filters);
+      this.toParent.emit("setActif/" + this.instanceNumber)
+      let filtre = "filtres/" + this.instanceNumber;
       this.toParent.emit(filtre);
       let message = "actif/" + this.instanceNumber + "/";
       for (let i = 0; i < this.tableNames.length; i++) {

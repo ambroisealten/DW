@@ -24,6 +24,9 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ModalDateManipulationComponent } from './components/modal/modal-date-manipulation/modal-date-manipulation.component';
 import { ToastrModule } from 'ngx-toastr';
 
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+
+
 
 @NgModule({
   declarations: [
@@ -66,6 +69,7 @@ import { ToastrModule } from 'ngx-toastr';
       closeButton: true,
       preventDuplicates: true
     }),
+    MatProgressSpinnerModule,
   ],
   providers: [
     DataService,

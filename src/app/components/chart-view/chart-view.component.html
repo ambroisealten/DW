@@ -1,5 +1,11 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
+<div class="progress-loader" [hidden]="!loading">
+ 
+    <mat-progress-spinner [mode]="'indeterminate'">
+    </mat-progress-spinner>
+ 
+</div>
 
 <div class="container" (click)="emitActiveInstance($event)" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
   <ng-container *ngIf="currentType == 'tab'">

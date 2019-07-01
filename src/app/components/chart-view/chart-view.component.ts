@@ -533,21 +533,21 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * @param data
    */
   handleData(message: string) {
+
     const messageSplited = message.split('/');
-    const data = JSON.parse(messageSplited[1]);
+    let data;
     switch (messageSplited[0]) {
       case 'sendData':
+        data = JSON.parse(messageSplited[1]);
         this.tableNames.push(messageSplited[2]);
         this.datas = data;
+        this.calculData();
         break;
       case 'sendFilter':
+        data = JSON.parse(messageSplited[1]);
         // Si réception d'un nouveau filtre retransforme les données
         this.filters = data;
-        this.multipleSort();
-        this.spans = [];
-        for (let i = 0; i < this.displayedColumns.length; i++) {
-          this.cacheSpan(this.displayedColumns[i], i + 1);
-        }
+        this.calculData();
         break;
       case 'notifyDataFetched':
         if (this.tableNames.includes(data)) {
@@ -596,6 +596,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   emitActiveInstance(event) {
     if (event.target.tagName != "I") {
+      console.log("ici")
       let filtre = "filtres/" + JSON.stringify(this.filters);
       this.toParent.emit(filtre);
       let message = "actif/" + this.instanceNumber + "/";

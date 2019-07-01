@@ -550,8 +550,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   handleData(message: string) {
     let messageSplited = message.split('/');
-    switch (message) {
+    switch (messageSplited[0]) {
       case 'sendData':
+        console.log("ici")
         this.calculData();
         break;
       case 'sendFilter':
@@ -625,7 +626,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   calculData() {
-    this.datasourceTable = [];
+    this.datasourceTable = Object.assign([],[]);
     this.datasourceTable = this.datas.filter(element => this.isNotExclude(element))
     this.multipleSort();
     this.spans = [];

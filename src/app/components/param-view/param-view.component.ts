@@ -35,7 +35,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
   //Filtres 
   @Input() filterList: FilterList[] = [];
-  @Input() actif: number;
+  @Input() actif: number ;
 
   //Information concernant l'onglet actuel de l'utilisateur 
   selectedIndex: string;

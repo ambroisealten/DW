@@ -86,6 +86,7 @@ export class AppComponent implements OnInit {
   loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[], allComponentsObs) {
     const charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
     if (i === 0) {
+      this.tableStored.push(tableName);
     }
     if (charge < environment.maxLoadDataCharge) {
       this.dataService.getData(tableName, i * environment.maxSizePacket, environment.maxSizePacket)
@@ -168,6 +169,15 @@ export class AppComponent implements OnInit {
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
 
+      //"Sauvegarde" de la ref
+      this.allComponentRefs[instanceNumber - 1] = this.componentRef;
+
+      //Observable Parent vers Enfant
+      let sub = new Subject<any>();
+      this.componentRef.instance.parentObs = sub.asObservable();
+      this.componentRef.instance.setSubscription();
+      this.allComponentsObs[instanceNumber - 1] = sub;
+
       //On Initialise les variables 
       this.componentRef.instance.tableInfo = tableInfo;
       this.componentRef.instance.instanceNumber = instanceNumber;
@@ -197,13 +207,6 @@ export class AppComponent implements OnInit {
       const subChild: Subscription = this.componentRef.instance.toParent.subscribe(message => this.handleMessageFromChild(message));
       this.componentRef.onDestroy(() => subChild.unsubscribe());
 
-      //Observable Parent vers Enfant
-      let sub = new Subject<any>();
-      this.componentRef.instance.parentObs = sub.asObservable();
-      this.componentRef.instance.setSubscription();
-      this.allComponentsObs[instanceNumber - 1] = sub;
-
-
       //Remove the border of the (potentially) latest active child
       let latestActive = document.getElementsByClassName('containerActive')[0];
       if (latestActive != null) {
@@ -213,9 +216,6 @@ export class AppComponent implements OnInit {
 
       //On ré-initialise les tailles de l'instance créée
       this.componentRef.instance.recheckValues();
-
-      //"Sauvegarde" de la ref
-      this.allComponentRefs[this.activeInstance - 1] = this.componentRef;
 
       const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
 
@@ -248,6 +248,7 @@ export class AppComponent implements OnInit {
         this.getData(messageSplited[2]).subscribe(dataFetched => {
           this.allComponentRefs[instance - 1].instance.datas = dataFetched;
           this.allComponentsObs[instance - 1].next('sendData');
+          this.paramView.changeColumn();
         });
         break;
       case 'actif':

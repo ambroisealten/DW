@@ -1,8 +1,8 @@
-import { Component, OnInit, Inject, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { MatTableDataSource } from '@angular/material';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatTableDataSource, MatIconModule } from '@angular/material';
+import { ToastrService } from 'ngx-toastr';
 import { Filter } from 'src/app/models/Filter';
-import { Toast, ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-modal-string-manipulation',
@@ -31,7 +31,8 @@ export class ModalStringManipulationComponent implements OnInit {
   //Permet de savoir si le but est de grouper ou d'excluse
   isTri: boolean;
 
-  constructor(private dialogRef: MatDialogRef<ModalStringManipulationComponent>,
+  constructor(
+    private dialogRef: MatDialogRef<ModalStringManipulationComponent>,
     @Inject(MAT_DIALOG_DATA) public data, private changeDetectorRefs: ChangeDetectorRef,
     private toastr: ToastrService) {
     //Initialisation des données envoyées par param view
@@ -50,6 +51,10 @@ export class ModalStringManipulationComponent implements OnInit {
 
   }
 
+  getTitle() {
+    return this.isTri ? 'Filtrage' : 'Groupement';
+  }
+
   /**
    * Lors du click sur le tableau de gauche on pousse cet élément dans celui de droite 
    * @param element 
@@ -58,12 +63,12 @@ export class ModalStringManipulationComponent implements OnInit {
     //Ajout de l'élement dans le tableau de droite avec un sort 
     this.dataSources.data.push(element);
     this.dataSources.data.sort((e1, e2) => e1[this.displayedColumns[0]] > e2[this.displayedColumns[0]] ? 1 : -1);
-    this.dataSources = new MatTableDataSource<any>(this.dataSources.data)
+    this.dataSources = new MatTableDataSource<any>(this.dataSources.data);
 
     //Suppression de l'élément dans le tableau de gauche 
-    let index = this.dataSource.data.indexOf(element);
+    const index = this.dataSource.data.indexOf(element);
     this.dataSource.data.splice(index, 1);
-    this.dataSource = new MatTableDataSource<any>(this.dataSource.data)
+    this.dataSource = new MatTableDataSource<any>(this.dataSource.data);
     this.changeDetectorRefs.detectChanges();
   }
 
@@ -72,19 +77,19 @@ export class ModalStringManipulationComponent implements OnInit {
    * sont seulement les données non conflictuelles avec des filtres actifs existants 
    */
   onSave() {
-    if (this.dataSources.data.length == 0) {
-      this.toastr.error("Aucune donnée sélectionné", '');
+    if (this.dataSources.data.length === 0) {
+      this.toastr.error('Aucune donnée sélectionné', '');
       return;
     }
 
-    let newFilter: Filter = new Filter();
+    const newFilter: Filter = new Filter();
     newFilter['listElem'] = [];
     this.dataSources.data.forEach(element => {
       newFilter['listElem'].push(element[this.displayedColumnsright[0]]);
-    })
+    });
 
     //Vérifie l'unicité
-    let taille = newFilter.listElem.length;
+    const taille = newFilter.listElem.length;
     for (let i = 0; i < this.filters.length; i++) {
       let count = 0;
       for (let j = 0; j < taille; j++) {
@@ -92,8 +97,8 @@ export class ModalStringManipulationComponent implements OnInit {
           count++;
         }
       }
-      if (count == taille && this.filters[i].listElem.length == taille) {
-        this.toastr.error("Le filtre existe déjà : " + this.filters[i].name, '');
+      if (count === taille && this.filters[i].listElem.length === taille) {
+        this.toastr.error('Le filtre existe déjà : ' + this.filters[i].name, '');
         return;
       }
     }
@@ -102,8 +107,8 @@ export class ModalStringManipulationComponent implements OnInit {
     newFilter.actif = true;
     //Ajout d'un attribut désignant la politique de tri en cas de tri 
     if (this.isTri) {
-      if (this.excludeOption == undefined) {
-        this.toastr.error("Sélectionnez une option de tri", '');
+      if (this.excludeOption === undefined) {
+        this.toastr.error('Sélectionnez une option de tri', '');
         return;
       }
       newFilter['excludeValue'] = this.excludeOption;
@@ -112,7 +117,7 @@ export class ModalStringManipulationComponent implements OnInit {
     }
     //Envoi du filtre au parent - param-view
     this.addFilter.emit(newFilter);
-    this.toastr.success("Filtre ajouté avec succès", '');
+    this.toastr.success('Filtre ajouté avec succès', '');
   }
 
   /**
@@ -120,11 +125,11 @@ export class ModalStringManipulationComponent implements OnInit {
    * @param listElem 
    */
   createName(listElem: string[]): string {
-    let name = "[";
+    let name = '[';
     for (let i = 0; i < listElem.length - 1; i++) {
-      name += listElem[i] + ", "
+      name += listElem[i] + ', ';
     }
-    name += listElem[listElem.length - 1] + "]";
+    name += listElem[listElem.length - 1] + ']';
     return name;
   }
 
@@ -136,12 +141,12 @@ export class ModalStringManipulationComponent implements OnInit {
     //Ajout de l'élément dans le tableau de gauche + un sort 
     this.dataSource.data.push(element);
     this.dataSource.data.sort((e1, e2) => e1[this.displayedColumns[0]] > e2[this.displayedColumns[0]] ? 1 : -1);
-    this.dataSource = new MatTableDataSource<any>(this.dataSource.data)
+    this.dataSource = new MatTableDataSource<any>(this.dataSource.data);
 
     //Suprression de l'élément dans le tableau de droite
-    let index = this.dataSources.data.indexOf(element);
+    const index = this.dataSources.data.indexOf(element);
     this.dataSources.data.splice(index, 1);
-    this.dataSources = new MatTableDataSource<any>(this.dataSources.data)
+    this.dataSources = new MatTableDataSource<any>(this.dataSources.data);
     this.changeDetectorRefs.detectChanges();
   }
 

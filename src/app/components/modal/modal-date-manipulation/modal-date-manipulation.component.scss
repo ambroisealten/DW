@@ -57,9 +57,6 @@ mat-dialog-content {
   color: white !important;
 }
 
-.mat-list-option {
-}
-
 .matLabel {
   color: white !important;
   border-right: 2px solid #696969;
@@ -92,4 +89,8 @@ mat-dialog-content {
 
 .pickerstart {
   margin-left: 4%;
+}
+
+mat-form-field {
+  text-align: center;
 }

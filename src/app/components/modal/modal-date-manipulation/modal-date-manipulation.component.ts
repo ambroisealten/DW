@@ -28,7 +28,10 @@ export class ModalDateManipulationComponent implements OnInit {
   currentDate: Date;
   excludeOption: string;
 
-  constructor(private dialogRef: MatDialogRef<ModalDateManipulationComponent>, @Inject(MAT_DIALOG_DATA) public data, private toastr: ToastrService) {
+  constructor(
+    private dialogRef: MatDialogRef<ModalDateManipulationComponent>,
+    @Inject(MAT_DIALOG_DATA) public data,
+    private toastr: ToastrService) {
     this.isTri = data.isTri;
     this.filters = data.filters;
   }
@@ -39,6 +42,10 @@ export class ModalDateManipulationComponent implements OnInit {
       this.compris.checked = false;
       s.option.selected = true;
     });
+  }
+
+  getTitle() {
+    return this.isTri ? 'Filtrage' : 'Groupement';
   }
 
   unselectOther() {
@@ -164,7 +171,7 @@ export class ModalDateManipulationComponent implements OnInit {
                 bool = startDate < this.filters[i].startDate;
               } else if (this.filters[i].type == 'jusqu\'au') {
                 bool = startDate <= this.filters[i].startDate;
-              } else if (this.filters[i].type== 'après le') {
+              } else if (this.filters[i].type == 'après le') {
                 bool = endDate > this.filters[i].startDate;
               } else if (this.filters[i].type == 'à partir') {
                 bool = endDate >= this.filters[i].startDate;

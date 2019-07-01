@@ -1,3 +1,6 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
 <div class="container" (click)="emitActiveInstance($event)" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
   <ng-container *ngIf="currentType == 'tab'">
     <table cdkDropListGroup>
@@ -7,6 +10,7 @@
             (cdkDropListDropped)="dropListDropped($event, i)" cdkDrag (cdkDragStarted)="dragStarted($event, i)"
             [cdkDragData]="{name: column, columIndex: i}">
             {{ column }}
+            <i (click)="row_clear(i)" class="material-icons clear row_clear">clear</i>
           </th>
         </ng-container>
       </tr>
@@ -67,7 +71,7 @@
       </ul>
     </div>
   </div>
-  <div class="closeWrapper"> 
+  <div class="closeWrapper">
     <div class="closeIcon">
       <i class="icon-material icon-material_close" (click)="deleteChartView()">
       </i>

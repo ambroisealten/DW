@@ -641,4 +641,15 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  row_clear(id) {
+    if (this.displayedColumns.length.valueOf() == 1) {
+      this.displayedColumns.splice(id, 1);
+      this.resetChartView();
+      this.deleteChartView();
+    }
+    else {
+      this.displayedColumns.splice(id, 1);
+      this.calculData();
+    }
+  }
 }

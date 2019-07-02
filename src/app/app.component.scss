@@ -1,6 +1,14 @@
+.preloadProgress {
+
+}
+
+.preloadProgress * {
+  width: 50px !important;
+  height: 50px !important;
+}
+
 .paramview {
   color: white;
-  //direction: rtl;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -14,11 +22,11 @@ main-expansion-panel {
   width: 100%;
 }
 
-.mat-expansion-panel{
+.mat-expansion-panel {
   background: unset;
 }
 
-.mat-expansion-panel hr{
+.mat-expansion-panel hr {
   color: lightgrey;
 }
 

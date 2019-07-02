@@ -8,6 +8,10 @@
   <nav>
     <div class="data">
       <h1>Données</h1>
+      <div class="preloadProgress">
+        <mat-progress-spinner color="primary" [value]="percentageOfPreloadEnded">
+        </mat-progress-spinner>
+      </div>
       <hr size="1" color="lightgray">
       <mat-accordion class="accordion-headers-align">
         <mat-expansion-panel *ngFor="let data of activeTable">

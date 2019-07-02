@@ -29,6 +29,7 @@
     "jquery": "^1.9.1",
     "material": "^0.3.13",
     "ng2-charts": "^2.3.0",
+    "ngx-spinner": "^7.1.4",
     "ngx-toaster": "^1.0.1",
     "ngx-toastr": "^10.0.4",
     "popper.js": "^1.15.0",

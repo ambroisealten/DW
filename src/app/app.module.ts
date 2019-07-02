@@ -13,7 +13,7 @@ import { ParamViewComponent } from './components/param-view/param-view.component
 import {
   MAT_DATE_LOCALE, MatTableModule, MatNativeDateModule, MatDatepickerModule, MatRadioModule,
   MatFormFieldModule, MatSlideToggleModule, MatCheckboxModule, MatTabsModule, MatDialogModule,
-  MatSelectModule, MatSliderModule, MatListModule, MatInputModule
+  MatSelectModule, MatSliderModule, MatListModule, MatInputModule, MatProgressSpinnerModule
 } from '@angular/material';
 import { MatIconModule } from '@angular/material/icon';
 import { ModalStringManipulationComponent } from './components/modal/modal-string-manipulation/modal-string-manipulation.component';
@@ -65,6 +65,7 @@ import { ToastrModule } from 'ngx-toastr';
       closeButton: true,
       preventDuplicates: true
     }),
+    MatProgressSpinnerModule,
   ],
   providers: [
     DataService,

@@ -17,6 +17,7 @@ export class AppComponent implements OnInit {
 
   //Titre de l'application
   title = 'DW - Lot 0';
+  percentageOfPreloadEnded = 0;
 
   //Variable d'environnement pour la création des templates
   containerRepeat = 1;
@@ -85,6 +86,7 @@ export class AppComponent implements OnInit {
 
   loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[], allComponentsObs) {
     const charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
+    this.percentageOfPreloadEnded = charge / environment.maxLoadDataCharge * 100;
     if (i === 0) {
       this.tableStored.push(tableName);
     }

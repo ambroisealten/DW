@@ -80,7 +80,8 @@ import { ModalLoadSpinnerComponent } from './components/modal/modal-load-spinner
     ChartViewComponent,
     ModalDataManipulationComponent,
     ModalStringManipulationComponent,
-    ModalDateManipulationComponent
+    ModalDateManipulationComponent,
+    ModalLoadSpinnerComponent
   ],
   bootstrap: [AppComponent]
 })

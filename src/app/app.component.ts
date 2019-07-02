@@ -153,8 +153,8 @@ export class AppComponent implements OnInit {
    * @param ev 
    */
   onDrop(ev) {
+    const target = ev.target;      
     this.loading = true;
-    const target = ev.target;
 
     //On vérifie que l'élément drag est bien celui qui initialise les données de l'enfant
     if (target.className == 'charts' || target.className == 'chartsFour') {
@@ -163,6 +163,8 @@ export class AppComponent implements OnInit {
       const fieldName = ev.dataTransfer.getData('colName');
       const tableName = ev.dataTransfer.getData('tableName');
       const tableInfo = this.datas.find(data => data.name == tableName);
+
+      
 
       //On détermine l'id de l'enfant 
       const instanceNumber = parseInt(target.id, 10);
@@ -174,6 +176,9 @@ export class AppComponent implements OnInit {
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
 
+      this.componentRef.instance.setSpin() ; 
+
+      
       //"Sauvegarde" de la ref
       this.allComponentRefs[instanceNumber - 1] = this.componentRef;
 
@@ -183,6 +188,7 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.setSubscription();
       this.allComponentsObs[instanceNumber - 1] = sub;
 
+      
       //On Initialise les variables 
       this.componentRef.instance.tableInfo = tableInfo;
       this.componentRef.instance.instanceNumber = instanceNumber;
@@ -192,6 +198,7 @@ export class AppComponent implements OnInit {
       //!\ INUTILE TO SUPPR 
       this.componentRef.instance.droppedText = fieldName;
 
+      
       this.componentRef.instance.displayedColumns = [fieldName];
       this.componentRef.instance.tableNames.push(tableName);
       this.getData(tableName).subscribe(dataFetched => {
@@ -203,7 +210,7 @@ export class AppComponent implements OnInit {
         //On initialise les données à destination de param view
         this.subjectRightPanel.next("setColonnes");
       });
-
+      
       this.activeTable = [];
       this.activeTable.push(this.datas.find(element => element.name === tableName));
 
@@ -212,6 +219,7 @@ export class AppComponent implements OnInit {
       const subChild: Subscription = this.componentRef.instance.toParent.subscribe(message => this.handleMessageFromChild(message));
       this.componentRef.onDestroy(() => subChild.unsubscribe());
 
+      
       //Remove the border of the (potentially) latest active child
       let latestActive = document.getElementsByClassName('containerActive')[0];
       if (latestActive != null) {
@@ -221,7 +229,7 @@ export class AppComponent implements OnInit {
 
       //On ré-initialise les tailles de l'instance créée
       this.componentRef.instance.recheckValues();
-
+      
       const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
 
       //Changement de l'attribut selon le nombre de graphe présent
@@ -231,10 +239,11 @@ export class AppComponent implements OnInit {
         target.setAttribute('class', 'chartContained');
       }
 
+      
+
       //Set border of the active one
       let activeOne = document.getElementById(instanceNumber.toString());
       activeOne.setAttribute('class', 'containerActive ' + activeOne.getAttribute('class'));
-
     }
     ev.preventDefault();
   }
@@ -251,15 +260,10 @@ export class AppComponent implements OnInit {
     switch (messageSplited[0]) {
       case 'askForData':
         this.getData(messageSplited[2]).subscribe(dataFetched => {
-<<<<<<< HEAD
           this.allComponentRefs[instance - 1].instance.datas = dataFetched;
           this.allComponentsObs[instance - 1].next('sendData');
           this.paramView.changeColumn();
-=======
-          this.allComponentsObs[this.activeInstance - 1].next('sendData/' + JSON.stringify(dataFetched) + '/' + messageSplited[2]);
-
           this.loading = false;
->>>>>>> 1c8efa209db1d09e8e900f5b3b83564d3876a0c7
         });
         break;
       case 'actif':
@@ -280,6 +284,7 @@ export class AppComponent implements OnInit {
         this.subjectRightPanel.next('filtres');
         break;
       case 'destroyed':
+        this.loading = false;
         this.activeTable = this.datas;
         if (document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
         break;

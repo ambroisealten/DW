@@ -1,11 +1,12 @@
 import { CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ChangeDetectorRef, ViewChildren, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
 import { Chart, ChartData } from 'chart.js';
 import { Observable } from 'rxjs';
 import { FilterList } from '../../models/Filter';
 import { ToastrService } from 'ngx-toastr';
 
 import 'chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.js';
+import { ModalLoadSpinnerComponent } from '../modal/modal-load-spinner/modal-load-spinner.component';
 
 @Component({
   selector: 'app-chart-view',
@@ -16,6 +17,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   //Data binding to Parent - Output vers AppComponent
   @Output() public toParent: EventEmitter<string> = new EventEmitter();
+
+  //Spinning
+  @ViewChild('spinningRecords',{ read: ViewContainerRef, static: true}) entrySpinningComponent: ViewContainerRef; 
+  componentRef: any ; 
 
   //Input - Parent vers ce composant
   @Input() instanceNumber: number;
@@ -56,7 +61,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   //DataSource tableau
   datasourceTable: any[] = [];
 
-  constructor(private toastr: ToastrService) {
+  loading = false ;
+
+  constructor(private toastr: ToastrService,
+    private componentFactoryResolver: ComponentFactoryResolver) {
   }
 
   ngOnInit() {
@@ -82,6 +90,12 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
     this.myCanvas.nativeElement.style = 'display : none';
     this.resetCanvasHeightAndWidth();
+  }
+
+  setSpin(){
+    this.entrySpinningComponent.clear() ;  
+    let factory = this.componentFactoryResolver.resolveComponentFactory(ModalLoadSpinnerComponent) ; 
+    this.componentRef = this.entrySpinningComponent.createComponent(factory)  ; 
   }
 
   /**
@@ -626,6 +640,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   calculData() {
+    if(this.datas.length > 0 ){
+      try{
+        this.componentRef.destroy() ; 
+      } catch(e) {
+      }
+    }
+    this.loading = true ; 
     this.datasourceTable = Object.assign([],[]);
     this.datasourceTable = this.datas.filter(element => this.isNotExclude(element))
     this.multipleSort();

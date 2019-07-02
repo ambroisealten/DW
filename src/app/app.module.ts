@@ -24,6 +24,10 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ModalDateManipulationComponent } from './components/modal/modal-date-manipulation/modal-date-manipulation.component';
 import { ToastrModule } from 'ngx-toastr';
 
+import { ModalLoadSpinnerComponent } from './components/modal/modal-load-spinner/modal-load-spinner.component';
+
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -32,6 +36,7 @@ import { ToastrModule } from 'ngx-toastr';
     ParamViewComponent,
     ModalStringManipulationComponent,
     ModalDateManipulationComponent,
+    ModalLoadSpinnerComponent
   ],
   imports: [
     BrowserModule,

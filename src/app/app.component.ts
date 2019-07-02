@@ -1,12 +1,12 @@
-import { Component, ComponentFactoryResolver, OnInit, QueryList, ViewChildren, ViewContainerRef, ViewChild } from '@angular/core';
+import { Component, ComponentFactoryResolver, OnInit, QueryList, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subject, Subscription, of } from 'rxjs';
+import { Observable, of, Subject, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
+import { ParamViewComponent } from './components/param-view/param-view.component';
 import { DataTable } from './models/data';
 import { DataScheme } from './models/dataScheme';
 import { DataService } from './services/dataService';
-import { ParamViewComponent } from './components/param-view/param-view.component';
 
 @Component({
   selector: 'app-root',
@@ -52,6 +52,8 @@ export class AppComponent implements OnInit {
   //Instance active
   activeInstance: number;
 
+  //spinner 
+  loading = false;
 
   constructor(
     private dataService: DataService,
@@ -151,6 +153,7 @@ export class AppComponent implements OnInit {
    * @param ev 
    */
   onDrop(ev) {
+    this.loading = true;
     const target = ev.target;
 
     //On vérifie que l'élément drag est bien celui qui initialise les données de l'enfant
@@ -248,9 +251,15 @@ export class AppComponent implements OnInit {
     switch (messageSplited[0]) {
       case 'askForData':
         this.getData(messageSplited[2]).subscribe(dataFetched => {
+<<<<<<< HEAD
           this.allComponentRefs[instance - 1].instance.datas = dataFetched;
           this.allComponentsObs[instance - 1].next('sendData');
           this.paramView.changeColumn();
+=======
+          this.allComponentsObs[this.activeInstance - 1].next('sendData/' + JSON.stringify(dataFetched) + '/' + messageSplited[2]);
+
+          this.loading = false;
+>>>>>>> 1c8efa209db1d09e8e900f5b3b83564d3876a0c7
         });
         break;
       case 'actif':

@@ -48,3 +48,11 @@
 <div id='templates'>
   <template *ngFor="let el of allTemplates; let i = index" id='{{ i+102 }}' #chartHost></template>
 </div>
+
+
+<div class="progress-loader" [hidden]="!loading">
+ 
+  <mat-progress-spinner class="charts_spinner" [mode]="'indeterminate'">
+  </mat-progress-spinner>
+
+</div>

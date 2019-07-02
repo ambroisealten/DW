@@ -25,6 +25,7 @@ import { ModalDateManipulationComponent } from './components/modal/modal-date-ma
 import { ToastrModule } from 'ngx-toastr';
 
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { ModalLoadSpinnerComponent } from './components/modal/modal-load-spinner/modal-load-spinner.component';
 
 
 
@@ -36,6 +37,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     ParamViewComponent,
     ModalStringManipulationComponent,
     ModalDateManipulationComponent,
+    ModalLoadSpinnerComponent
   ],
   imports: [
     BrowserModule,

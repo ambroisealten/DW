@@ -6,6 +6,7 @@ import { ChartViewComponent } from './components/chart-view/chart-view.component
 import { DataTable } from './models/data';
 import { DataScheme } from './models/dataScheme';
 import { DataService } from './services/dataService';
+import { delay } from 'q';
 
 @Component({
   selector: 'app-root',
@@ -49,6 +50,8 @@ export class AppComponent implements OnInit {
   //Instance active
   activeInstance: number;
 
+  //spinner 
+  loading = false;
 
   constructor(
     private dataService: DataService,
@@ -148,6 +151,7 @@ export class AppComponent implements OnInit {
    * @param ev 
    */
   onDrop(ev) {
+    this.loading = true;
     const target = ev.target;
 
     //On vérifie que l'élément drag est bien celui qui initialise les données de l'enfant
@@ -156,7 +160,7 @@ export class AppComponent implements OnInit {
       //On récupère les données du drag
       const fieldName = ev.dataTransfer.getData('colName');
       const tableName = ev.dataTransfer.getData('tableName');
-      const tableInfo = this.datas.find(data => data.name == tableName) ; 
+      const tableInfo = this.datas.find(data => data.name == tableName);
 
       //On détermine l'id de l'enfant 
       const instanceNumber = parseInt(target.id, 10);
@@ -169,7 +173,7 @@ export class AppComponent implements OnInit {
       this.componentRef = entryUsed.createComponent(componentFactory);
 
       //On Initialise les variables 
-      this.componentRef.instance.tableInfo = tableInfo ; 
+      this.componentRef.instance.tableInfo = tableInfo;
       this.componentRef.instance.instanceNumber = instanceNumber;
       this.activeInstance = instanceNumber;
       this.allInstance[instanceNumber - 1] = true;
@@ -246,6 +250,8 @@ export class AppComponent implements OnInit {
         this.activeInstance = instance;
         this.getData(messageSplited[2]).subscribe(dataFetched => {
           this.allComponentsObs[this.activeInstance - 1].next('sendData/' + JSON.stringify(dataFetched) + '/' + messageSplited[2]);
+
+          this.loading = false;
         });
         break;
       case 'actif':

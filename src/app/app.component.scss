@@ -1,6 +1,5 @@
 .paramview {
   color: white;
-  //direction: rtl;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -14,11 +13,11 @@ main-expansion-panel {
   width: 100%;
 }
 
-.mat-expansion-panel{
+.mat-expansion-panel {
   background: unset;
 }
 
-.mat-expansion-panel hr{
+.mat-expansion-panel hr {
   color: lightgrey;
 }
 
@@ -54,4 +53,16 @@ h4 {
   height: 90vh !important;
   max-height: 90vh !important;
   overflow-y: auto;
+}
+
+.data_spinner {
+  position: absolute;
+  top: 6.5vh;
+  left: 9.5vw;
+}
+
+.charts_spinner {
+  position: absolute;
+  top: 50vh;
+  left: 50vw;
 }

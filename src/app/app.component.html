@@ -8,6 +8,7 @@
   <nav>
     <div class="data">
       <h1>Données</h1>
+      
       <hr size="1" color="lightgray">
       <mat-accordion class="accordion-headers-align">
         <mat-expansion-panel *ngFor="let data of activeTable">
@@ -43,4 +44,9 @@
 </main>
 <div id='templates'>
   <template *ngFor="let el of allTemplates; let i = index" id='{{ i+102 }}' #chartHost></template>
+</div>
+
+<div class="preloadProgress">
+  <mat-progress-spinner class="data_spinner" [diameter]="25" color="accent" [value]="percentageOfPreloadEnded">
+  </mat-progress-spinner>
 </div>

@@ -13,7 +13,7 @@ import { ParamViewComponent } from './components/param-view/param-view.component
 import {
   MAT_DATE_LOCALE, MatTableModule, MatNativeDateModule, MatDatepickerModule, MatRadioModule,
   MatFormFieldModule, MatSlideToggleModule, MatCheckboxModule, MatTabsModule, MatDialogModule,
-  MatSelectModule, MatSliderModule, MatListModule, MatInputModule
+  MatSelectModule, MatSliderModule, MatListModule, MatInputModule, MatProgressSpinnerModule
 } from '@angular/material';
 import { MatIconModule } from '@angular/material/icon';
 import { ModalStringManipulationComponent } from './components/modal/modal-string-manipulation/modal-string-manipulation.component';
@@ -24,6 +24,10 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ModalDateManipulationComponent } from './components/modal/modal-date-manipulation/modal-date-manipulation.component';
 import { ToastrModule } from 'ngx-toastr';
 
+import { ModalLoadSpinnerComponent } from './components/modal/modal-load-spinner/modal-load-spinner.component';
+
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -32,6 +36,7 @@ import { ToastrModule } from 'ngx-toastr';
     ParamViewComponent,
     ModalStringManipulationComponent,
     ModalDateManipulationComponent,
+    ModalLoadSpinnerComponent
   ],
   imports: [
     BrowserModule,
@@ -65,6 +70,7 @@ import { ToastrModule } from 'ngx-toastr';
       closeButton: true,
       preventDuplicates: true
     }),
+    MatProgressSpinnerModule,
   ],
   providers: [
     DataService,
@@ -74,7 +80,8 @@ import { ToastrModule } from 'ngx-toastr';
     ChartViewComponent,
     ModalDataManipulationComponent,
     ModalStringManipulationComponent,
-    ModalDateManipulationComponent
+    ModalDateManipulationComponent,
+    ModalLoadSpinnerComponent
   ],
   bootstrap: [AppComponent]
 })

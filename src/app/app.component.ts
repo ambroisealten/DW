@@ -1,12 +1,12 @@
-import { Component, ComponentFactoryResolver, OnInit, QueryList, ViewChildren, ViewContainerRef, ViewChild } from '@angular/core';
+import { Component, ComponentFactoryResolver, OnInit, QueryList, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subject, Subscription, of } from 'rxjs';
+import { Observable, of, Subject, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
+import { ParamViewComponent } from './components/param-view/param-view.component';
 import { DataTable } from './models/data';
 import { DataScheme } from './models/dataScheme';
 import { DataService } from './services/dataService';
-import { ParamViewComponent } from './components/param-view/param-view.component';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +17,7 @@ export class AppComponent implements OnInit {
 
   //Titre de l'application
   title = 'DW - Lot 0';
+  percentageOfPreloadEnded = 0;
 
   //Variable d'environnement pour la création des templates
   containerRepeat = 1;
@@ -51,6 +52,8 @@ export class AppComponent implements OnInit {
   //Instance active
   activeInstance: number;
 
+  //spinner 
+  loading = false;
 
   constructor(
     private dataService: DataService,
@@ -85,6 +88,7 @@ export class AppComponent implements OnInit {
 
   loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[], allComponentsObs) {
     const charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
+    this.percentageOfPreloadEnded = charge / environment.maxLoadDataCharge * 100;
     if (i === 0) {
       this.tableStored.push(tableName);
     }
@@ -149,7 +153,8 @@ export class AppComponent implements OnInit {
    * @param ev 
    */
   onDrop(ev) {
-    const target = ev.target;
+    const target = ev.target;      
+    this.loading = true;
 
     //On vérifie que l'élément drag est bien celui qui initialise les données de l'enfant
     if (target.className == 'charts' || target.className == 'chartsFour') {
@@ -158,6 +163,8 @@ export class AppComponent implements OnInit {
       const fieldName = ev.dataTransfer.getData('colName');
       const tableName = ev.dataTransfer.getData('tableName');
       const tableInfo = this.datas.find(data => data.name == tableName);
+
+      
 
       //On détermine l'id de l'enfant 
       const instanceNumber = parseInt(target.id, 10);
@@ -169,6 +176,9 @@ export class AppComponent implements OnInit {
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
 
+      this.componentRef.instance.setSpin() ; 
+
+      
       //"Sauvegarde" de la ref
       this.allComponentRefs[instanceNumber - 1] = this.componentRef;
 
@@ -178,6 +188,7 @@ export class AppComponent implements OnInit {
       this.componentRef.instance.setSubscription();
       this.allComponentsObs[instanceNumber - 1] = sub;
 
+      
       //On Initialise les variables 
       this.componentRef.instance.tableInfo = tableInfo;
       this.componentRef.instance.instanceNumber = instanceNumber;
@@ -187,6 +198,7 @@ export class AppComponent implements OnInit {
       //!\ INUTILE TO SUPPR 
       this.componentRef.instance.droppedText = fieldName;
 
+      
       this.componentRef.instance.displayedColumns = [fieldName];
       this.componentRef.instance.tableNames.push(tableName);
       this.getData(tableName).subscribe(dataFetched => {
@@ -198,7 +210,7 @@ export class AppComponent implements OnInit {
         //On initialise les données à destination de param view
         this.subjectRightPanel.next("setColonnes");
       });
-
+      
       this.activeTable = [];
       this.activeTable.push(this.datas.find(element => element.name === tableName));
 
@@ -207,6 +219,7 @@ export class AppComponent implements OnInit {
       const subChild: Subscription = this.componentRef.instance.toParent.subscribe(message => this.handleMessageFromChild(message));
       this.componentRef.onDestroy(() => subChild.unsubscribe());
 
+      
       //Remove the border of the (potentially) latest active child
       let latestActive = document.getElementsByClassName('containerActive')[0];
       if (latestActive != null) {
@@ -216,7 +229,7 @@ export class AppComponent implements OnInit {
 
       //On ré-initialise les tailles de l'instance créée
       this.componentRef.instance.recheckValues();
-
+      
       const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
 
       //Changement de l'attribut selon le nombre de graphe présent
@@ -226,10 +239,11 @@ export class AppComponent implements OnInit {
         target.setAttribute('class', 'chartContained');
       }
 
+      
+
       //Set border of the active one
       let activeOne = document.getElementById(instanceNumber.toString());
       activeOne.setAttribute('class', 'containerActive ' + activeOne.getAttribute('class'));
-
     }
     ev.preventDefault();
   }
@@ -249,6 +263,7 @@ export class AppComponent implements OnInit {
           this.allComponentRefs[instance - 1].instance.datas = dataFetched;
           this.allComponentsObs[instance - 1].next('sendData');
           this.paramView.changeColumn();
+          this.loading = false;
         });
         break;
       case 'actif':
@@ -269,6 +284,7 @@ export class AppComponent implements OnInit {
         this.subjectRightPanel.next('filtres');
         break;
       case 'destroyed':
+        this.loading = false;
         this.activeTable = this.datas;
         if (document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
         break;

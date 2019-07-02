@@ -565,7 +565,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   handleData(message: string) {
 
     const messageSplited = message.split('/');
-    console.log(messageSplited) ;
     switch (messageSplited[0]) {
       case 'sendData':
         this.calculData();

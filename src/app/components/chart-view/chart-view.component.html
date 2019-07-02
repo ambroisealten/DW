@@ -14,7 +14,7 @@
           </th>
         </ng-container>
       </tr>
-    
+
       <ng-container *ngFor="let data of datasourceTable; let j = index">
         <tr>
           <ng-container *ngFor="let column of displayedColumns ; let i = index">
@@ -76,13 +76,7 @@
       </ul>
     </div>
   </div>
-<div class="charts_spinner">
-  <template  #spinningRecords></template>
-</div>
-  <div class="closeWrapper">
-    <div class="closeIcon">
-      <i class="icon-material icon-material_close" (click)="deleteChartView()">
-      </i>
-    </div>
+  <div class="charts_spinner">
+    <template #spinningRecords></template>
   </div>
 </div>

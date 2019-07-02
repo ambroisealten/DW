@@ -65,22 +65,29 @@ export class ModalDateManipulationComponent implements OnInit {
 
     let newFilter: Filter = new Filter();
     if (this.type.selectedOptions.selected.length > 0 && this.dateSolo != undefined) {
+
       newFilter['type'] = this.type.selectedOptions.selected[0].value;
-      newFilter['startDate'] = this.dateSolo.getTime();
-      newFilter['name'] = this.createName(newFilter['type'], newFilter['startDate']);
+      if(newFilter['type'] == 'après le'){
+        newFilter['startDate'] = this.dateSolo.getTime() + 86400000 ;
+      } else if (newFilter['type'] == 'jusqu\'au') {
+        newFilter['startDate'] = this.dateSolo.getTime() + 86399999 ;
+      } else { 
+        newFilter['startDate'] = this.dateSolo.getTime();
+      }
+      newFilter['name'] = this.createName(newFilter['type'], this.dateSolo);
       //Si l'onglet est le tri, on ne regarde pas le conflit avec les autres filtres 
-      if (!this.isTri && this.isFiltered(this.dateSolo.getTime(), null, newFilter['type'], newFilter['name'])) {
+      if (!this.isTri && this.isFiltered(newFilter['startDate'], null, newFilter['type'], newFilter['name'])) {
         return;
       }
     } else if (this.compris.checked && this.startDate != undefined && this.endDate != undefined) {
       newFilter['type'] = 'entre';
       newFilter['name'] = 'Entre le ' + this.convertTimestamp(this.startDate) + ' et le ' + this.convertTimestamp(this.endDate);
+      newFilter['startDate'] = this.startDate.getTime();
+      newFilter['endDate'] = this.endDate.getTime() + 86400000 ;
       //Si l'onglet est le tri, on ne regarde pas le conflit avec les autres filtres 
-      if (!this.isTri && this.isFiltered(this.startDate.getTime(), this.endDate.getTime(), newFilter['type'], newFilter['name'])) {
+      if (!this.isTri && this.isFiltered(newFilter['startDate'], newFilter['endDate'], newFilter['type'], newFilter['name'])) {
         return;
       }
-      newFilter['startDate'] = this.startDate.getTime();
-      newFilter['endDate'] = this.endDate.getTime();
     } else {
       //Si aucune option sélectionné on stop
       return;
@@ -121,12 +128,18 @@ export class ModalDateManipulationComponent implements OnInit {
           case ('après le'):
             if (type == 'après le') {
               bool = startDate >= this.filters[i].startDate;
+            } else if (type == "entre") {
+              bool = endDate > this.filters[i].startDate;
             } else {
               bool = startDate > this.filters[i].startDate;
             }
             break;
           case ('à partir'):
-            bool = startDate >= this.filters[i].startDate;
+            if (type == "entre") {
+              bool = endDate >= this.filters[i].startDate;
+            } else {
+              bool = startDate >= this.filters[i].startDate;
+            }
             break;
           case ('entre'):
             if (type == 'entre') {
@@ -157,12 +170,18 @@ export class ModalDateManipulationComponent implements OnInit {
             case ('après le'):
               if (this.filters[i].type == 'après le') {
                 bool = startDate <= this.filters[i].startDate;
+              } else if (this.filters[i].type == 'entre') {
+                bool = startDate < this.filters[i].endDate;
               } else {
                 bool = startDate < this.filters[i].startDate;
               }
               break;
             case ('à partir'):
-              bool = startDate >= this.filters[i].startDate;
+              if (this.filters[i].type == 'entre') {
+                bool = startDate <= this.filters[i].endDate;
+              } else {
+                bool = startDate <= this.filters[i].startDate;
+              }
               break;
             case ('entre'):
               if (this.filters[i].type == 'entre') {

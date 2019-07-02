@@ -35,7 +35,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
   //Filtres 
   @Input() filterList: FilterList[] = [];
-  @Input() actif: number ;
+  @Input() actif: number;
 
   //Information concernant l'onglet actuel de l'utilisateur 
   selectedIndex: string;
@@ -177,12 +177,19 @@ export class ParamViewComponent implements OnInit, OnDestroy {
             case ('sup. à'):
               if (type === 'sup. à' || type === 'sup. égal à') {
                 bool = valueMin >= filter.min;
+              } else if (type == 'compris') {
+                bool = (valueMax > filter.min);
               } else {
                 bool = (valueMin > filter.min);
               }
               break;
             case ('sup. égal à'):
-              bool = (valueMin > filter.min);
+              if (type == 'compris') {
+                bool = valueMax > filter.min
+              } else {
+
+                bool = (valueMin > filter.min);
+              }
               break;
             case ('compris'):
               if (type === 'compris') {
@@ -218,14 +225,14 @@ export class ParamViewComponent implements OnInit, OnDestroy {
             case ('compris'):
               if (filter.type === 'compris') {
                 bool = (((valueMin <= filter.min) && (valueMax >= filter.min)) || ((valueMin <= filter.max) && (valueMax >= filter.max)));
-              } else if (type === 'inf. à') {
+              } else if (filter.type === 'inf. à') {
                 bool = valueMin < filter.min;
-              } else if (type === 'inf. égal à') {
+              } else if (filter.type === 'inf. égal à') {
                 bool = valueMin <= filter.min;
-              } else if (type === 'sup. égal à') {
-                bool = valueMin >= filter.min;
-              } else if (type === 'sup. à') {
-                bool = valueMin > filter.min;
+              } else if (filter.type === 'sup. égal à') {
+                bool = valueMax >= filter.min;
+              } else if (filter.type === 'sup. à') {
+                bool = valueMax > filter.min;
               } else {
                 bool = (valueMin <= filter.min) && (valueMax >= filter.min);
               }
@@ -281,12 +288,18 @@ export class ParamViewComponent implements OnInit, OnDestroy {
         case ('après le'):
           if (type === 'après le') {
             bool = startDate >= filter.startDate;
+          } else if (type == 'compris') {
+            bool = endDate > filter.startDate;
           } else {
             bool = startDate > filter.startDate;
           }
           break;
         case ('à partir'):
-          bool = startDate >= filter.startDate;
+          if (type == 'entre') {
+            bool = endDate >= filter.startDate
+          } else {
+            bool = startDate >= filter.startDate;
+          }
           break;
         case ('entre'):
           if (type === 'entre') {

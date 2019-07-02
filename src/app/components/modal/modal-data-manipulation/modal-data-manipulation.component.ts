@@ -142,12 +142,18 @@ export class ModalDataManipulationComponent implements OnInit {
             case ('sup. à'):
               if (type === 'sup. à' || type === 'sup. égal à') {
                 bool = valueMin >= this.filters[i].min;
+              } else if (type =='compris') {
+                bool = (valueMax > this.filters[i].min);
               } else {
                 bool = (valueMin > this.filters[i].min);
               }
               break;
             case ('sup. égal à'):
-              bool = (valueMin > this.filters[i].min);
+              if (type == 'compris'){
+                bool =  valueMax > this.filters[i].min
+              } else {
+                bool = (valueMin > this.filters[i].min);
+              }
               break;
             case ('compris'):
               if (type === 'compris') {
@@ -189,14 +195,14 @@ export class ModalDataManipulationComponent implements OnInit {
                   && (valueMax >= this.filters[i].min))
                   || ((valueMin <= this.filters[i].max)
                     && (valueMax >= this.filters[i].max)));
-              } else if (type === 'inf. à') {
+              } else if (this.filters[i].type === 'inf. à') {
                 bool = valueMin < this.filters[i].min;
-              } else if (type === 'inf. égal à') {
+              } else if (this.filters[i].type === 'inf. égal à') {
                 bool = valueMin <= this.filters[i].min;
-              } else if (type === 'sup. égal à') {
-                bool = valueMin >= this.filters[i].min;
-              } else if (type === 'sup. à') {
-                bool = valueMin > this.filters[i].min;
+              } else if (this.filters[i].type === 'sup. égal à') {
+                bool = valueMax >= this.filters[i].min;
+              } else if (this.filters[i].type === 'sup. à') {
+                bool = valueMax > this.filters[i].min;
               } else {
                 bool = (valueMin <= this.filters[i].min) && (valueMax >= this.filters[i].min);
               }

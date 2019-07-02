@@ -551,18 +551,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   handleData(message: string) {
 
     const messageSplited = message.split('/');
-    let data;
+    console.log(messageSplited) ;
     switch (messageSplited[0]) {
       case 'sendData':
-        data = JSON.parse(messageSplited[1]);
-        this.tableNames.push(messageSplited[2]);
-        this.datas = data;
         this.calculData();
         break;
       case 'sendFilter':
-        data = JSON.parse(messageSplited[1]);
         // Si réception d'un nouveau filtre retransforme les données
-        this.filters = data;
         this.calculData();
         break;
       case 'notifyDataFetched':

@@ -652,7 +652,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   calculDataChart() {
-    const data = this.datas.filter(element => this.isNotExclude(element)).map(val => val[this.droppedText]);
+    const data = this.datas
+      .filter(element => this.isNotExclude(element))
+      .map(val => val[this.droppedText])
+      .map(val => this.transform(val, this.droppedText));
+
     const chartData = [];
     const labels = [];
     const frequencies = this.frequencies(data).values;

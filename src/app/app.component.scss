@@ -55,14 +55,12 @@ h4 {
   overflow-y: auto;
 }
 
-.data_spinner {
-  position: absolute;
-  top: 6.5vh;
-  left: 9.5vw;
+
+.header-table{
+  display: flex; 
+  vertical-align: middle ; 
 }
 
-.charts_spinner {
-  position: absolute;
-  top: 50vh;
-  left: 50vw;
+.spinner{
+  margin-left: 2%; 
 }

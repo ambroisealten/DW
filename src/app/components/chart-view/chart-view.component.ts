@@ -19,8 +19,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   @Output() public toParent: EventEmitter<string> = new EventEmitter();
 
   //Spinning
-  @ViewChild('spinningRecords',{ read: ViewContainerRef, static: true}) entrySpinningComponent: ViewContainerRef; 
-  componentRef: any ; 
+  @ViewChild('spinningRecords', { read: ViewContainerRef, static: true }) entrySpinningComponent: ViewContainerRef;
+  componentRef: any;
 
   //Input - Parent vers ce composant
   @Input() instanceNumber: number;
@@ -61,7 +61,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   //DataSource tableau
   datasourceTable: any[] = [];
 
-  loading = false ;
+  loading = false;
 
   constructor(private toastr: ToastrService,
     private componentFactoryResolver: ComponentFactoryResolver) {
@@ -92,10 +92,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.resetCanvasHeightAndWidth();
   }
 
-  setSpin(){
-    this.entrySpinningComponent.clear() ;  
-    let factory = this.componentFactoryResolver.resolveComponentFactory(ModalLoadSpinnerComponent) ; 
-    this.componentRef = this.entrySpinningComponent.createComponent(factory)  ; 
+  setSpin() {
+    this.entrySpinningComponent.clear();
+    let factory = this.componentFactoryResolver.resolveComponentFactory(ModalLoadSpinnerComponent);
+    this.componentRef = this.entrySpinningComponent.createComponent(factory);
   }
 
   /**
@@ -217,12 +217,12 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   multipleSort() {
     this.datasourceTable.sort((a, b) => {
       for (let i = 0; i < this.displayedColumns.length; i++) {
-        if(!a.hasOwnProperty(this.displayedColumns[i]) && !b.hasOwnProperty(this.displayedColumns[i])){
-          
-        } else if (!a.hasOwnProperty(this.displayedColumns[i])){
-          return -1 ; 
-        } else if (!b.hasOwnProperty(this.displayedColumns[i])){
-          return 1 ; 
+        if (!a.hasOwnProperty(this.displayedColumns[i]) && !b.hasOwnProperty(this.displayedColumns[i])) {
+
+        } else if (!a.hasOwnProperty(this.displayedColumns[i])) {
+          return -1;
+        } else if (!b.hasOwnProperty(this.displayedColumns[i])) {
+          return 1;
         } else if (this.transform(a[this.displayedColumns[i]], this.displayedColumns[i]) !== this.transform(b[this.displayedColumns[i]], this.displayedColumns[i])) {
           return a[this.displayedColumns[i]] > b[this.displayedColumns[i]] ? 1 : -1;
         }
@@ -245,8 +245,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * @param column 
    */
   transform(data, column) {
-    if(data == undefined){
-      return " " ;
+    if (data == undefined) {
+      return " ";
     }
     let actualFilter: FilterList = this.filters.find(filter => filter.filterColumn == column)
     let name = "";
@@ -649,14 +649,14 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   calculData() {
-    if(this.datas.length > 0 ){
-      try{
-        this.componentRef.destroy() ; 
-      } catch(e) {
+    if (this.datas.length > 0) {
+      try {
+        this.componentRef.destroy();
+      } catch (e) {
       }
     }
-    this.loading = true ; 
-    this.datasourceTable = Object.assign([],this.datas.filter(element => this.isNotExclude(element)))
+    this.loading = true;
+    this.datasourceTable = Object.assign([], this.datas.filter(element => this.isNotExclude(element)))
     this.multipleSort();
     this.spans = [];
     for (let i = 0; i < this.displayedColumns.length; i++) {
@@ -672,7 +672,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
     else {
       this.displayedColumns.splice(id, 1);
-      this.calculData();
+      if (this.displayedColumns.length + 1 != id) {
+        this.calculData();
+      }
+
     }
   }
 }

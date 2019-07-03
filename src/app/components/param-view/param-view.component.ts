@@ -21,10 +21,6 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   //Canal de communication enfant vers Parent 
   @Output() messageEvent = new EventEmitter<any>();
 
-  //Canal de communication Parent vers Enfant
-  @Input() parentObs: Observable<any>;
-  parentSub;
-
   //Colonne de l'onglet 
   displayedColumns: string[] = [];
   @Input() tableInfo: any[] = [];
@@ -38,7 +34,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   @Input() actif: number;
 
   //Information concernant l'onglet actuel de l'utilisateur 
-  selectedIndex: string;
+  selectedIndex: number;
 
   //Données groupement 
   selectionGpmt = new SelectionModel<any>(true, []);
@@ -52,16 +48,10 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   constructor(private dialog: MatDialog, private toastr: ToastrService) { }
 
   ngOnInit() {
-    //Création du canal Parent-Enfant 
-    this.parentSub = this.parentObs.subscribe(dataParent => this.handleDataFromParent(dataParent));
   }
 
   ngOnDestroy() {
     this.dialog.closeAll();
-    //Unsubscribe au canal
-    if (this.parentSub !== undefined) {
-      this.parentSub.unsubscribe();
-    }
   }
 
   thereIsNoData(): boolean {
@@ -487,7 +477,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Permet de déterminer si l'onglet est tri ou groupement 
    */
   isTri(): boolean {
-    return this.selectedIndex === '1';
+    return this.selectedIndex === 1;
   }
 
   /**
@@ -581,7 +571,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.closeOnNavigation = true;
 
     dialogConfig.data = {
-      bool: istri,
+      isTri: istri,
       filters: this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters
     };
 
@@ -589,7 +579,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
     //Souscrit à l'ajout de nouveau filtres 
     const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
-      if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
+      if (newFilter.hasOwnProperty('excludeValue') && istri) {
         this.excludeOrIncludeFromFilterDate(newFilter);
       } else {
         this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters.push(newFilter);
@@ -716,13 +706,13 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     const filterConcerned = this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]);
     if (filter['excludeValue'] === 'exclure') {
       this.dataSource.data.forEach(element => {
-        if (this.isDateFiltered(element[this.displayedColumns[1]], filter) && filterConcerned.excludeValue.indexOf((new Date(element[this.displayedColumns[1]])).getTime() + '') === -1) {
-          filterConcerned.excludeValue.push(element[this.displayedColumns[1]] + '');
+        if (this.isDateFiltered((new Date(element[this.displayedColumns[1]])).getTime(), filter) && filterConcerned.excludeValue.indexOf((new Date(element[this.displayedColumns[1]])).getTime() + '') === -1) {
+          filterConcerned.excludeValue.push((new Date(element[this.displayedColumns[1]])).getTime() + '');
         }
       });
     } else if (filter['excludeValue'] === 'inclure') {
       this.dataSource.data.forEach(element => {
-        if (this.isDateFiltered(element[this.displayedColumns[1]], filter)) {
+        if (this.isDateFiltered((new Date(element[this.displayedColumns[1]])).getTime(), filter)) {
           const index = filterConcerned.excludeValue.indexOf('' + (new Date(element[this.displayedColumns[1]])).getTime());
           if (index !== -1) {
             filterConcerned.excludeValue.splice(index, 1);
@@ -731,7 +721,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       });
     } else if (filter['excludeValue'] === 'n\'inclure que') {
       this.dataSource.data.forEach(element => {
-        if (this.isDateFiltered(element[this.displayedColumns[1]], filter)) {
+        if (this.isDateFiltered((new Date(element[this.displayedColumns[1]])).getTime(), filter)) {
           const index = filterConcerned.excludeValue.indexOf('' + (new Date(element[this.displayedColumns[1]])).getTime());
           if (index !== -1) {
             filterConcerned.excludeValue.splice(index, 1);
@@ -803,60 +793,61 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   * 
   \**************************************************************************************************/
 
-  /**
-   * Permet gérer la donnée reçu du Parent 
-   * @param data Donnée envoyée par le parent
-   */
-  handleDataFromParent(message) {
-    if (message == 'setColonnes') {
-      //Initialise les filtres 
-      this.columns = [];
-      this.filterList = [];
-      let tmpFilterList = [];
-      let actif = this.actif;
-      this.dataSource = new MatTableDataSource();
-      this.tableInfo['fields'].forEach(element => {
-        this.columns.push(element.name);
-        const filter = new FilterList();
-        filter.filterColumn = element.name;
-        filter.excludeValue = [];
-        filter.filters = [];
-        if (this.isNumber(element.type)) {
-          filter.filterType = 'number';
-        } else if (element.type == 'String') {
-          filter.filterType = 'string';
-        } else if (element.type == 'Timestamp') {
-          filter.filterType = 'date';
-        } else {
-          filter.filterType = element.type;
-        }
-        tmpFilterList.push(filter);
-      });
-      if (actif == this.actif) {
-        this.filterList = tmpFilterList;
+  setColonnesAndFilters() {
+    //Initialise les filtres 
+    this.columns = [];
+    this.filterList = [];
+    let tmpFilterList = [];
+    let actif = this.actif;
+    this.dataSource = new MatTableDataSource();
+    this.tableInfo['fields'].forEach(element => {
+      this.columns.push(element.name);
+      const filter = new FilterList();
+      filter.filterColumn = element.name;
+      filter.excludeValue = [];
+      filter.filters = [];
+      if (this.isNumber(element.type)) {
+        filter.filterType = 'number';
+      } else if (element.type == 'String') {
+        filter.filterType = 'string';
+      } else if (element.type == 'Timestamp') {
+        filter.filterType = 'date';
+      } else {
+        filter.filterType = element.type;
       }
-      this.column = this.filterList[0].filterColumn;
-      this.changeColumn();
-      this.sendFilterList({ actif: actif, filter: tmpFilterList });
-
-    } else if (message == 'reset') {
-      this.columns = [];
-
-      this.filterList = [];
-      this.displayedColumns = [];
-      this.dataSourceGpmt = new MatTableDataSource();
-      this.dataSource = new MatTableDataSource();
-    } else if (message == 'filtres') {
-      this.dataSourceGpmt = new MatTableDataSource(this.filterList);
-    } else if (message == 'colonnes') {
-      this.columns = [];
-      this.tableInfo['fields'].forEach(element => {
-        this.columns.push(element.name)
-      });
-      this.column = this.tableInfo['fields'][0].name;
-      this.changeColumn();
+      tmpFilterList.push(filter);
+    });
+    if (actif == this.actif) {
+      this.filterList = tmpFilterList;
     }
+    this.column = this.filterList[0].filterColumn;
+    this.changeColumn();
+    this.sendFilterList({ actif: actif, filter: tmpFilterList });
   }
+
+  reset() {
+    this.columns = [];
+    this.filterList = [];
+    this.displayedColumns = [];
+    this.dataSourceGpmt = new MatTableDataSource();
+    this.dataSource = new MatTableDataSource();
+  }
+
+  setDataSourceFilter() {
+    this.dataSourceGpmt = new MatTableDataSource(this.filterList);
+  }
+
+  setColonnes() {
+    this.columns = [];
+    this.tableInfo['fields'].forEach(element => {
+      this.columns.push(element.name)
+    });
+    this.column = this.tableInfo['fields'][0].name;
+    this.changeColumn();
+  }
+
+
+
 
   /**
    * Permet de déterminer si le type sauvegarder en BDD est un number 

@@ -19,8 +19,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   @Output() public toParent: EventEmitter<string> = new EventEmitter();
 
   //Spinning
-  @ViewChild('spinningRecords',{ read: ViewContainerRef, static: true}) entrySpinningComponent: ViewContainerRef; 
-  componentRef: any ; 
+  @ViewChild('spinningRecords', { read: ViewContainerRef, static: true }) entrySpinningComponent: ViewContainerRef;
+  componentRef: any;
 
   //Input - Parent vers ce composant
   @Input() instanceNumber: number;
@@ -38,7 +38,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   public context: CanvasRenderingContext2D;
-  chart: any = [];
+  chart: Chart;
   canvasWidth = 0;
   canvasHeight = 0;
   canvasFontSize: number;
@@ -61,7 +61,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   //DataSource tableau
   datasourceTable: any[] = [];
 
-  loading = false ;
+  loading = false;
 
   constructor(private toastr: ToastrService,
     private componentFactoryResolver: ComponentFactoryResolver) {
@@ -92,10 +92,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.resetCanvasHeightAndWidth();
   }
 
-  setSpin(){
-    this.entrySpinningComponent.clear() ;  
-    let factory = this.componentFactoryResolver.resolveComponentFactory(ModalLoadSpinnerComponent) ; 
-    this.componentRef = this.entrySpinningComponent.createComponent(factory)  ; 
+  setSpin() {
+    this.entrySpinningComponent.clear();
+    let factory = this.componentFactoryResolver.resolveComponentFactory(ModalLoadSpinnerComponent);
+    this.componentRef = this.entrySpinningComponent.createComponent(factory);
   }
 
   /**
@@ -572,6 +572,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       case 'sendFilter':
         // Si réception d'un nouveau filtre retransforme les données
         this.calculData();
+        if (this.currentType !== 'tab') {
+          this.calculDataChart();
+        }
         break;
       case 'notifyDataFetched':
         if (this.tableNames.includes(messageSplited[1])) {
@@ -639,16 +642,31 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  calculDataChart() {
+    const data = this.datas.filter(element => this.isNotExclude(element)).map(val => val[this.droppedText]);
+    const chartData = [];
+    const labels = [];
+    const frequencies = this.frequencies(data).values;
+    // tslint:disable-next-line: forin
+    for (const key in frequencies) {
+      labels.push(key);
+      chartData.push(frequencies[key]);
+    }
+    this.chart.data.labels = labels;
+    this.chart.data.datasets[0].data = chartData;
+    this.chart.update();
+  }
+
   calculData() {
-    if(this.datas.length > 0 ){
-      try{
-        this.componentRef.destroy() ; 
-      } catch(e) {
+    if (this.datas.length > 0) {
+      try {
+        this.componentRef.destroy();
+      } catch (e) {
       }
     }
-    this.loading = true ; 
-    this.datasourceTable = Object.assign([],[]);
-    this.datasourceTable = this.datas.filter(element => this.isNotExclude(element))
+    this.loading = true;
+    this.datasourceTable = Object.assign([], []);
+    this.datasourceTable = this.datas.filter(element => this.isNotExclude(element));
     this.multipleSort();
     this.spans = [];
     for (let i = 0; i < this.displayedColumns.length; i++) {

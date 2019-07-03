@@ -217,7 +217,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   multipleSort() {
     this.datasourceTable.sort((a, b) => {
       for (let i = 0; i < this.displayedColumns.length; i++) {
-        if (this.transform(a[this.displayedColumns[i]], this.displayedColumns[i]) !== this.transform(b[this.displayedColumns[i]], this.displayedColumns[i])) {
+        if (!a.hasOwnProperty(this.displayedColumns[i]) && !b.hasOwnProperty(this.displayedColumns[i])) {
+
+        } else if (!a.hasOwnProperty(this.displayedColumns[i])) {
+          return -1;
+        } else if (!b.hasOwnProperty(this.displayedColumns[i])) {
+          return 1;
+        } else if (this.transform(a[this.displayedColumns[i]], this.displayedColumns[i]) !== this.transform(b[this.displayedColumns[i]], this.displayedColumns[i])) {
           return a[this.displayedColumns[i]] > b[this.displayedColumns[i]] ? 1 : -1;
         }
       }
@@ -239,6 +245,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * @param column 
    */
   transform(data, column) {
+    if (data == undefined) {
+      return " ";
+    }
     let actualFilter: FilterList = this.filters.find(filter => filter.filterColumn == column)
     let name = "";
     if (actualFilter != undefined) {
@@ -665,8 +674,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       }
     }
     this.loading = true;
-    this.datasourceTable = Object.assign([], []);
-    this.datasourceTable = this.datas.filter(element => this.isNotExclude(element));
+    this.datasourceTable = Object.assign([], this.datas.filter(element => this.isNotExclude(element)))
     this.multipleSort();
     this.spans = [];
     for (let i = 0; i < this.displayedColumns.length; i++) {
@@ -682,7 +690,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
     else {
       this.displayedColumns.splice(id, 1);
-      this.calculData();
+      if (this.displayedColumns.length + 1 != id) {
+        this.calculData();
+      }
+
     }
   }
 }

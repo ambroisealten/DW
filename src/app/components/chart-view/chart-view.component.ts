@@ -29,10 +29,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   @Input() dataSource: any[] = [];
   @Input() tableInfo: any;
 
-  //Observable parents - canal de communication entre ce composant et son Parent
-  @Input() parentObs: Observable<any>;
-  parentSub;
-
   //Détermine le type de réprésentation de la donnée, tableau, doughnut etc..
   currentType = "tab";
 
@@ -71,10 +67,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    //Unsubscribe du canal parent 
-    if (this.parentSub != undefined) {
-      this.parentSub.unsubscribe();
-    }
   }
 
   ngAfterViewInit() {
@@ -106,15 +98,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       this.resetChartView();
       this.resetCanvasHeightAndWidth();
       this.modifyChartView(this.currentType);
-    }
-  }
-
-  /**
-   * Initialise le canal de subscription avec le parent 
-   */
-  setSubscription() {
-    if (this.parentSub == undefined) {
-      this.parentSub = this.parentObs.subscribe(data => this.handleData(data));
     }
   }
 
@@ -566,29 +549,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     else if (chartsLength === 3) this.resizeContainers();
   }
 
-  /**
-   * Interprète les données reçues par le parent
-   * [0] message type
-   * @param data
-   */
-  handleData(message: string) {
-
-    const messageSplited = message.split('/');
-    switch (messageSplited[0]) {
-      case 'sendData':
-        this.calculData();
-        break;
-      case 'sendFilter':
-        // Si réception d'un nouveau filtre retransforme les données
-        this.calculData();
-        break;
-      case 'notifyDataFetched':
-        if (this.tableNames.includes(messageSplited[1])) {
-          this.toParent.emit('askForData/' + this.instanceNumber + '/' + messageSplited[1]);
-        }
-        break;
-      default:
-        break;
+  askForData(tableName){
+    if (this.tableNames.includes(tableName)){
+      this.toParent.emit('askForData/' + this.instanceNumber + '/' + tableName);
     }
   }
 

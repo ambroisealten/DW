@@ -42,7 +42,7 @@
 
   </div>
   <aside class="right_panel">
-    <app-param-view [parentObs]="obsRightPanel" (messageEvent)="messageReceiveFromRightPanel($event)" class="paramview">
+    <app-param-view (messageEvent)="messageReceiveFromRightPanel($event)" class="paramview">
     </app-param-view>
   </aside>
 </main>

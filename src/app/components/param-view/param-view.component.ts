@@ -21,10 +21,6 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   //Canal de communication enfant vers Parent 
   @Output() messageEvent = new EventEmitter<any>();
 
-  //Canal de communication Parent vers Enfant
-  @Input() parentObs: Observable<any>;
-  parentSub;
-
   //Colonne de l'onglet 
   displayedColumns: string[] = [];
   @Input() tableInfo: any[] = [];
@@ -52,16 +48,10 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   constructor(private dialog: MatDialog, private toastr: ToastrService) { }
 
   ngOnInit() {
-    //Création du canal Parent-Enfant 
-    this.parentSub = this.parentObs.subscribe(dataParent => this.handleDataFromParent(dataParent));
   }
 
   ngOnDestroy() {
     this.dialog.closeAll();
-    //Unsubscribe au canal
-    if (this.parentSub !== undefined) {
-      this.parentSub.unsubscribe();
-    }
   }
 
   thereIsNoData(): boolean {
@@ -803,60 +793,61 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   * 
   \**************************************************************************************************/
 
-  /**
-   * Permet gérer la donnée reçu du Parent 
-   * @param data Donnée envoyée par le parent
-   */
-  handleDataFromParent(message) {
-    if (message == 'setColonnes') {
-      //Initialise les filtres 
-      this.columns = [];
-      this.filterList = [];
-      let tmpFilterList = [];
-      let actif = this.actif;
-      this.dataSource = new MatTableDataSource();
-      this.tableInfo['fields'].forEach(element => {
-        this.columns.push(element.name);
-        const filter = new FilterList();
-        filter.filterColumn = element.name;
-        filter.excludeValue = [];
-        filter.filters = [];
-        if (this.isNumber(element.type)) {
-          filter.filterType = 'number';
-        } else if (element.type == 'String') {
-          filter.filterType = 'string';
-        } else if (element.type == 'Timestamp') {
-          filter.filterType = 'date';
-        } else {
-          filter.filterType = element.type;
-        }
-        tmpFilterList.push(filter);
-      });
-      if (actif == this.actif) {
-        this.filterList = tmpFilterList;
+  setColonnesAndFilters() {
+    //Initialise les filtres 
+    this.columns = [];
+    this.filterList = [];
+    let tmpFilterList = [];
+    let actif = this.actif;
+    this.dataSource = new MatTableDataSource();
+    this.tableInfo['fields'].forEach(element => {
+      this.columns.push(element.name);
+      const filter = new FilterList();
+      filter.filterColumn = element.name;
+      filter.excludeValue = [];
+      filter.filters = [];
+      if (this.isNumber(element.type)) {
+        filter.filterType = 'number';
+      } else if (element.type == 'String') {
+        filter.filterType = 'string';
+      } else if (element.type == 'Timestamp') {
+        filter.filterType = 'date';
+      } else {
+        filter.filterType = element.type;
       }
-      this.column = this.filterList[0].filterColumn;
-      this.changeColumn();
-      this.sendFilterList({ actif: actif, filter: tmpFilterList });
-
-    } else if (message == 'reset') {
-      this.columns = [];
-
-      this.filterList = [];
-      this.displayedColumns = [];
-      this.dataSourceGpmt = new MatTableDataSource();
-      this.dataSource = new MatTableDataSource();
-    } else if (message == 'filtres') {
-      this.dataSourceGpmt = new MatTableDataSource(this.filterList);
-    } else if (message == 'colonnes') {
-      this.columns = [];
-      this.tableInfo['fields'].forEach(element => {
-        this.columns.push(element.name)
-      });
-      this.column = this.tableInfo['fields'][0].name;
-      this.changeColumn();
+      tmpFilterList.push(filter);
+    });
+    if (actif == this.actif) {
+      this.filterList = tmpFilterList;
     }
+    this.column = this.filterList[0].filterColumn;
+    this.changeColumn();
+    this.sendFilterList({ actif: actif, filter: tmpFilterList });
   }
+
+  reset() {
+    this.columns = [];
+    this.filterList = [];
+    this.displayedColumns = [];
+    this.dataSourceGpmt = new MatTableDataSource();
+    this.dataSource = new MatTableDataSource();
+  }
+
+  setDataSourceFilter() {
+    this.dataSourceGpmt = new MatTableDataSource(this.filterList);
+  }
+
+  setColonnes() {
+    this.columns = [];
+    this.tableInfo['fields'].forEach(element => {
+      this.columns.push(element.name)
+    });
+    this.column = this.tableInfo['fields'][0].name;
+    this.changeColumn();
+  }
+
+
+
 
   /**
    * Permet de déterminer si le type sauvegarder en BDD est un number 

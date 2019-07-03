@@ -60,7 +60,8 @@ export class ModalDateManipulationComponent implements OnInit {
     }
 
     if (this.isTri && this.excludeOption == undefined) {
-      return;
+      this.toastr.error("Veuillez selectionnez une option de filtrage","Erreur lors du filtrage")
+      return; 
     }
 
     let newFilter: Filter = new Filter();

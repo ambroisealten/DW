@@ -34,7 +34,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   @Input() actif: number;
 
   //Information concernant l'onglet actuel de l'utilisateur 
-  selectedIndex: string;
+  selectedIndex: number;
 
   //Données groupement 
   selectionGpmt = new SelectionModel<any>(true, []);
@@ -477,7 +477,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
    * Permet de déterminer si l'onglet est tri ou groupement 
    */
   isTri(): boolean {
-    return this.selectedIndex === '1';
+    return this.selectedIndex === 1;
   }
 
   /**
@@ -571,7 +571,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     dialogConfig.closeOnNavigation = true;
 
     dialogConfig.data = {
-      bool: istri,
+      isTri: istri,
       filters: this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters
     };
 
@@ -579,7 +579,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
     //Souscrit à l'ajout de nouveau filtres 
     const sub = dialogRef.componentInstance.addFilter.subscribe(newFilter => {
-      if (newFilter.hasOwnProperty('excludeValue') && this.isTri()) {
+      if (newFilter.hasOwnProperty('excludeValue') && istri) {
         this.excludeOrIncludeFromFilterDate(newFilter);
       } else {
         this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]).filters.push(newFilter);
@@ -706,13 +706,13 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     const filterConcerned = this.filterList.find(filter => filter.filterColumn === this.displayedColumns[1]);
     if (filter['excludeValue'] === 'exclure') {
       this.dataSource.data.forEach(element => {
-        if (this.isDateFiltered(element[this.displayedColumns[1]], filter) && filterConcerned.excludeValue.indexOf((new Date(element[this.displayedColumns[1]])).getTime() + '') === -1) {
-          filterConcerned.excludeValue.push(element[this.displayedColumns[1]] + '');
+        if (this.isDateFiltered((new Date(element[this.displayedColumns[1]])).getTime(), filter) && filterConcerned.excludeValue.indexOf((new Date(element[this.displayedColumns[1]])).getTime() + '') === -1) {
+          filterConcerned.excludeValue.push((new Date(element[this.displayedColumns[1]])).getTime() + '');
         }
       });
     } else if (filter['excludeValue'] === 'inclure') {
       this.dataSource.data.forEach(element => {
-        if (this.isDateFiltered(element[this.displayedColumns[1]], filter)) {
+        if (this.isDateFiltered((new Date(element[this.displayedColumns[1]])).getTime(), filter)) {
           const index = filterConcerned.excludeValue.indexOf('' + (new Date(element[this.displayedColumns[1]])).getTime());
           if (index !== -1) {
             filterConcerned.excludeValue.splice(index, 1);
@@ -721,7 +721,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
       });
     } else if (filter['excludeValue'] === 'n\'inclure que') {
       this.dataSource.data.forEach(element => {
-        if (this.isDateFiltered(element[this.displayedColumns[1]], filter)) {
+        if (this.isDateFiltered((new Date(element[this.displayedColumns[1]])).getTime(), filter)) {
           const index = filterConcerned.excludeValue.indexOf('' + (new Date(element[this.displayedColumns[1]])).getTime());
           if (index !== -1) {
             filterConcerned.excludeValue.splice(index, 1);

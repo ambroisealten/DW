@@ -30,7 +30,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   @Input() tableInfo: any;
 
   //Détermine le type de réprésentation de la donnée, tableau, doughnut etc..
-  currentType = "tab";
+  currentType = 'tab';
 
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   public context: CanvasRenderingContext2D;
@@ -38,7 +38,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   canvasWidth = 0;
   canvasHeight = 0;
   canvasFontSize: number;
-  allColors = ["blue", "red", "green", "yellow", "pink", "cyan", "orange", "white", "salmon", "grey"];
+  allColors = ['blue', 'red', 'green', 'yellow', 'pink', 'cyan', 'orange', 'white', 'salmon', 'grey'];
 
   //Liste des filtres à appliquer sur les données 
   @Input() filters: FilterList[] = [];
@@ -94,7 +94,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * Changement des tailles du canvas et de la vue
    */
   recheckValues() {
-    if (this.currentType != "tab") {
+    if (this.currentType != 'tab') {
       this.resetChartView();
       this.resetCanvasHeightAndWidth();
       this.modifyChartView(this.currentType);
@@ -114,7 +114,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     const tableName = ev.dataTransfer.getData('tableName');
     //Récupération de la colonne 
     const colName = ev.dataTransfer.getData('colName');
-    if (colName != "" && this.tableInfo.name == tableName && !this.displayedColumns.includes(colName)) {
+    if (colName != '' && this.tableInfo.name == tableName && !this.displayedColumns.includes(colName)) {
       this.toParent.emit('askForData/' + this.instanceNumber + '/' + tableName);
       //On ajoute la colonne et on ajoute le span correspondant  
       this.displayedColumns.push(colName);
@@ -133,7 +133,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     for (let i = 0; i < this.datasourceTable.length;) {
 
       //On construit la donnée elle est représentée par object[key1]+object[key2]+object[key3]+....
-      let currentValue = "";
+      let currentValue = '';
       for (let k = 0; k < accessor; k++) {
         //On transforme la donnée selon les filtres afin de convertir des données qui n'ont pas la même valeur en une même valeur afin de les "spans" ensemble
         currentValue += this.transform(this.datasourceTable[i][this.displayedColumns[k]], this.displayedColumns[k]);
@@ -145,7 +145,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       for (let j = i + 1; j < this.datasourceTable.length; j++) {
 
         //On construit la donnée elle est représentée par object[key1]+object[key2]+object[key3]+....
-        let checkedValue = "";
+        let checkedValue = '';
         for (let h = 0; h < accessor; h++) {
           //On transforme la donnée selon les filtres afin de convertir des données qui n'ont pas la même valeur en une même valeur afin de les "spans" ensemble
           checkedValue += this.transform(this.datasourceTable[j][this.displayedColumns[h]], this.displayedColumns[h]);
@@ -229,10 +229,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   transform(data, column) {
     if (data == undefined) {
-      return " ";
+      return ' ';
     }
     let actualFilter: FilterList = this.filters.find(filter => filter.filterColumn == column)
-    let name = "";
+    let name = '';
     if (actualFilter != undefined) {
       if (actualFilter['filterType'] == 'number') {
         for (let i = 0; i < actualFilter.filters.length; i++) {
@@ -243,7 +243,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
             }
           }
         }
-      } else if (actualFilter['filterType'] == "string") {
+      } else if (actualFilter['filterType'] == 'string') {
         for (let i = 0; i < actualFilter.filters.length; i++) {
           if (actualFilter.filters[i].actif) {
             if (actualFilter.filters[i].listElem.includes(data)) {
@@ -252,7 +252,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
             }
           }
         }
-      } else if (actualFilter['filterType'] == "date") {
+      } else if (actualFilter['filterType'] == 'date') {
         for (let i = 0; i < actualFilter.filters.length; i++) {
           if (actualFilter.filters[i].actif) {
             let value = (new Date(data)).getTime()
@@ -350,7 +350,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         this.modifyChartView(this.currentType);
         break;
       default:
-        this.currentType = "tab";
+        this.currentType = 'tab';
         this.setCanvasSettings(false);
         break;
     }
@@ -375,7 +375,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    */
   modifyChartView(chartType: string) {
     const chartData = [];
-    const data = this.datasourceTable.map(val => val[this.droppedText]);
+    const data = this.datasourceTable.map(val => val[this.displayedColumns[0]]);
 
     const labels = [];
 
@@ -504,7 +504,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
 
   redirectTo(item) {
-    if (item.length > 0) { this.toastr.info("We want to redirect to : some URL (must be defined)"); }
+    if (item.length > 0) { this.toastr.info('We want to redirect to : some URL (must be defined)'); }
   }
 
   frequencies(array: any[]) {
@@ -587,7 +587,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
     let bool = false;
     for (let i = 0; i < this.filters.length; i++) {
-      if (this.filters[i].filterType == "date") {
+      if (this.filters[i].filterType == 'date') {
         if (this.filters[i].excludeValue.includes((new Date(data[this.filters[i].filterColumn])).getTime() + '')) {
           bool = true;
         }
@@ -607,13 +607,13 @@ export class ChartViewComponent implements OnInit, OnDestroy {
    * Say to the parents the active child
    */
   emitActiveInstance(event) {
-    if (event.target.tagName != "I") {
-      this.toParent.emit("setActif/" + this.instanceNumber)
-      let filtre = "filtres/" + this.instanceNumber;
+    if (event.target.tagName != 'I') {
+      this.toParent.emit('setActif/' + this.instanceNumber)
+      let filtre = 'filtres/' + this.instanceNumber;
       this.toParent.emit(filtre);
-      let message = "actif/" + this.instanceNumber + "/";
+      let message = 'actif/' + this.instanceNumber + '/';
       for (let i = 0; i < this.tableNames.length; i++) {
-        message += this.tableNames[i] + "/";
+        message += this.tableNames[i] + '/';
       }
       this.toParent.emit(message)
     }
@@ -622,8 +622,8 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   calculDataChart() {
     const data = this.datas
       .filter(element => this.isNotExclude(element))
-      .map(val => val[this.droppedText])
-      .map(val => this.transform(val, this.droppedText));
+      .map(val => val[this.displayedColumns[0]])
+      .map(val => this.transform(val, this.displayedColumns[0]));
 
     const chartData = [];
     const labels = [];
@@ -634,6 +634,14 @@ export class ChartViewComponent implements OnInit, OnDestroy {
       chartData.push(frequencies[key]);
     }
     this.chart.data.labels = labels;
+    this.chart.config.options.title = {
+      display: true,
+      text: this.displayedColumns[0].toUpperCase(),
+      fontColor: '#FFFFF0',
+      fullWidth: true,
+      fontSize: 18
+    };
+    this.chart.config.options.title.text = this.displayedColumns[0];
     this.chart.data.datasets[0].data = chartData;
     const colors = this.chart.data.datasets[0].backgroundColor as string[];
     let inter = colors.length % this.allColors.length;

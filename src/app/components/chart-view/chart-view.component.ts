@@ -516,6 +516,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
         });
         break;
     }
+    this.calculDataChart();
   }
 
 
@@ -577,6 +578,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     switch (messageSplited[0]) {
       case 'sendData':
         this.calculData();
+        if (this.currentType !== 'tab') {
+          this.calculDataChart();
+        }
         break;
       case 'sendFilter':
         // Si réception d'un nouveau filtre retransforme les données
@@ -667,6 +671,16 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
     this.chart.data.labels = labels;
     this.chart.data.datasets[0].data = chartData;
+    const colors = this.chart.data.datasets[0].backgroundColor as string[];
+    let inter = colors.length % this.allColors.length;
+    while (colors.length < labels.length) {
+      if (colors.length % this.allColors.length === 0) {
+        inter = 0;
+      }
+      colors.push(this.allColors[inter]);
+      inter++;
+    }
+    this.chart.data.datasets[0].backgroundColor = colors;
     this.chart.update();
   }
 

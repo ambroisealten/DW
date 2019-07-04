@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChildren, ViewContainerRef, QueryList, ComponentFactoryResolver } from '@angular/core';
+import { LoadEcranService } from '../../services/load-ecran.service';
 
 @Component({
   selector: 'app-view',
@@ -7,9 +8,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ViewComponent implements OnInit {
 
-  constructor() { }
+  allTemplates = 0 ; 
+
+  //Liste des entries pour les templates
+  @ViewChildren('chartHost', { read: ViewContainerRef }) entries: QueryList<ViewContainerRef>;
+
+  constructor(private loadEcranService: LoadEcranService,
+    private componentFactoryResolver: ComponentFactoryResolver,
+    ) { }
 
   ngOnInit() {
+    this.loadEcranService.loadEcran().subscribe((data: any[]) => 
+      {
+        this.allTemplates = data.length ; 
+      }) ; 
   }
 
 }

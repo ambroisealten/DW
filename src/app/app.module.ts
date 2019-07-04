@@ -25,12 +25,14 @@ import { ModalDateManipulationComponent } from './components/modal/modal-date-ma
 import { ToastrModule } from 'ngx-toastr';
 
 import { ModalLoadSpinnerComponent } from './components/modal/modal-load-spinner/modal-load-spinner.component';
+import { AppRoutingModule } from './app-routing.module';
 
 
 
 @NgModule({
   declarations: [
     AppComponent,
+    AppRoutingModule,
     ChartViewComponent,
     ModalDataManipulationComponent,
     ParamViewComponent,

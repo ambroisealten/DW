@@ -1,11 +1,10 @@
 export class DataColumn {
     tableName: string;
     columnName: string;
-    value: any[];
-    constructor(tableName: string, columnName: string, value: any[]) {
+    values: any[];
+    constructor(tableName: string, columnName: string, values: any[]) {
         this.tableName = tableName;
         this.columnName = columnName;
-        this.value = value;
+        this.values = values;
     }
-
 }

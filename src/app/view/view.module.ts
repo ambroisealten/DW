@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Injector, NgModule } from '@angular/core';
-import { ViewComponent } from './components/view/view.component';
-import { ViewRoutingModule } from './view-routing.module';
 import { HttpClientModule } from '@angular/common/http';
+import { NgModule } from '@angular/core';
+import { ViewComponent } from './components/view/view.component';
 import { LoadEcranService } from './services/load-ecran.service';
+import { ViewRoutingModule } from './view-routing.module';
 
 
-export let InjectorInstance: Injector;
 
 @NgModule({
   declarations: [
@@ -22,8 +21,4 @@ export let InjectorInstance: Injector;
   ],
   entryComponents: [],
 })
-export class ViewModule {
-    constructor(private injector: Injector) {
-      InjectorInstance = this.injector;
-    }
-}
+export class ViewModule {}

@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
 import { ChartViewComponent } from './components/chart-view/chart-view.component';
 import { DataService } from './services/dataService';
+import { AppRoutingModule } from './app-routing.module';
 
 import { ModalDataManipulationComponent } from './components/modal/modal-data-manipulation/modal-data-manipulation.component';
 import { ParamViewComponent } from './components/param-view/param-view.component';
@@ -25,22 +26,23 @@ import { ModalDateManipulationComponent } from './components/modal/modal-date-ma
 import { ToastrModule } from 'ngx-toastr';
 
 import { ModalLoadSpinnerComponent } from './components/modal/modal-load-spinner/modal-load-spinner.component';
-import { AppRoutingModule } from './app-routing.module';
+import { MainViewComponent } from './components/main-view/main-view.component';
 
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    AppRoutingModule,
     ChartViewComponent,
     ModalDataManipulationComponent,
     ParamViewComponent,
     ModalStringManipulationComponent,
     ModalDateManipulationComponent,
-    ModalLoadSpinnerComponent
+    ModalLoadSpinnerComponent,
+    MainViewComponent
   ],
   imports: [
+    AppRoutingModule,
     BrowserModule,
     MatTableModule,
     MatCheckboxModule,

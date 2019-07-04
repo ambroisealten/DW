@@ -1,18 +1,17 @@
-import { DataColumn } from '../models/DataColumn';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { InjectorInstance } from '../view.module';
-import { environment } from 'src/environments/environment';
+
 
 declare function postMessage(message: any): void;
 
+
 export const DATA_IMPORT = (input) => {
 
-    let httpClient = InjectorInstance.get<HttpClient>(HttpClient);
-
+    // const httpClient = InjectorInstance.get<HttpClient>(HttpClient);
+    
     // Process the body data
     const data = input.body;
-
-    const dataColumn: DataColumn = new DataColumn(data.tableName, data.columnName, []);
+    
+    const tableName = data.tableName;
+    const columnName = data.columnName;
 
     // IMPLEMENTS HTTP REST ROUTE
     // const headers = new HttpHeaders({
@@ -29,8 +28,8 @@ export const DATA_IMPORT = (input) => {
     //     });
 
     // TO DELETE ON REST IMPLEMENTATION
-    dataColumn.value = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
     // Call postMessage with the result data.
-    postMessage(dataColumn);
+    postMessage({ tableName, columnName, values });
 };

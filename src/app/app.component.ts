@@ -440,7 +440,7 @@ export class AppComponent implements OnInit {
    * Permet la récupération et la sauvegarde des noms de table et de colonnes pour la sauvegarde Json. 
    * */
   saveChartsTable() {
-    console.log('ok');
+
   }
 
 }

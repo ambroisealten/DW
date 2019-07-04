@@ -2,7 +2,6 @@
   <figure>
     <img src="assets/images/football.png" alt="Logo" />
     <figcaption>DW</figcaption>
-    <button type="button" class="btn btn-primary saveButton" color="primary" (click)="saveChartsTable()">Sauvegarder la page</button>
 
   </figure>
 </header>
@@ -46,6 +45,11 @@
   <aside class="right_panel">
     <app-param-view (messageEvent)="messageReceiveFromRightPanel($event)" class="paramview">
     </app-param-view>
+    <div class="fab1">
+      <span class="fab-action-button">
+        <i class="fab-action-button_icon icon-material_save" (click)="saveChartsTable()"></i>
+      </span>
+    </div>
   </aside>
 </main>
 <div id='templates'>

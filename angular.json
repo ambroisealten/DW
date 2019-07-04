@@ -33,7 +33,6 @@
               "src/styles.scss"
             ],
             "scripts": [
-              // "nodes_modules/chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.js"
             ]
           },
           "configurations": {

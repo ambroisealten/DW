@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { WebworkerService } from '../../workers/webworker.service';
+import { DATA_IMPORT } from '../../workers/data.script';
 
 @Component({
   selector: 'app-view',
@@ -7,9 +9,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ViewComponent implements OnInit {
 
-  constructor() { }
+  constructor(private workerService: WebworkerService) { }
 
   ngOnInit() {
+    const input = {
+      body: {
+        tableName: 'Serie',
+        columnName: 'ID'
+      }
+    }
+    this.workerService.run(DATA_IMPORT, input).then(
+      (result) => {
+        console.log(result);
+      }
+    ).catch(console.error);
   }
 
 }

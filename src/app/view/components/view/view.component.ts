@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
 import { WebworkerService } from '../../workers/webworker.service';
 import { DATA_IMPORT } from '../../workers/data.script';
+import { Component, OnInit, ViewChildren, ViewContainerRef, QueryList, ComponentFactoryResolver } from '@angular/core';
+import { LoadEcranService } from '../../services/load-ecran.service';
 
 @Component({
   selector: 'app-view',
@@ -9,9 +10,19 @@ import { DATA_IMPORT } from '../../workers/data.script';
 })
 export class ViewComponent implements OnInit {
 
-  constructor(private workerService: WebworkerService) { }
+  allTemplates = 0;
+
+  //Liste des entries pour les templates
+  @ViewChildren('chartHost', { read: ViewContainerRef }) entries: QueryList<ViewContainerRef>;
+
+  constructor(private workerService: WebworkerService, private loadEcranService: LoadEcranService,
+    private componentFactoryResolver: ComponentFactoryResolver,
+  ) { }
 
   ngOnInit() {
+    this.loadEcranService.loadEcran().subscribe((data: any[]) => {
+      this.allTemplates = data.length;
+    });
     const input = {
       body: {
         tableName: 'Serie',

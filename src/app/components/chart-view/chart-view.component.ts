@@ -3,6 +3,7 @@ import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, 
 import { Chart, ChartData } from 'chart.js';
 import { Observable } from 'rxjs';
 import { FilterList } from '../../models/Filter';
+import { saveChart, saveChartTable} from '../../models/saveCharts';
 import { ToastrService } from 'ngx-toastr';
 
 import 'chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.js';
@@ -30,7 +31,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   @Input() tableInfo: any;
 
   //Détermine le type de réprésentation de la donnée, tableau, doughnut etc..
-  currentType = 'tab';
+  @Input() currentType = 'tab';
 
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   public context: CanvasRenderingContext2D;
@@ -57,6 +58,11 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   //DataSource tableau
   datasourceTable: any[] = [];
 
+  //sauvegarde des charts
+  save: saveChart[];
+  saveTable: saveChartTable[];
+
+  //Chargement de l'affichage des tables
   loading = false;
 
   constructor(private toastr: ToastrService,

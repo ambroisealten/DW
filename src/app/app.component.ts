@@ -7,6 +7,8 @@ import { ParamViewComponent } from './components/param-view/param-view.component
 import { DataTable } from './models/data';
 import { DataScheme } from './models/dataScheme';
 import { DataService } from './services/dataService';
+import { saveChart, saveChartTable} from './models/saveCharts';
+import { element } from 'protractor';
 
 @Component({
   selector: 'app-root',
@@ -49,6 +51,10 @@ export class AppComponent implements OnInit {
 
   //spinner 
   loading = false;
+
+  //sauvegarde des charts
+  save: saveChart[];
+  saveTable: saveChartTable[];
 
   constructor(
     private dataService: DataService,
@@ -428,6 +434,13 @@ export class AppComponent implements OnInit {
     arr.forEach(chart => {
       chart.setAttribute('class', 'chartsFour');
     });
+  }
+
+  /**
+   * Permet la récupération et la sauvegarde des noms de table et de colonnes pour la sauvegarde Json. 
+   * */
+  saveChartsTable() {
+    console.log('ok');
   }
 
 }

@@ -76,12 +76,10 @@ export class ViewComponent implements OnInit {
         columnName: 'ID'
       }
     };
-    console.log(input);
     this.workerService.run(DATA_IMPORT, input).then(
       (result) => {
         const res = result as unknown as DataColumn;
         this.data.push(new DataColumn(res.tableName, res.columnName, res.values));
-        console.log(this.data);
       }
     ).catch(console.error);
   }

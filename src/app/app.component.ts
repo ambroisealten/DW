@@ -432,6 +432,9 @@ export class AppComponent implements OnInit {
     this.save[0].table = this.paramView.table;
     this.save[0].filters = this.paramView.filterList;
 
+    this.saveChartsTable[0].name = this.paramView.name;
+    this.saveChartsTable[0].column = this.paramView.column;
+
 
   }
 

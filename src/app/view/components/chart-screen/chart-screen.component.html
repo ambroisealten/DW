@@ -1,3 +1,29 @@
-<p>
-  chart-screen works!
-</p>
+<div class="container">
+  <ng-container *ngIf="currentType == 'tab'">
+    <table>
+      <tr>
+        <ng-container *ngFor="let column of displayedColumns ; let i = index">
+          <th class="header">
+            {{ column }}
+          </th>
+        </ng-container>
+      </tr>
+
+      <ng-container *ngFor="let data of datasourceTable; let j = index">
+        <tr>
+          <ng-container *ngFor="let column of displayedColumns ; let i = index">
+            <ng-container *ngIf="getRowSpan(column,j)">
+              <td [attr.rowspan]="getRowSpan(column,j)">
+                {{ transform(data[column],column) }}</td>
+            </ng-container>
+          </ng-container>
+        </tr>
+      </ng-container>
+    </table>
+  </ng-container>
+  <div>
+    <canvas #myCanvas width="0" height="0">
+      {{chart}}
+    </canvas>
+  </div>
+</div>

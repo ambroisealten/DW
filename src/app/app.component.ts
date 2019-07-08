@@ -7,7 +7,7 @@ import { ParamViewComponent } from './components/param-view/param-view.component
 import { DataTable } from './models/data';
 import { DataScheme } from './models/dataScheme';
 import { DataService } from './services/dataService';
-import { SaveChart, SaveChartTable} from './models/saveCharts'
+import { SaveChart, SaveChartTable } from './models/saveCharts'
 import { element } from 'protractor';
 import { Filter, FilterList } from './models/Filter';
 
@@ -59,7 +59,7 @@ export class AppComponent implements OnInit {
     private toastr: ToastrService) {
   }
 
-  ngOnInit(){
+  ngOnInit() {
   }
 
   loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[], allComponentsRefs) {
@@ -418,17 +418,17 @@ export class AppComponent implements OnInit {
    * Permet la récupération et la sauvegarde des noms de table et de colonnes pour la sauvegarde Json. 
    * */
   saveChartsTable() {
-    let screenJSON: SaveChart[] = [] ; 
-    for(let i = 0 ; i < this.allInstance.length ; i++ ){
-      if(this.allInstance[i]){
-        let chart = new SaveChart() ; 
-        chart.type = this.allComponentRefs[i].instance.type ; 
-        chart.filters = this.allComponentRefs[i].instance.filters ;
-        let tmpSaveChartTable = new SaveChartTable() ; ; 
-        tmpSaveChartTable.name = this.allComponentRefs[i].activeTable[0].name ; 
-        tmpSaveChartTable.column = this.allComponentRefs[i].displayedColumns ; 
-        chart.table = tmpSaveChartTable ; 
-        screenJSON.push(chart) ; 
+    let screenJSON: SaveChart[] = [];
+    for (let i = 0; i < this.allInstance.length; i++) {
+      if (this.allInstance[i]) {
+        let chart = new SaveChart();
+        chart.type = this.allComponentRefs[i].instance.type;
+        chart.filters = this.allComponentRefs[i].instance.filters;
+        let tmpSaveChartTable = new SaveChartTable();
+        tmpSaveChartTable.name = this.allComponentRefs[i].activeTable[0].name;
+        tmpSaveChartTable.column = this.allComponentRefs[i].displayedColumns;
+        chart.table = tmpSaveChartTable;
+        screenJSON.push(chart);
       }
     }
 

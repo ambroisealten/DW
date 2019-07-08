@@ -34,3 +34,18 @@ export const DATA_CALC_FREQUENCIES = (input) => {
     );
     postMessage(freqs);
 };
+
+export const DATA_CALC_X_Y_COORDINATES = (input) => {
+
+    // Process the body data
+    const x = input.body.values.x as any[];
+    const y = input.body.values.y as any[];
+
+    const values = [];
+    if (x.length === y.length) {
+        for (let index = 0; index < x.length; index++) {
+            values.push({ x: x[index], y: y[index] });
+        }
+    }
+    postMessage(values);
+};

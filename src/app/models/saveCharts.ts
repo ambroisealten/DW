@@ -1,13 +1,13 @@
 import { FilterList } from './Filter';
 
 
-export class saveChart {
+export class SaveChart {
     type: string;
-    table: saveChartTable;
+    table: SaveChartTable;
     filters: FilterList;
 }
 
-export class saveChartTable {
+export class SaveChartTable {
     name: string;
     column: string[];
 }

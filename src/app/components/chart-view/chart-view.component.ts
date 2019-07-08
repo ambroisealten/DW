@@ -3,7 +3,6 @@ import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, 
 import { Chart, ChartData } from 'chart.js';
 import { Observable } from 'rxjs';
 import { FilterList } from '../../models/Filter';
-import { saveChart, saveChartTable} from '../../models/saveCharts';
 import { ToastrService } from 'ngx-toastr';
 
 import 'chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.js';
@@ -57,10 +56,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
   //DataSource tableau
   datasourceTable: any[] = [];
-
-  //sauvegarde des charts
-  save: saveChart[];
-  saveTable: saveChartTable[];
 
   //Chargement de l'affichage des tables
   loading = false;

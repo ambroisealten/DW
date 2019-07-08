@@ -9,7 +9,6 @@ import { FilterList } from 'src/app/models/Filter';
 export class ChartScreenComponent implements OnInit {
 
   @Input() type ; 
-  @Input() data ; 
   @Input() tables ; 
   @Input() filters: FilterList[] ; 
   @Input() datas ; 
@@ -26,7 +25,9 @@ export class ChartScreenComponent implements OnInit {
   setView(){
     if(this.type == "tab"){
       //Créer displayedColumns ICI ! 
-
+      this.tables.forEach(element => {
+        this.displayedColumns.push(element.column)  ;
+      });
       this.calculData() ; 
     } else {
       //creation du chart  

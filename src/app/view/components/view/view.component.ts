@@ -59,8 +59,10 @@ export class ViewComponent implements OnInit {
       let componentRef = entryUsed.createComponent(componentFactory);
 
       componentRef.instance.type = data[i].type ; 
-      
       componentRef.instance.filters = data[i].filters ; 
+      componentRef.instance.tables = data[i].table ; 
+
+      componentRef.instance.setView() ; 
 
     }
   }

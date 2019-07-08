@@ -9,6 +9,7 @@ import { DataScheme } from './models/dataScheme';
 import { DataService } from './services/dataService';
 import { saveChart, saveChartTable} from './models/saveCharts';
 import { element } from 'protractor';
+import { Filter, FilterList } from './models/Filter';
 
 @Component({
   selector: 'app-root',
@@ -421,7 +422,17 @@ export class AppComponent implements OnInit {
    * Permet la récupération et la sauvegarde des noms de table et de colonnes pour la sauvegarde Json. 
    * */
   saveChartsTable() {
-    console.log("mdr" + this.allComponentRefs);
+    console.log(this.paramView.type)
+    console.log(this.paramView.table)
+    console.log(this.paramView.filterList)
+    
+    console.log(this.componentRef);
+
+    this.save[0].type = this.paramView.type;
+    this.save[0].table = this.paramView.table;
+    this.save[0].filters = this.paramView.filterList;
+
+
   }
 
 }

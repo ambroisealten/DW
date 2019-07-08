@@ -2,20 +2,18 @@ import { Component, ComponentFactoryResolver, OnInit, QueryList, ViewChild, View
 import { ToastrService } from 'ngx-toastr';
 import { Observable, of, Subject, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { ChartViewComponent } from './components/chart-view/chart-view.component';
-import { ParamViewComponent } from './components/param-view/param-view.component';
-import { DataTable } from './models/data';
-import { DataScheme } from './models/dataScheme';
-import { DataService } from './services/dataService';
-import { saveChart, saveChartTable} from './models/saveCharts';
-import { element } from 'protractor';
+import { ChartViewComponent } from '../../components/chart-view/chart-view.component';
+import { ParamViewComponent } from '../../components/param-view/param-view.component';
+import { DataTable } from '../../models/data';
+import { DataScheme } from '../../models/dataScheme';
+import { DataService } from '../../services/dataService';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  selector: 'app-main-view',
+  templateUrl: './main-view.component.html',
+  styleUrls: ['./main-view.component.scss']
 })
-export class AppComponent implements OnInit {
+export class MainViewComponent implements OnInit {
 
   //Titre de l'application
   title = 'DW - Lot 0';
@@ -52,17 +50,32 @@ export class AppComponent implements OnInit {
   //spinner 
   loading = false;
 
-  //sauvegarde des charts
-  save: saveChart[];
-  saveTable: saveChartTable[];
-
   constructor(
     private dataService: DataService,
     private componentFactoryResolver: ComponentFactoryResolver,
     private toastr: ToastrService) {
   }
 
-  ngOnInit(){
+
+  ngOnInit() {
+    //Récupération des données sur les tables et les champs
+    this.dataService.fetchDataScheme().subscribe(response => {
+      (response as any[]).forEach(element => {
+        const fields = [];
+        Object.keys(element.fields).forEach(field => {
+          fields.push({ name: field, type: element.fields[field] });
+        });
+        fields.sort((e1, e2) => e1.name > e2.name ? 1 : -1);
+        this.datas.push({ name: element.name, fields: fields });
+        this.activeTable.push({ name: element.name, fields: fields });
+      });
+      setTimeout(() => {
+        for (const table of this.datas) {
+          this.dataTable.push(new DataTable(table.name, []));
+          this.loadDataAsync(0, table.name, 0, this.dataTable, this.allComponentRefs);
+        }
+      }, 30);
+    });
   }
 
   loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[], allComponentsRefs) {
@@ -417,12 +430,4 @@ export class AppComponent implements OnInit {
     });
   }
 
-  /**
-   * Permet la récupération et la sauvegarde des noms de table et de colonnes pour la sauvegarde Json. 
-   * */
-  saveChartsTable() {
-    console.log("mdr" + this.allComponentRefs);
-  }
-
 }
-

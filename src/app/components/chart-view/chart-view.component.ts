@@ -510,7 +510,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
 
   redirectTo(item) {
-    if (item.length > 0) { this.toastr.info('We want to redirect to : some URL (must be defined)'); }
+    const clickedItemLabel = item[0]._view.label;
+    const dataChart = item[0]._chart.config.data;
+    const itemRank = dataChart.labels.indexOf(clickedItemLabel);
+    if (item.length > 0) { this.toastr.info('We want to redirect to some URL. Column name : '+this.displayedColumns[0]+' , clicked item :'+clickedItemLabel+', value : '+dataChart.datasets[0].data[itemRank]); }
   }
 
   frequencies(array: any[]) {

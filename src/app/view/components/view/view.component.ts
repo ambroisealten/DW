@@ -3,6 +3,8 @@ import { DATA_IMPORT } from '../../workers/data.script';
 import { Component, OnInit, ViewChildren, ViewContainerRef, QueryList, ComponentFactoryResolver } from '@angular/core';
 import { LoadEcranService } from '../../services/load-ecran.service';
 import { DataColumn } from '../../models/DataColumn';
+import { HttpClient } from '@angular/common/http';
+import { DataService } from '../../services/data.service';
 
 @Component({
   selector: 'app-view',
@@ -15,20 +17,26 @@ export class ViewComponent implements OnInit {
   containerRepeat = 1;
   data: DataColumn[] = [];
 
-  //Liste des entries pour les templates
+  // Liste des entries pour les templates
   @ViewChildren('chartHost', { read: ViewContainerRef }) entries: QueryList<ViewContainerRef>;
 
   constructor(
     private workerService: WebworkerService,
     private loadEcranService: LoadEcranService,
     private componentFactoryResolver: ComponentFactoryResolver,
+    private dataService: DataService
   ) { }
 
   ngOnInit() {
     this.loadEcranService.loadEcran().subscribe((data: any[]) => {
       this.allTemplates = data.length;
     });
-
+    // Fetch data from all column stored
+    for (const column of this.data) {
+      this.dataService.fetchData(column.tableName, column.columnName).subscribe((dataFetched: any[]) => {
+        column.values = dataFetched;
+      });
+    }
   }
 
   /**
@@ -36,15 +44,18 @@ export class ViewComponent implements OnInit {
    */
   delegateFetchData() {
     const input = {
+      context: window,
       body: {
         tableName: 'Serie',
         columnName: 'ID'
       }
     };
+    console.log(input);
     this.workerService.run(DATA_IMPORT, input).then(
       (result) => {
         const res = result as unknown as DataColumn;
         this.data.push(new DataColumn(res.tableName, res.columnName, res.values));
+        console.log(this.data);
       }
     ).catch(console.error);
   }

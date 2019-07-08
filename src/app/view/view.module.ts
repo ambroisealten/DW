@@ -3,6 +3,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ViewComponent } from './components/view/view.component';
 import { LoadEcranService } from './services/load-ecran.service';
+import { DataService } from './services/data.service';
 import { ViewRoutingModule } from './view-routing.module';
 
 
@@ -17,7 +18,8 @@ import { ViewRoutingModule } from './view-routing.module';
     HttpClientModule
   ],
   providers: [
-    LoadEcranService
+    LoadEcranService,
+    DataService
   ],
   entryComponents: [],
 })

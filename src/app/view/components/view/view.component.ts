@@ -2,6 +2,7 @@ import { WebworkerService } from '../../workers/webworker.service';
 import { DATA_IMPORT } from '../../workers/data.script';
 import { Component, OnInit, ViewChildren, ViewContainerRef, QueryList, ComponentFactoryResolver } from '@angular/core';
 import { LoadEcranService } from '../../services/load-ecran.service';
+import { ChartScreenComponent } from '../chart-screen/chart-screen.component';
 import { DataColumn } from '../../models/DataColumn';
 import { HttpClient } from '@angular/common/http';
 import { DataService } from '../../services/data.service';
@@ -29,13 +30,38 @@ export class ViewComponent implements OnInit {
 
   ngOnInit() {
     this.loadEcranService.loadEcran().subscribe((data: any[]) => {
-      this.allTemplates = data.length;
+      this.allTemplates = data.length ; 
+      this.createDOMContainer() ; 
+      this.setDataChild(data) ;
     });
     // Fetch data from all column stored
     for (const column of this.data) {
       this.dataService.fetchData(column.tableName, column.columnName).subscribe((dataFetched: any[]) => {
         column.values = dataFetched;
       });
+    }
+  }
+
+  createDOMContainer(){
+    while(this.containerRepeat != this.allTemplates){
+      this.diviseChartsSegment() ; 
+    }
+  }
+
+  setDataChild(data){
+    for(let i = 0 ; i < data.length ; i++){
+
+      //On récupère l'entries de l'enfant
+      const entryUsed = this.entries.toArray()[i];
+
+      //On crée le composant enfant
+      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartScreenComponent);
+      let componentRef = entryUsed.createComponent(componentFactory);
+
+      componentRef.instance.type = data[i].type ; 
+      
+      componentRef.instance.filters = data[i].filters ; 
+
     }
   }
 
@@ -100,11 +126,7 @@ export class ViewComponent implements OnInit {
 
       chartContainer.appendChild(newDivForChart);
     }
-    let latestActive = document.getElementsByClassName('containerActive')[0];
-    if (latestActive != null) {
-      let latestActiveClass = latestActive.getAttribute('class').split('containerActive')[1];
-      latestActive.setAttribute('class', latestActiveClass);
-    }
+
   }
 
 }

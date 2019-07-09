@@ -9,13 +9,13 @@ export class SaveJsonCharts {
 
     constructor(private httpClient: HttpClient) { }
 
-    saveChartConfig(saveChart: SaveChart): Observable<any> {
+    saveChartConfig(chartsSavedJson): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
         })
 
         return this.httpClient
-        .post<SaveChart>(environment.baseUrl+ '/saveChartConfig/displayedName', saveChart,  {headers})
+        .post<SaveChart>(environment.baseUrl+ '/saveChartConfig/displayedName', chartsSavedJson,  {headers})
     }
 
     getChartConfig(chartId: number, displayedName: string) {

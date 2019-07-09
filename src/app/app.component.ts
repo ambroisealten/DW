@@ -10,6 +10,7 @@ import { DataService } from './services/dataService';
 import { SaveChart, SaveChartTable } from './models/saveCharts'
 import { element } from 'protractor';
 import { Filter, FilterList } from './models/Filter';
+import { SaveJsonCharts } from './services/saveJsonChart';
 
 @Component({
   selector: 'app-root',
@@ -55,6 +56,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private dataService: DataService,
+    private saveChartService: SaveJsonCharts,
     private componentFactoryResolver: ComponentFactoryResolver,
     private toastr: ToastrService) {
   }
@@ -433,6 +435,7 @@ export class AppComponent implements OnInit {
     }
 
     //appel web service sauvegarde JSON ; 
+    this.saveChartService.saveChartConfig({'charts' : screenJSON});
   }
 
 }

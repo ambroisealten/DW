@@ -27,6 +27,7 @@ import { ToastrModule } from 'ngx-toastr';
 
 import { ModalLoadSpinnerComponent } from './components/modal/modal-load-spinner/modal-load-spinner.component';
 import { MainViewComponent } from './components/main-view/main-view.component';
+import { SaveJsonCharts } from './services/saveJsonChart';
 
 
 
@@ -78,6 +79,7 @@ import { MainViewComponent } from './components/main-view/main-view.component';
   ],
   providers: [
     DataService,
+    SaveJsonCharts,
     { provide: MAT_DATE_LOCALE, useValue: 'fr-FR' },
   ],
   entryComponents: [

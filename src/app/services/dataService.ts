@@ -12,7 +12,6 @@ export class DataService {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
         });
-
         return this.httpClient.get<string>(environment.baseUrl + '/dataScheme', { headers });
     }
 

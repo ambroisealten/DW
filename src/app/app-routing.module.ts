@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { MainViewComponent } from './components/main-view/main-view.component';
 
 const appRoutes: Routes = [
-  { path: '', redirectTo: '/ecran', pathMatch: 'full' },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: MainViewComponent },
   { path: 'ecran', loadChildren: './view/view.module#ViewModule' }
 ];

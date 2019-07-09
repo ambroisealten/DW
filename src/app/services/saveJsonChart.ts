@@ -12,7 +12,7 @@ export class SaveJsonCharts {
     saveChartConfig(chartsSavedJson): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
-        })
+        });
 
         return this.httpClient
         .post<SaveChart>(environment.baseUrl+ '/saveChartConfig/displayedName', chartsSavedJson,  {headers})

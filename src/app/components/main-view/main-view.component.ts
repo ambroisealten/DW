@@ -7,6 +7,8 @@ import { ParamViewComponent } from '../../components/param-view/param-view.compo
 import { DataTable } from '../../models/data';
 import { DataScheme } from '../../models/dataScheme';
 import { DataService } from '../../services/dataService';
+import { SaveChart, SaveChartTable, ChartsScreen } from 'src/app/models/saveCharts';
+import { SaveJsonCharts } from 'src/app/services/saveJsonChart';
 
 @Component({
   selector: 'app-main-view',
@@ -16,7 +18,7 @@ import { DataService } from '../../services/dataService';
 export class MainViewComponent implements OnInit {
 
   //Titre de l'application
-  title = 'DW - Lot 0';
+  title = 'DW - Lot 1';
   percentageOfPreloadEnded = 0;
 
   //Variable d'environnement pour la création des templates
@@ -52,6 +54,7 @@ export class MainViewComponent implements OnInit {
 
   constructor(
     private dataService: DataService,
+    private saveChartService: SaveJsonCharts, 
     private componentFactoryResolver: ComponentFactoryResolver,
     private toastr: ToastrService) {
   }
@@ -60,6 +63,7 @@ export class MainViewComponent implements OnInit {
   ngOnInit() {
     //Récupération des données sur les tables et les champs
     this.dataService.fetchDataScheme().subscribe(response => {
+      
       (response as any[]).forEach(element => {
         const fields = [];
         Object.keys(element.fields).forEach(field => {
@@ -430,4 +434,28 @@ export class MainViewComponent implements OnInit {
     });
   }
 
+  saveChartsTable() {
+    let screenJSON: ChartsScreen = new ChartsScreen();
+    screenJSON.charts = [];
+    for (let i = 0; i < this.allInstance.length; i++) {
+      if (this.allInstance[i]) {
+        let chart = new SaveChart();
+        chart.type = this.allComponentRefs[i].instance.currentType;
+        chart.filters = this.allComponentRefs[i].instance.filters;
+        let tmpSaveChartTable = new SaveChartTable();
+        tmpSaveChartTable.name = this.activeTable[i].name;
+        tmpSaveChartTable.column = this.allComponentRefs[i].displayedColumns;
+        chart.table = tmpSaveChartTable;
+        screenJSON.charts.push(chart);
+      }
+    }
+
+    console.log(screenJSON);
+
+    //appel web service sauvegarde JSON ; 
+    this.saveChartService.saveChartConfig(screenJSON).subscribe(httpResponse => {
+      console.log(httpResponse);
+      
+    });
+  }
 }

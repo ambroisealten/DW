@@ -23,6 +23,6 @@ import { ChartScreenComponent } from './components/chart-screen/chart-screen.com
     LoadEcranService,
     DataService
   ],
-  entryComponents: [],
+  entryComponents: [ChartScreenComponent],
 })
-export class ViewModule {}
+export class ViewModule { }

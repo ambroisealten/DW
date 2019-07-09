@@ -452,7 +452,10 @@ export class MainViewComponent implements OnInit {
 
     //appel web service sauvegarde JSON ; 
     this.saveChartService.saveChartConfig(screenJSON).subscribe(httpResponse => {
-      //Do something
+      const resultParams = httpResponse.link;
+      let id = resultParams.split(':')[0];
+      let displayedName = resultParams.split(':')[1];
+      this.toastr.info("You can see your charts via this link : localhost:4200/ecran/"+displayedName+"/"+id);
     });
   }
 }

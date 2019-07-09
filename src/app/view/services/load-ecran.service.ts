@@ -8,7 +8,7 @@ export class LoadEcranService{
     constructor(private httpClient: HttpClient,
     ){}
 
-    loadEcran(){
-        return this.httpClient.get(environment.baseUrl +'/ecran') ; 
+    loadEcran(id,displayedName){
+        return this.httpClient.get(environment.baseUrl +'/getChartConfig/'+id+'/'+displayedName) ; 
     }
 }

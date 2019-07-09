@@ -1,11 +1,10 @@
-import { WebworkerService } from '../../workers/webworker.service';
-import { DATA_IMPORT } from '../../workers/data.script';
 import { Component, OnInit, ViewChildren, ViewContainerRef, QueryList, ComponentFactoryResolver } from '@angular/core';
 import { LoadEcranService } from '../../services/load-ecran.service';
 import { ChartScreenComponent } from '../chart-screen/chart-screen.component';
 import { DataColumn } from '../../models/DataColumn';
-import { HttpClient } from '@angular/common/http';
 import { DataService } from '../../services/data.service';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-view',
@@ -14,9 +13,14 @@ import { DataService } from '../../services/data.service';
 })
 export class ViewComponent implements OnInit {
 
-  allTemplates = 0;
+  allTemplates: number;
   containerRepeat = 1;
   data: DataColumn[] = [];
+
+  displayedName: string;
+  id: number;
+
+  private routeSub: Subscription;
 
   // Liste des entries pour les templates
   @ViewChildren('chartHost', { read: ViewContainerRef }) entries: QueryList<ViewContainerRef>;
@@ -24,27 +28,57 @@ export class ViewComponent implements OnInit {
   constructor(
     private loadEcranService: LoadEcranService,
     private componentFactoryResolver: ComponentFactoryResolver,
-    private dataService: DataService
+    private dataService: DataService,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
-    this.loadEcranService.loadEcran().subscribe((data: any[]) => {
-      this.allTemplates = data.length ; 
-      this.createDOMContainer() ; 
-      this.setDataChild(data) ;
+    this.routeSub = this.route.params.subscribe(params => {
+      this.displayedName = params.name;
+      this.id = params.id;
+    });
+
+    this.loadEcranService.loadEcran(this.id,this.displayedName).subscribe((data: any) => {
+
+      console.log(JSON.parse(data.chart_saved).charts);
+      let chartConfig = JSON.parse(data.chart_saved).charts;
+      this.allTemplates = chartConfig.length; 
+
+      this.fillTemplates();
+
+      this.createDOMContainer(); 
+      this.setDataChild(chartConfig);      
     });
     // Fetch data from all column stored
     for (const column of this.data) {
       this.dataService.fetchData(column.tableName, column.columnName).subscribe((dataFetched: any[]) => {
         column.values = dataFetched;
       });
-    }
+    } 
+  }
+  ngOnDestroy(){
+    this.routeSub.unsubscribe();
   }
 
   createDOMContainer(){
     while(this.containerRepeat != this.allTemplates){
       this.diviseChartsSegment() ; 
     }
+  }
+
+  fillTemplates(){
+    let container = document.getElementById('templates');
+    console.log("Avant l'usage d'Anaca 3 : "+container.childNodes.length);
+    let acc = container.childNodes.length;
+    console.log(this.allTemplates-1);
+    console.log(acc);
+    while(acc < this.allTemplates-1){
+      let template = document.createElement('template');
+      template.setAttribute('id',(container.childNodes.length+2).toString());
+      container.appendChild(template);
+      acc++;
+    }
+    console.log("Après une petite phalange dans le ionf : "+container.childNodes.length);
   }
 
   setDataChild(data){
@@ -57,6 +91,8 @@ export class ViewComponent implements OnInit {
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartScreenComponent);
       let componentRef = entryUsed.createComponent(componentFactory);
 
+      console.log(data[i]);
+
       componentRef.instance.type = data[i].type ; 
       componentRef.instance.filters = data[i].filters ; 
       componentRef.instance.tables = data[i].table ; 
@@ -68,11 +104,19 @@ export class ViewComponent implements OnInit {
 
   /**
  * Parcourt le div contenant les templates disponibles, et retourne la première contenue dans ce div
- * @param idNumber 
  */
   parseTemplateDiv() {
     let container = document.getElementById('templates');
+    console.log(container);
+    let childNodes = container.childNodes;
+    console.log(childNodes);
+    console.log(childNodes.length);
+    childNodes.forEach( el => {
+      console.log(el);
+    });
     let test = container.firstChild;
+    console.log(test);
+    console.log(test.nodeName);
     while (test.nodeName != "TEMPLATE") {
       test = test.nextSibling;
     }
@@ -86,7 +130,7 @@ export class ViewComponent implements OnInit {
     const chartContainer = document.getElementById('chartContainerSimple') == null ?
       document.getElementById('chartContainerDouble') : document.getElementById('chartContainerSimple');
 
-    const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
+    const allChartChilds = chartContainer.childNodes.length;
 
     this.containerRepeat += 1;
     const newDivForChart = document.createElement('div');

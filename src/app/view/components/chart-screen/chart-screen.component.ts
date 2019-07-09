@@ -36,6 +36,7 @@ export class ChartScreenComponent implements OnInit {
   setView() {
     if (this.type == "tab") {
       //Créer displayedColumns ICI ! 
+      console.log(this.tables);
       this.tables.forEach(element => {
         this.displayedColumns.push(element.column);
       });

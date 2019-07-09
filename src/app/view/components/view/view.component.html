@@ -1,7 +1,7 @@
 <div id="chartContainerSimple">
-  <div class='charts' id='1'>
-    <template #chartHost></template>
+  <div class='charts'>
+    <template id='1'#chartHost></template>
   </div>
-  <div id='templates' class="ecrans">
-    <template *ngFor="let el of allTemplates; let i = index" id='{{ i }}' #chartHost></template>
+  <div id="templates" class="ecrans">
+    <!--<template *ngFor="let el of allTemplates; let i = index" id='{{ i+2 }}' #chartHost></template>-->
   </div>

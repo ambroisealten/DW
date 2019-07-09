@@ -444,7 +444,7 @@ export class MainViewComponent implements OnInit {
         chart.filters = this.allComponentRefs[i].instance.filters;
         let tmpSaveChartTable = new SaveChartTable();
         tmpSaveChartTable.name = this.activeTable[i].name;
-        tmpSaveChartTable.column = this.allComponentRefs[i].displayedColumns;
+        tmpSaveChartTable.column = this.allComponentRefs[i].instance.displayedColumns;
         chart.table = tmpSaveChartTable;
         screenJSON.charts.push(chart);
       }

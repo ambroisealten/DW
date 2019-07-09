@@ -9,7 +9,6 @@ export class DataService {
     constructor(private httpClient: HttpClient) {}
 
     fetchData(tableName: string, columnName: string) {
-        console.log('Oskour');
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
         });
@@ -17,8 +16,6 @@ export class DataService {
             environment.baseUrl
             + '/data/'
             + tableName
-            + '/'
-            + columnName
             , { headers });
     }
 }

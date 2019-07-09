@@ -17,12 +17,12 @@ export const DATA_IMPORT = (input) => {
 };
 
 export const DATA_CALC_FREQUENCIES = (input) => {
-
+    console.log(input.body);
     // Process the body data
     const data = input.body.values as any[];
-
+    console.log(data);
     const freqs = { values: {}, sum: 0 };
-    data.map(a => {
+    data.map(function(a) {
         if (!(a in this.values)) {
             this.values[a] = 1;
         } else {

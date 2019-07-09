@@ -22,6 +22,9 @@ export class ViewComponent implements OnInit {
 
   private routeSub: Subscription;
 
+  //Tableau des refs vers les childs
+  allComponentRefs: any[] = [];
+
   // Liste des entries pour les templates
   @ViewChildren('chartHost', { read: ViewContainerRef }) entries: QueryList<ViewContainerRef>;
 
@@ -38,51 +41,58 @@ export class ViewComponent implements OnInit {
       this.id = params.id;
     });
 
-    this.loadEcranService.loadEcran(this.id,this.displayedName).subscribe((data: any) => {
-
-      console.log(JSON.parse(data.chart_saved).charts);
+    this.loadEcranService.loadEcran(this.id, this.displayedName).subscribe((data: any) => {
       let chartConfig = JSON.parse(data.chart_saved).charts;
-      this.allTemplates = chartConfig.length; 
+      this.allTemplates = chartConfig.length;
+
+      chartConfig.forEach(chartConf => {
+        chartConf.table.column.forEach(column => {
+          this.data.push(new DataColumn(chartConf.table.name, column, []));
+        });
+      });
 
       this.fillTemplates();
 
-      this.createDOMContainer(); 
-      this.setDataChild(chartConfig);      
+      // Fetch data from all column stored
+      for (const column of this.data) {
+        this.dataService.fetchData(column.tableName, column.columnName).subscribe((dataFetched: any[]) => {
+          column.values = dataFetched;
+          let indexOf = this.data.indexOf(column);
+          console.log(column);
+          this.allComponentRefs[indexOf].instance.datas = column.values;
+          this.allComponentRefs[indexOf].instance.setView();
+          document.getElementById((indexOf+1).toString()).setAttribute('class','chartContained');
+        });
+      }
+
+      this.createDOMContainer();
+      this.setDataChild(chartConfig);
     });
-    // Fetch data from all column stored
-    for (const column of this.data) {
-      this.dataService.fetchData(column.tableName, column.columnName).subscribe((dataFetched: any[]) => {
-        column.values = dataFetched;
-      });
-    } 
+
   }
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.routeSub.unsubscribe();
   }
 
-  createDOMContainer(){
-    while(this.containerRepeat != this.allTemplates){
-      this.diviseChartsSegment() ; 
+  createDOMContainer() {
+    while (this.containerRepeat != this.allTemplates) {
+      this.diviseChartsSegment();
     }
   }
 
-  fillTemplates(){
+  fillTemplates() {
     let container = document.getElementById('templates');
-    console.log("Avant l'usage d'Anaca 3 : "+container.childNodes.length);
     let acc = container.childNodes.length;
-    console.log(this.allTemplates-1);
-    console.log(acc);
-    while(acc < this.allTemplates-1){
+    while (acc < this.allTemplates - 1) {
       let template = document.createElement('template');
-      template.setAttribute('id',(container.childNodes.length+2).toString());
+      template.setAttribute('id', (container.childNodes.length + 102).toString());
       container.appendChild(template);
       acc++;
     }
-    console.log("Après une petite phalange dans le ionf : "+container.childNodes.length);
   }
 
-  setDataChild(data){
-    for(let i = 0 ; i < data.length ; i++){
+  setDataChild(data) {
+    for (let i = 0; i < data.length; i++) {
 
       //On récupère l'entries de l'enfant
       const entryUsed = this.entries.toArray()[i];
@@ -91,14 +101,12 @@ export class ViewComponent implements OnInit {
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartScreenComponent);
       let componentRef = entryUsed.createComponent(componentFactory);
 
-      console.log(data[i]);
+      componentRef.instance.type = data[i].type;
+      componentRef.instance.filters = data[i].filters;
+      componentRef.instance.tables = data[i].table;
+      componentRef.instance.datas = [];
 
-      componentRef.instance.type = data[i].type ; 
-      componentRef.instance.filters = data[i].filters ; 
-      componentRef.instance.tables = data[i].table ; 
-
-      componentRef.instance.setView() ; 
-
+      this.allComponentRefs.push(componentRef);
     }
   }
 
@@ -107,16 +115,7 @@ export class ViewComponent implements OnInit {
  */
   parseTemplateDiv() {
     let container = document.getElementById('templates');
-    console.log(container);
-    let childNodes = container.childNodes;
-    console.log(childNodes);
-    console.log(childNodes.length);
-    childNodes.forEach( el => {
-      console.log(el);
-    });
     let test = container.firstChild;
-    console.log(test);
-    console.log(test.nodeName);
     while (test.nodeName != "TEMPLATE") {
       test = test.nextSibling;
     }

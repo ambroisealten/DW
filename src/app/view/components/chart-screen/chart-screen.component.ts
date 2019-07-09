@@ -21,7 +21,7 @@ export class ChartScreenComponent implements OnInit {
 
   spans: any[];
   datasourceTable: any[];
-  displayedColumns: string[];
+  displayedColumns: string[] = [];
 
   chart: Chart;
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
@@ -36,9 +36,8 @@ export class ChartScreenComponent implements OnInit {
   setView() {
     if (this.type == "tab") {
       //Créer displayedColumns ICI ! 
-      console.log(this.tables);
-      this.tables.forEach(element => {
-        this.displayedColumns.push(element.column);
+      this.tables.column.forEach(element => {
+        this.displayedColumns.push(element);
       });
       this.calculData();
     } else {
@@ -66,6 +65,7 @@ export class ChartScreenComponent implements OnInit {
     gradient.addColorStop(0.5, '#fad874');
     gradient.addColorStop(1, '#f49080');
 
+
     // Calculate labels and data for each graph type
     switch (this.type) {
       case 'pie':
@@ -90,6 +90,7 @@ export class ChartScreenComponent implements OnInit {
               borderColor: '#00000',
               fill: true
             });
+
           }
         ).catch(console.error);
         break;
@@ -147,19 +148,24 @@ export class ChartScreenComponent implements OnInit {
         this.type = 'tab';
         this.setView();
         return;
-    }
+      }
     this.addGeneralOptionToChart(dataSets, labels);
   }
 
   addGeneralOptionToChart(dataSets: ChartDataSets[], labels: (string | string[])[]) {
     this.chart.config.type = this.type;
+    
     this.chart.config.options = {
       responsive: true,
       maintainAspectRatio: true,
-      onClick: (event, item) => this.redirectTo(item),
+      onClick: (event, item) => this.redirectTo(item)
     };
+    this.chart.config.options.animation = {
+      duration : 0
+    }
     this.chart.data.datasets = dataSets;
     this.chart.data.labels = labels;
+    this.chart.update();
   }
 
   redirectTo(item) {

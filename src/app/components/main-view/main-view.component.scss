@@ -64,3 +64,11 @@
   .spinner{
     margin-left: 2%; 
   }
+
+  h6:hover{
+    cursor: grab;
+  }
+
+  .draggable:active{
+    cursor:grabbing;
+  }

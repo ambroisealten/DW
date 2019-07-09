@@ -22,7 +22,6 @@ export class ViewComponent implements OnInit {
   @ViewChildren('chartHost', { read: ViewContainerRef }) entries: QueryList<ViewContainerRef>;
 
   constructor(
-    private workerService: WebworkerService,
     private loadEcranService: LoadEcranService,
     private componentFactoryResolver: ComponentFactoryResolver,
     private dataService: DataService
@@ -65,27 +64,6 @@ export class ViewComponent implements OnInit {
       componentRef.instance.setView() ; 
 
     }
-  }
-
-  /**
-   * delegue la récupération des données à un web worker
-   */
-  delegateFetchData() {
-    const input = {
-      context: window,
-      body: {
-        tableName: 'Serie',
-        columnName: 'ID'
-      }
-    };
-    console.log(input);
-    this.workerService.run(DATA_IMPORT, input).then(
-      (result) => {
-        const res = result as unknown as DataColumn;
-        this.data.push(new DataColumn(res.tableName, res.columnName, res.values));
-        console.log(this.data);
-      }
-    ).catch(console.error);
   }
 
   /**

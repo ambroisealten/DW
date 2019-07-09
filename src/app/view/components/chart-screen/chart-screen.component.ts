@@ -1,5 +1,11 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { FilterList } from 'src/app/models/Filter';
+import * as Chart from 'chart.js';
+import { throwError } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { ChartDataSets } from 'chart.js';
+import { WebworkerService } from '../../workers/webworker.service';
+import { DATA_CALC_FREQUENCIES } from '../../workers/data.script';
 
 @Component({
   selector: 'app-chart-screen',
@@ -8,32 +14,164 @@ import { FilterList } from 'src/app/models/Filter';
 })
 export class ChartScreenComponent implements OnInit {
 
-  @Input() type ; 
-  @Input() tables ; 
-  @Input() filters: FilterList[] ; 
-  @Input() datas ; 
+  @Input() type;
+  @Input() tables;
+  @Input() filters: FilterList[];
+  @Input() datas;
 
-  spans: any[] ; 
-  datasourceTable: any[] ; 
-  displayedColumns: string[] ; 
+  spans: any[];
+  datasourceTable: any[];
+  displayedColumns: string[];
 
-  constructor() { }
+  chart: Chart;
+  @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
+
+  constructor(
+    private workerService: WebworkerService,
+    private toastr: ToastrService) { }
 
   ngOnInit() {
   }
 
-  setView(){
-    if(this.type == "tab"){
+  setView() {
+    if (this.type == "tab") {
       //Créer displayedColumns ICI ! 
       this.tables.forEach(element => {
-        this.displayedColumns.push(element.column)  ;
+        this.displayedColumns.push(element.column);
       });
-      this.calculData() ; 
+      this.calculData();
     } else {
-      //creation du chart  
+      this.createChart();
     }
   }
 
+
+  /*****************************************************************************************************************\
+   *
+   * 
+   *                                               Méthode Chart
+   * 
+   *
+   \*****************************************************************************************************************/
+  createChart() {
+    const ctx = (this.myCanvas.nativeElement as HTMLCanvasElement).getContext('2d');
+    this.chart = new Chart(ctx, {});
+    const dataSets: ChartDataSets[] = [];
+    const labels: (string | string[])[] = [];
+    let input;
+    const gradient = ctx.createLinearGradient(500, 0, 100, 0);
+    gradient.addColorStop(0, '#80b6f4');
+    gradient.addColorStop(0.2, '#94d973');
+    gradient.addColorStop(0.5, '#fad874');
+    gradient.addColorStop(1, '#f49080');
+
+    // Calculate labels and data for each graph type
+    switch (this.type) {
+      case 'pie':
+        input = {
+          body: {
+            values: this.datas
+          }
+        };
+        this.workerService.run(DATA_CALC_FREQUENCIES, input).then(
+          (result) => {
+            const data = result as unknown as {};
+            const dataCalc = [];
+            for (const key in data) {
+              if (data.hasOwnProperty(key)) {
+                labels.push(key);
+                dataCalc.push(result[key]);
+              }
+            }
+            dataSets.push({
+              data: dataCalc as number[],
+              backgroundColor: gradient,
+              borderColor: '#00000',
+              fill: true
+            });
+          }
+        ).catch(console.error);
+        break;
+      case 'doughnut':
+        input = {
+          body: {
+            values: this.datas
+          }
+        };
+        this.workerService.run(DATA_CALC_FREQUENCIES, input).then(
+          (result) => {
+            const data = result as unknown as {};
+            const dataCalc = [];
+            for (const key in data) {
+              if (data.hasOwnProperty(key)) {
+                labels.push(key);
+                dataCalc.push(result[key]);
+              }
+            }
+            dataSets.push({
+              data: dataCalc as number[],
+              backgroundColor: gradient,
+              borderColor: '#00000',
+              fill: true
+            });
+          }
+        ).catch(console.error);
+        break;
+      case 'bar':
+        dataSets.push({
+          data: this.datas as number[],
+          backgroundColor: gradient,
+          borderColor: '#00000',
+          fill: true
+        });
+        break;
+      case 'boxplot':
+        dataSets.push({
+          data: this.datas as number[],
+          backgroundColor: gradient,
+          borderColor: '#00000',
+          fill: true
+        });
+        break;
+      case 'line':
+        dataSets.push({
+          data: this.datas as number[],
+          backgroundColor: gradient,
+          borderColor: '#00000',
+          fill: true
+        });
+        break;
+      default:
+        throwError('Chart type << ' + this.type + ' >> unimplemented. Change to tab type');
+        this.type = 'tab';
+        this.setView();
+        return;
+    }
+    this.addGeneralOptionToChart(dataSets, labels);
+  }
+
+  addGeneralOptionToChart(dataSets: ChartDataSets[], labels: (string | string[])[]) {
+    this.chart.config.type = this.type;
+    this.chart.config.options = {
+      responsive: true,
+      maintainAspectRatio: true,
+      onClick: (event, item) => this.redirectTo(item),
+    };
+    this.chart.data.datasets = dataSets;
+    this.chart.data.labels = labels;
+  }
+
+  redirectTo(item) {
+    const clickedItemLabel = item[0]._view.label;
+    const dataChart = item[0]._chart.config.data;
+    const itemRank = dataChart.labels.indexOf(clickedItemLabel);
+    if (item.length > 0) {
+      this.toastr.info('We want to redirect to some URL. Column name : '
+        + this.displayedColumns[0]
+        + ' , clicked item :' + clickedItemLabel
+        + ', value : ' + dataChart.datasets[0].data[itemRank]);
+    }
+  }
 
   /*****************************************************************************************************************\
    *
@@ -90,12 +228,12 @@ export class ChartScreenComponent implements OnInit {
     }
   }
 
-    /**
-   * Permet de sort les données jusqu'à la dernière colonne affichée 
-   * C'est-à-dire qu'on cherche l'attribut le plus loin différenciant deux données 
-   * Dans l'ordre de gauche à droite des colonnes affichées 
-   * Les données sont transformer selon leur filtre 
-   */
+  /**
+  * Permet de sort les données jusqu'à la dernière colonne affichée 
+  * C'est-à-dire qu'on cherche l'attribut le plus loin différenciant deux données 
+  * Dans l'ordre de gauche à droite des colonnes affichées 
+  * Les données sont transformer selon leur filtre 
+  */
   multipleSort() {
     this.datasourceTable.sort((a, b) => {
       for (let i = 0; i < this.displayedColumns.length; i++) {
@@ -112,11 +250,11 @@ export class ChartScreenComponent implements OnInit {
     })
   }
 
-   /**
-   * Evalue si la ligne doit être skip ou affichée
-   * @param col 
-   * @param index 
-   */
+  /**
+  * Evalue si la ligne doit être skip ou affichée
+  * @param col 
+  * @param index 
+  */
   getRowSpan(col, index) {
     return this.spans[index] && this.spans[index][col];
   }
@@ -169,11 +307,11 @@ export class ChartScreenComponent implements OnInit {
     return data;
   }
 
-   /**
-   * Evalue si la valeur appartient au filtre 
-   * @param value 
-   * @param filter 
-   */
+  /**
+  * Evalue si la valeur appartient au filtre 
+  * @param value 
+  * @param filter 
+  */
   agregateNumber(value, filter) {
     let bool = false;
     switch (filter.type) {

@@ -52,9 +52,15 @@ export class ChartScreenComponent implements OnInit {
       this.calculData();
     } else {
       this.createChart();
+      this.resetCanvasHeightAndWidth();
     }
   }
 
+  resetCanvasHeightAndWidth() {
+    this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.offsetWidth - 150).toString();
+    this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.offsetHeight - 50).toString();
+    this.myCanvas.nativeElement.setAttribute('style','');
+  }
 
   /*****************************************************************************************************************\
    *
@@ -106,6 +112,11 @@ export class ChartScreenComponent implements OnInit {
                   }]
               },
               options: {
+                title:{
+                  display : true,
+                  text : this.displayedColumns[0],
+                  fontColor : "#ffffff"
+                },
                 legend: {
                   display: false,
                   position: 'bottom',
@@ -150,6 +161,11 @@ export class ChartScreenComponent implements OnInit {
                   }]
               },
               options: {
+                title:{
+                  display : true,
+                  text : this.displayedColumns[0],
+                  fontColor : "#ffffff"
+                },
                 legend: {
                   display: false,
                   position: 'bottom',
@@ -179,6 +195,11 @@ export class ChartScreenComponent implements OnInit {
               }]
           },
           options: {
+            title:{
+              display : true,
+              text : this.displayedColumns[0],
+              fontColor : "#ffffff"
+            },
             legend: {
               display: false,
               position: 'bottom',
@@ -230,10 +251,11 @@ export class ChartScreenComponent implements OnInit {
             legend: {
               position: 'top',
             },
-            title: {
-              display: true,
-              text: 'Chart.js Box Plot Chart'
-            }
+            title:{
+              display : true,
+              text : "Chart.Js Boxplot chart",
+              fontColor : "#ffffff"
+            },
           }
         });
         break;
@@ -251,6 +273,11 @@ export class ChartScreenComponent implements OnInit {
               }]
           },
           options: {
+            title:{
+              display : true,
+              text : this.displayedColumns[0],
+              fontColor : "#ffffff"
+            },
             legend: {
               display: false,
               position: 'bottom',

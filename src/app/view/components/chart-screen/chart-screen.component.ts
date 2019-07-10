@@ -388,14 +388,10 @@ export class ChartScreenComponent implements OnInit {
         } else if (!b.hasOwnProperty(this.displayedColumns[i])) {
           return 1;
         } else if (this.transform(a[this.displayedColumns[i]], this.displayedColumns[i]) !== this.transform(b[this.displayedColumns[i]], this.displayedColumns[i])) {
-          console.log(a);
-          console.log(b);
-          console.log(a[this.displayedColumns[i]] > b[this.displayedColumns[i]]);
           return a[this.displayedColumns[i]] > b[this.displayedColumns[i]] ? 1 : -1;
         }
       }
     });
-    console.log(this.datasourceTable);
   }
 
   /**

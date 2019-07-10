@@ -117,12 +117,12 @@ export class ViewComponent implements OnInit, OnDestroy {
 
   setDataChild(data) {
     for (let i = 0; i < data.length; i++) {
-      //On récupère l'entries de l'enfant
+      // On récupère l'entries de l'enfant
       const entryUsed = this.entries.toArray()[i];
 
-      //On crée le composant enfant
+      // On crée le composant enfant
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartScreenComponent);
-      let componentRef = entryUsed.createComponent(componentFactory);
+      const componentRef = entryUsed.createComponent(componentFactory);
 
       componentRef.instance.type = data[i].type;
       componentRef.instance.filters = data[i].filters;
@@ -137,9 +137,9 @@ export class ViewComponent implements OnInit, OnDestroy {
  * Parcourt le div contenant les templates disponibles, et retourne la première contenue dans ce div
  */
   parseTemplateDiv() {
-    let container = document.getElementById('templates');
+    const container = document.getElementById('templates');
     let test = container.firstChild;
-    while (test.nodeName != "TEMPLATE") {
+    while (test.nodeName !== 'TEMPLATE') {
       test = test.nextSibling;
     }
     return test;
@@ -159,16 +159,18 @@ export class ViewComponent implements OnInit, OnDestroy {
     newDivForChart.setAttribute('id', this.containerRepeat.toString());
     const template = this.parseTemplateDiv();
     newDivForChart.appendChild(template);
-    if (allChartChilds < 2) chartContainer.setAttribute('id', 'chartContainerSimple');
-    else chartContainer.setAttribute('id', 'chartContainerDouble');
+    if (allChartChilds < 2) {
+      chartContainer.setAttribute('id', 'chartContainerSimple');
+    } else {
+      chartContainer.setAttribute('id', 'chartContainerDouble');
+    }
 
     if (allChartChilds > 2) {
       newDivForChart.setAttribute('class', 'chartsFour');
       chartContainer.appendChild(newDivForChart);
 
-    }
-    else {
-      newDivForChart.setAttribute('class', 'charts');
+    } else {
+      newDivForChart.setAttribute('class', 'chartContained');
 
       chartContainer.appendChild(newDivForChart);
     }

@@ -25,7 +25,6 @@ export class ChartScreenComponent implements OnInit {
 
   chart: Chart;
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
-  context: CanvasRenderingContext2D;
   canvasFontSize: number;
 
   constructor(
@@ -33,7 +32,6 @@ export class ChartScreenComponent implements OnInit {
     private toastr: ToastrService) { }
 
   ngOnInit() {
-    this.context = (this.myCanvas.nativeElement as HTMLCanvasElement).getContext('2d');
     // Set la taille du texte selon la taille
     switch (document.getElementsByClassName('chartContainerDouble').length) {
       case 0:
@@ -44,7 +42,6 @@ export class ChartScreenComponent implements OnInit {
         break;
     }
     this.myCanvas.nativeElement.style = 'display : none';
-    this.resetCanvasHeightAndWidth();
   }
 
   resetCanvasHeightAndWidth() {
@@ -73,10 +70,12 @@ export class ChartScreenComponent implements OnInit {
    *
    \*****************************************************************************************************************/
   createChart() {
-    this.chart = new Chart(this.context, {});
+    const ctx = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
+    this.resetCanvasHeightAndWidth();
+    this.chart = new Chart(ctx, {});
     const labels: (string | string[])[] = [];
     let input;
-    const gradient = this.context.createLinearGradient(500, 0, 100, 0);
+    const gradient = ctx.createLinearGradient(500, 0, 100, 0);
     gradient.addColorStop(0, '#80b6f4');
     gradient.addColorStop(0.2, '#94d973');
     gradient.addColorStop(0.5, '#fad874');
@@ -106,7 +105,7 @@ export class ChartScreenComponent implements OnInit {
                 dataCalc.push(result[key]);
               }
             }
-            this.chart = new Chart(this.context, {
+            this.chart = new Chart(ctx, {
               type: 'pie',
               data: {
                 labels,
@@ -150,7 +149,7 @@ export class ChartScreenComponent implements OnInit {
                 dataCalc.push(result[key]);
               }
             }
-            this.chart = new Chart(this.context, {
+            this.chart = new Chart(ctx, {
               type: 'doughnut',
               data: {
                 labels,
@@ -179,7 +178,7 @@ export class ChartScreenComponent implements OnInit {
         ).catch(console.error);
         break;
       case 'bar':
-        this.chart = new Chart(this.context, {
+        this.chart = new Chart(ctx, {
           type: 'bar',
           data: {
             labels,
@@ -235,7 +234,7 @@ export class ChartScreenComponent implements OnInit {
             ]
           }]
         };
-        this.chart = new Chart(this.context, {
+        this.chart = new Chart(ctx, {
           type: 'horizontalBoxplot',
           data: boxplotData as ChartData,
           options: {
@@ -251,7 +250,7 @@ export class ChartScreenComponent implements OnInit {
         });
         break;
       case 'line':
-        this.chart = new Chart(this.context, {
+        this.chart = new Chart(ctx, {
           type: 'line',
           data: {
             labels,

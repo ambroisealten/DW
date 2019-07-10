@@ -1,5 +1,5 @@
 <div class="container">
-  <ng-container *ngIf="currentType == 'tab'">
+  <ng-container *ngIf="type == 'tab'">
     <table>
       <tr>
         <ng-container *ngFor="let column of displayedColumns ; let i = index">
@@ -21,9 +21,12 @@
       </ng-container>
     </table>
   </ng-container>
-  <div>
-    <canvas #myCanvas width="0" height="0">
-      {{chart}}
-    </canvas>
-  </div>
+  <ng-container *ngIf="type != 'tab'">
+    <div>
+      <canvas #myCanvas width="500" height="500">
+        {{chart}}
+      </canvas>
+    </div>
+  </ng-container>
+
 </div>

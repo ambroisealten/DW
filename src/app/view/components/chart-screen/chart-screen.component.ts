@@ -1,11 +1,11 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
-import { FilterList } from 'src/app/models/Filter';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import * as Chart from 'chart.js';
-import { throwError } from 'rxjs';
+import { ChartData } from 'chart.js';
 import { ToastrService } from 'ngx-toastr';
-import { ChartDataSets } from 'chart.js';
-import { WebworkerService } from '../../workers/webworker.service';
+import { throwError } from 'rxjs';
+import { FilterList } from 'src/app/models/Filter';
 import { DATA_CALC_FREQUENCIES } from '../../workers/data.script';
+import { WebworkerService } from '../../workers/webworker.service';
 
 @Component({
   selector: 'app-chart-screen',
@@ -21,24 +21,34 @@ export class ChartScreenComponent implements OnInit {
 
   spans: any[];
   datasourceTable: any[];
-  displayedColumns: string[];
+  displayedColumns: string[] = [];
 
   chart: Chart;
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
+  canvasFontSize: number;
 
   constructor(
     private workerService: WebworkerService,
     private toastr: ToastrService) { }
 
   ngOnInit() {
+    // Set la taille du texte selon la taille
+    switch (document.getElementsByClassName('chartContainerDouble').length) {
+      case 0:
+        this.canvasFontSize = 14;
+        break;
+      default:
+        this.canvasFontSize = 10;
+        break;
+    }
   }
 
   setView() {
+    this.tables.column.forEach(element => {
+      this.displayedColumns.push(element);
+    });
     if (this.type == "tab") {
       //Créer displayedColumns ICI ! 
-      this.tables.forEach(element => {
-        this.displayedColumns.push(element.column);
-      });
       this.calculData();
     } else {
       this.createChart();
@@ -54,40 +64,59 @@ export class ChartScreenComponent implements OnInit {
    *
    \*****************************************************************************************************************/
   createChart() {
-    const ctx = (this.myCanvas.nativeElement as HTMLCanvasElement).getContext('2d');
+    const ctx = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
     this.chart = new Chart(ctx, {});
-    const dataSets: ChartDataSets[] = [];
     const labels: (string | string[])[] = [];
     let input;
-    const gradient = ctx.createLinearGradient(500, 0, 100, 0);
-    gradient.addColorStop(0, '#80b6f4');
-    gradient.addColorStop(0.2, '#94d973');
-    gradient.addColorStop(0.5, '#fad874');
-    gradient.addColorStop(1, '#f49080');
+
+    const dataTransformed = this.datas
+      .filter(element => this.isNotExclude(element))
+      .map(val => val[this.displayedColumns[0]])
+      .map(val => this.transform(val, this.displayedColumns[0]));
 
     // Calculate labels and data for each graph type
     switch (this.type) {
       case 'pie':
         input = {
           body: {
-            values: this.datas
+            values: dataTransformed
           }
         };
         this.workerService.run(DATA_CALC_FREQUENCIES, input).then(
           (result) => {
-            const data = result as unknown as {};
+
+            const data = result as unknown as any;
             const dataCalc = [];
-            for (const key in data) {
-              if (data.hasOwnProperty(key)) {
-                labels.push(key);
-                dataCalc.push(result[key]);
-              }
+
+            // tslint:disable-next-line: forin
+            for (const key in data.values) {
+              labels.push(key);
+              dataCalc.push(data.values[key]);
             }
-            dataSets.push({
-              data: dataCalc as number[],
-              backgroundColor: gradient,
-              borderColor: '#00000',
-              fill: true
+            this.chart = new Chart(ctx, {
+              type: 'pie',
+              data: {
+                labels,
+                datasets: [
+                  {
+                    data: dataCalc as number[],
+                    backgroundColor: this.randomColorList(dataCalc.length),
+                    borderColor: '#00000',
+                    fill: true
+                  }]
+              },
+              options: {
+                legend: {
+                  display: false,
+                  position: 'bottom',
+                  labels: {
+                    fontSize: this.canvasFontSize
+                  }
+                },
+                responsive: false,
+                maintainAspectRatio: true,
+                'onClick': (event, item) => this.redirectTo(item),
+              }
             });
           }
         ).catch(console.error);
@@ -95,7 +124,7 @@ export class ChartScreenComponent implements OnInit {
       case 'doughnut':
         input = {
           body: {
-            values: this.datas
+            values: dataTransformed
           }
         };
         this.workerService.run(DATA_CALC_FREQUENCIES, input).then(
@@ -108,37 +137,144 @@ export class ChartScreenComponent implements OnInit {
                 dataCalc.push(result[key]);
               }
             }
-            dataSets.push({
-              data: dataCalc as number[],
-              backgroundColor: gradient,
-              borderColor: '#00000',
-              fill: true
+            this.chart = new Chart(ctx, {
+              type: 'doughnut',
+              data: {
+                labels,
+                datasets: [
+                  {
+                    data: dataCalc as number[],
+                    backgroundColor: this.randomColorList(dataCalc.length),
+                    borderColor: '#00000',
+                    fill: true
+                  }]
+              },
+              options: {
+                legend: {
+                  display: false,
+                  position: 'bottom',
+                  labels: {
+                    fontSize: this.canvasFontSize
+                  }
+                },
+                responsive: false,
+                maintainAspectRatio: true,
+                'onClick': (event, item) => this.redirectTo(item),
+              }
             });
           }
         ).catch(console.error);
         break;
       case 'bar':
-        dataSets.push({
-          data: this.datas as number[],
-          backgroundColor: gradient,
-          borderColor: '#00000',
-          fill: true
+        this.chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              {
+                data: dataTransformed as number[],
+                backgroundColor: this.randomColorList(dataTransformed.length),
+                borderColor: '#00000',
+                fill: true
+              }]
+          },
+          options: {
+            legend: {
+              display: false,
+              position: 'bottom',
+              labels: {
+                fontSize: this.canvasFontSize
+              }
+            },
+            responsive: false,
+            maintainAspectRatio: true,
+            'onClick': (event, item) => this.redirectTo(item),
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                  fontColor: 'white'
+                },
+              }],
+              xAxes: [{
+                ticks: {
+                  fontColor: 'white'
+                }
+              }]
+            }
+          }
         });
         break;
       case 'boxplot':
-        dataSets.push({
-          data: this.datas as number[],
-          backgroundColor: gradient,
-          borderColor: '#00000',
-          fill: true
+        const boxplotData = {
+          // define label tree
+          labels,
+          datasets: [{
+            label: 'Dataset 1',
+            backgroundColor: this.randomColorList(1),
+            borderColor: 'red',
+            borderWidth: 1,
+            outlierColor: '#000000',
+            padding: 10,
+            itemRadius: 0,
+            data: [
+              dataTransformed
+            ]
+          }]
+        };
+        this.chart = new Chart(ctx, {
+          type: 'horizontalBoxplot',
+          data: boxplotData as ChartData,
+          options: {
+            responsive: true,
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: 'Chart.js Box Plot Chart'
+            }
+          }
         });
         break;
       case 'line':
-        dataSets.push({
-          data: this.datas as number[],
-          backgroundColor: gradient,
-          borderColor: '#00000',
-          fill: true
+        this.chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                data: dataTransformed as number[],
+                backgroundColor: this.randomColorList(dataTransformed.length),
+                borderColor: '#00000',
+                fill: true
+              }]
+          },
+          options: {
+            legend: {
+              display: false,
+              position: 'bottom',
+              labels: {
+                fontSize: this.canvasFontSize
+              }
+            },
+            responsive: false,
+            maintainAspectRatio: true,
+            'onClick': (event, item) => this.redirectTo(item),
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                  fontColor: 'white'
+                },
+              }],
+              xAxes: [{
+                ticks: {
+                  fontColor: 'white'
+                }
+              }]
+            }
+          }
         });
         break;
       default:
@@ -147,18 +283,26 @@ export class ChartScreenComponent implements OnInit {
         this.setView();
         return;
     }
-    this.addGeneralOptionToChart(dataSets, labels);
+    this.addGeneralOptionToChart();
   }
 
-  addGeneralOptionToChart(dataSets: ChartDataSets[], labels: (string | string[])[]) {
+  randomColorList(length: number) {
+    const result = [];
+    for (let index = 0; index < length; index++) {
+      result.push('rgb('
+        + Math.floor(Math.random() * 255)
+        + ',' + Math.floor(Math.random() * 255)
+        + ',' + Math.floor(Math.random() * 255)
+        + ')');
+    }
+    return result;
+  }
+
+  addGeneralOptionToChart() {
     this.chart.config.type = this.type;
-    this.chart.config.options = {
-      responsive: true,
-      maintainAspectRatio: true,
-      onClick: (event, item) => this.redirectTo(item),
-    };
-    this.chart.data.datasets = dataSets;
-    this.chart.data.labels = labels;
+    this.chart.config.options.responsive = false;
+    this.chart.config.options.maintainAspectRatio = true;
+    this.chart.update();
   }
 
   redirectTo(item) {
@@ -247,7 +391,7 @@ export class ChartScreenComponent implements OnInit {
           return a[this.displayedColumns[i]] > b[this.displayedColumns[i]] ? 1 : -1;
         }
       }
-    })
+    });
   }
 
   /**

@@ -472,8 +472,8 @@ export class MainViewComponent implements OnInit {
         chart.type = this.allComponentRefs[i].instance.currentType;
         chart.filters = this.allComponentRefs[i].instance.filters;
         let tmpSaveChartTable = new SaveChartTable();
-        tmpSaveChartTable.name = this.activeTable[i].name;
-        tmpSaveChartTable.column = this.allComponentRefs[i].displayedColumns;
+        tmpSaveChartTable.name = this.allComponentRefs[i].instance.tableInfo.name;
+        tmpSaveChartTable.column = this.allComponentRefs[i].instance.displayedColumns;
         chart.table = tmpSaveChartTable;
         screenJSON.charts.push(chart);
       }
@@ -481,7 +481,10 @@ export class MainViewComponent implements OnInit {
 
     //appel web service sauvegarde JSON ; 
     this.saveChartService.saveChartConfig(screenJSON).subscribe(httpResponse => {
-      //Do something
+      const resultParams = httpResponse.link;
+      let id = resultParams.split(':')[0];
+      let displayedName = resultParams.split(':')[1];
+      this.toastr.info("You can see your charts via this link : localhost:4200/ecran/"+displayedName+"/"+id);
     });
   }
 }

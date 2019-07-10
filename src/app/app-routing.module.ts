@@ -5,7 +5,7 @@ import { MainViewComponent } from './components/main-view/main-view.component';
 const appRoutes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: MainViewComponent },
-  { path: 'ecran', loadChildren: './view/view.module#ViewModule' }
+  { path: 'ecran/:name/:id', loadChildren: './view/view.module#ViewModule' }
 ];
 
 @NgModule({

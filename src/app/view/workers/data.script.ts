@@ -62,7 +62,7 @@ export const DATA_TRANSFORM_TO_OBJECT = (input) => {
         const column = tableData[j];
         for (let i = 0; i < values.length; i++) {
             // tslint:disable-next-line: forin
-            const json = '"' + column.columnName + '":' + JSON.stringify(column.values[i]) + ',';
+            const json = '"' + column.columnName + '":"' + column.values[i] + '",';
             values[i] += json;
         }
     }

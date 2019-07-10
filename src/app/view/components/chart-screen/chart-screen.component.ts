@@ -41,20 +41,14 @@ export class ChartScreenComponent implements OnInit {
         this.canvasFontSize = 10;
         break;
     }
-    this.myCanvas.nativeElement.style = 'display : none';
-  }
-
-  resetCanvasHeightAndWidth() {
-    this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetWidth - 150).toString();
-    this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetHeight - 50).toString();
   }
 
   setView() {
+    this.tables.column.forEach(element => {
+      this.displayedColumns.push(element);
+    });
     if (this.type == "tab") {
       //Créer displayedColumns ICI ! 
-      this.tables.column.forEach(element => {
-        this.displayedColumns.push(element);
-      });
       this.calculData();
     } else {
       this.createChart();
@@ -71,7 +65,6 @@ export class ChartScreenComponent implements OnInit {
    \*****************************************************************************************************************/
   createChart() {
     const ctx = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
-    this.resetCanvasHeightAndWidth();
     this.chart = new Chart(ctx, {});
     const labels: (string | string[])[] = [];
     let input;
@@ -86,7 +79,6 @@ export class ChartScreenComponent implements OnInit {
       .map(val => val[this.displayedColumns[0]])
       .map(val => this.transform(val, this.displayedColumns[0]));
 
-
     // Calculate labels and data for each graph type
     switch (this.type) {
       case 'pie':
@@ -97,13 +89,14 @@ export class ChartScreenComponent implements OnInit {
         };
         this.workerService.run(DATA_CALC_FREQUENCIES, input).then(
           (result) => {
-            const data = result as unknown as {};
+
+            const data = result as unknown as any;
             const dataCalc = [];
-            for (const key in data) {
-              if (data.hasOwnProperty(key)) {
-                labels.push(key);
-                dataCalc.push(result[key]);
-              }
+
+            // tslint:disable-next-line: forin
+            for (const key in data.values) {
+              labels.push(key);
+              dataCalc.push(data.values[key]);
             }
             this.chart = new Chart(ctx, {
               type: 'pie',
@@ -300,7 +293,7 @@ export class ChartScreenComponent implements OnInit {
 
   addGeneralOptionToChart() {
     this.chart.config.type = this.type;
-    this.chart.config.options.responsive = true;
+    this.chart.config.options.responsive = false;
     this.chart.config.options.maintainAspectRatio = true;
     this.chart.update();
   }

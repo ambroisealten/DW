@@ -2,5 +2,7 @@
   <div class='charts' id='1'>
     <template #chartHost></template>
   </div>
-  <div id="templates" class="ecrans">
-  </div>
+</div>
+<div id="templates" class="ecrans">
+  <template *ngFor="let el of templatesTab; let i = index" id='{{ i+102 }}' #chartHost></template>
+</div>

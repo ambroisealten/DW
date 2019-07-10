@@ -5,6 +5,7 @@ import { DataColumn } from '../../models/DataColumn';
 import { DataService } from '../../services/data.service';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-view',
@@ -13,6 +14,7 @@ import { Subscription } from 'rxjs';
 })
 export class ViewComponent implements OnInit {
 
+  templatesTab = new Array(environment.maxTemplates);
   allTemplates: number;
   containerRepeat = 1;
   data: DataColumn[] = [];
@@ -51,7 +53,7 @@ export class ViewComponent implements OnInit {
         });
       });
 
-      this.fillTemplates();
+      //this.fillTemplates();
 
       // Fetch data from all column stored
       for (const column of this.data) {

@@ -443,12 +443,14 @@ export class MainViewComponent implements OnInit {
         chart.type = this.allComponentRefs[i].instance.currentType;
         chart.filters = this.allComponentRefs[i].instance.filters;
         let tmpSaveChartTable = new SaveChartTable();
-        tmpSaveChartTable.name = this.activeTable[i].name;
+        tmpSaveChartTable.name = this.allComponentRefs[i].instance.tableInfo.name;
         tmpSaveChartTable.column = this.allComponentRefs[i].instance.displayedColumns;
         chart.table = tmpSaveChartTable;
         screenJSON.charts.push(chart);
       }
     }
+
+    console.log(screenJSON);
 
     //appel web service sauvegarde JSON ; 
     this.saveChartService.saveChartConfig(screenJSON).subscribe(httpResponse => {

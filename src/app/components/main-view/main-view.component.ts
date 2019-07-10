@@ -61,6 +61,9 @@ export class MainViewComponent implements OnInit {
 
 
   ngOnInit() {
+    for(let i = 0 ; i < environment.maxTemplates ; i++){
+      this.allInstance.push(false) ; 
+    }
     //Récupération des données sur les tables et les champs
     this.dataService.fetchDataScheme().subscribe(response => {
       
@@ -163,11 +166,27 @@ export class MainViewComponent implements OnInit {
 
 
       //On détermine l'id de l'enfant 
-      const instanceNumber = parseInt(target.id, 10);
+      let instanceNumber = this.allInstance.indexOf(false) + 1 ;
+      let c = 1 ; 
+      while(document.getElementById(instanceNumber.toString()) == null){
+        let count = 0 ; 
+        let indice ; 
+        for(let i = 0 ; i < this.allInstance.length ; i++){
+          if(!this.allInstance[i]){
+            count++ ; 
+            if(count == c){
+              indice = i ; 
+              break ; 
+            }
+          }
+        } 
+        instanceNumber = indice + 1 ; 
+        c++ ; 
+      }
 
       //On récupère l'entries de l'enfant
-      const entryUsed = this.entries.toArray()[target.id - 1];
-
+      let entryUsed = this.entries.toArray()[target.id - 1];
+      entryUsed.clear() ; 
       //On crée le composant enfant
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
       this.componentRef = entryUsed.createComponent(componentFactory);
@@ -276,6 +295,7 @@ export class MainViewComponent implements OnInit {
       case 'destroyed':
         this.loading = false;
         this.activeTable = this.datas;
+        this.allInstance[instance - 1] = false ; 
         if (document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
         break;
       case 'setActif':
@@ -330,6 +350,11 @@ export class MainViewComponent implements OnInit {
   parseTemplateDiv(idNumber: string) {
     let container = document.getElementById('templates');
     let test = container.firstChild;
+    for(let i = 0 ; i < container.children.length ; i++){
+      if(container.children[i].id == idNumber){
+        test = container.children[i] ;
+      }
+    } 
     while (test.nodeName != "TEMPLATE") {
       test = test.nextSibling;
     }
@@ -347,8 +372,12 @@ export class MainViewComponent implements OnInit {
 
     this.containerRepeat += 1;
     const newDivForChart = document.createElement('div');
-    newDivForChart.setAttribute('id', this.containerRepeat.toString());
-    const template = this.parseTemplateDiv(this.containerRepeat.toString());
+    let indice = this.allInstance.indexOf(false) + 1; 
+    while(document.getElementById(indice.toString()) != null){
+      indice++ ; 
+    }
+    newDivForChart.setAttribute('id', indice.toString());
+    const template = this.parseTemplateDiv((100 + indice).toString());
     newDivForChart.appendChild(template);
     newDivForChart.addEventListener('click', (event) => this.resetActiveTable(event));
     if (allChartChilds < 2) chartContainer.setAttribute('id', 'chartContainerSimple');

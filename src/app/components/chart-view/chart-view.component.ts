@@ -545,7 +545,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
 
     divContainer.parentNode.removeChild(divContainer);
 
-    this.toParent.emit('destroyed');
+    this.toParent.emit('destroyed' + '/' + this.instanceNumber);
 
     if (chartsLength === 2) {
       const mainContainer = document.getElementById('chartContainerDouble');

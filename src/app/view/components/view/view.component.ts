@@ -7,6 +7,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { WebworkerService } from '../../workers/webworker.service';
 import { DATA_TRANSFORM_TO_OBJECT } from '../../workers/data.script';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-view',
@@ -15,6 +16,7 @@ import { DATA_TRANSFORM_TO_OBJECT } from '../../workers/data.script';
 })
 export class ViewComponent implements OnInit {
 
+  templatesTab = new Array(environment.maxTemplates);
   allTemplates: number;
   containerRepeat = 1;
   data: DataColumn[] = [];
@@ -54,7 +56,7 @@ export class ViewComponent implements OnInit {
         });
       });
 
-      this.fillTemplates();
+      //this.fillTemplates();
 
       // Fetch data from all column stored
       for (const column of this.data) {

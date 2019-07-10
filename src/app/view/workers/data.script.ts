@@ -13,15 +13,12 @@ export const DATA_IMPORT = (input) => {
     const tableName = data.tableName;
     const columnName = data.columnName;
     const values = [];
-    console.log(context);
     postMessage({ tableName, columnName, values });
 };
 
 export const DATA_CALC_FREQUENCIES = (input) => {
-    console.log(input.body);
     // Process the body data
     const data = input.body.values as any[];
-    console.log(data);
     const freqs = { values: {}, sum: 0 };
     data.map(function (a) {
         if (!(a in this.values)) {
@@ -56,14 +53,12 @@ export const DATA_TRANSFORM_TO_OBJECT = (input) => {
 
     // Process the body data
     const data = input.body.data as DataColumn[];
-    console.log(data);
     const values = [];
     data.forEach(dataColumn => {
         const columnName = dataColumn.columnName;
         // tslint:disable-next-line: forin
         for (const val in dataColumn.values) {
             const json = '{ "' + columnName + '":' + JSON.stringify(val) + '}';
-            console.log(json);
             values.push(JSON.parse(json));
         }
     });

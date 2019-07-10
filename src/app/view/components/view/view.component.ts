@@ -55,9 +55,7 @@ export class ViewComponent implements OnInit {
           this.data.push(new DataColumn(chartConf.table.name, column, []));
         });
       });
-
-      //this.fillTemplates();
-
+      
       // Fetch data from all column stored
       for (const column of this.data) {
         this.dataService.fetchData(column.tableName, column.columnName).subscribe((dataFetched: any[]) => {
@@ -95,16 +93,6 @@ export class ViewComponent implements OnInit {
     }
   }
 
-  fillTemplates() {
-    let container = document.getElementById('templates');
-    let acc = container.childNodes.length;
-    while (acc < this.allTemplates - 1) {
-      let template = document.createElement('template');
-      template.setAttribute('id', (container.childNodes.length + 102).toString());
-      container.appendChild(template);
-      acc++;
-    }
-  }
 
   setDataChild(data) {
     for (let i = 0; i < data.length; i++) {

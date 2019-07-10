@@ -50,17 +50,27 @@ export const DATA_CALC_X_Y_COORDINATES = (input) => {
 
 export const DATA_TRANSFORM_TO_OBJECT = (input) => {
 
-
     // Process the body data
     const data = input.body.data as DataColumn[];
-    const values = [];
-    data.forEach(dataColumn => {
-        const columnName = dataColumn.columnName;
-        // tslint:disable-next-line: forin
-        for (const val in dataColumn.values) {
-            const json = '{ "' + columnName + '":' + JSON.stringify(val) + '}';
-            values.push(JSON.parse(json));
+    const table = input.body.table as string;
+    let values = [];
+    const tableData = data.filter(dataColumn => dataColumn.tableName === table);
+    values.length = tableData[0].values.length;
+    values = values.fill('{', 0, -2);
+    // tslint:disable-next-line: prefer-for-of
+    for (let j = 0; j < tableData.length; j++) {
+        const column = tableData[j];
+        for (let i = 0; i < values.length; i++) {
+            // tslint:disable-next-line: forin
+            const json = '"' + column.columnName + '":' + JSON.stringify(column.values[i]) + ',';
+            values[i] += json;
         }
-    });
+    }
+    // tslint:disable-next-line: prefer-for-of
+    for (let index = 0; index < values.length; index++) {
+        values[index] += '}';
+        values[index] = JSON.parse(values[index].replace(',}', '}').replace('undefined"', '{"'));
+    }
+
     postMessage(values);
 };

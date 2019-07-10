@@ -50,12 +50,13 @@ export class ViewComponent implements OnInit {
       let chartConfig = JSON.parse(data.chart_saved).charts;
       this.allTemplates = chartConfig.length;
 
+
       chartConfig.forEach(chartConf => {
         chartConf.table.column.forEach(column => {
           this.data.push(new DataColumn(chartConf.table.name, column, []));
         });
       });
-      
+
       // Fetch data from all column stored
       for (const column of this.data) {
         this.dataService.fetchData(column.tableName, column.columnName).subscribe((dataFetched: any[]) => {
@@ -64,13 +65,18 @@ export class ViewComponent implements OnInit {
 
           const input = {
             body: {
-              data: this.data
+              data: this.data,
+              table: column.tableName
             }
           };
           this.workerService.run(DATA_TRANSFORM_TO_OBJECT, input).then(
             (result) => {
-              this.allComponentRefs[indexOf].instance.datas = result;
-              this.allComponentRefs[indexOf].instance.setView();
+              this.allComponentRefs
+                .filter(compRef => compRef.instance.tables.column.includes(column.columnName))
+                .forEach(compRef => {
+                  compRef.instance.datas = result;
+                  compRef.instance.setView();
+                });
             }
           ).catch(console.error);
 
@@ -96,7 +102,6 @@ export class ViewComponent implements OnInit {
 
   setDataChild(data) {
     for (let i = 0; i < data.length; i++) {
-
       //On récupère l'entries de l'enfant
       const entryUsed = this.entries.toArray()[i];
 

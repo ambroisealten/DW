@@ -450,8 +450,6 @@ export class MainViewComponent implements OnInit {
       }
     }
 
-    console.log(screenJSON);
-
     //appel web service sauvegarde JSON ; 
     this.saveChartService.saveChartConfig(screenJSON).subscribe(httpResponse => {
       const resultParams = httpResponse.link;

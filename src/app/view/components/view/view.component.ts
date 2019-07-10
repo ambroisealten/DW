@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChildren, ViewContainerRef, QueryList, ComponentFactoryResolver } from '@angular/core';
+import { Component, OnInit, ViewChildren, ViewContainerRef, QueryList, ComponentFactoryResolver, OnDestroy } from '@angular/core';
 import { LoadEcranService } from '../../services/load-ecran.service';
 import { ChartScreenComponent } from '../chart-screen/chart-screen.component';
 import { DataColumn } from '../../models/DataColumn';
@@ -14,7 +14,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './view.component.html',
   styleUrls: ['./view.component.scss']
 })
-export class ViewComponent implements OnInit {
+export class ViewComponent implements OnInit, OnDestroy {
 
   templatesTab = new Array(environment.maxTemplates);
   allTemplates: number;
@@ -47,7 +47,7 @@ export class ViewComponent implements OnInit {
     });
 
     this.loadEcranService.loadEcran(this.id, this.displayedName).subscribe((data: any) => {
-      let chartConfig = JSON.parse(data.chart_saved).charts;
+      const chartConfig = JSON.parse(data.chart_saved).charts;
       this.allTemplates = chartConfig.length;
 
 
@@ -58,29 +58,17 @@ export class ViewComponent implements OnInit {
       });
 
       // Fetch data from all column stored
+      let numberColumnFetched = 0;
       for (const column of this.data) {
         this.dataService.fetchData(column.tableName, column.columnName).subscribe((dataFetched: any[]) => {
           column.values = dataFetched;
           const indexOf = this.data.indexOf(column);
-
-          const input = {
-            body: {
-              data: this.data,
-              table: column.tableName
-            }
-          };
-          this.workerService.run(DATA_TRANSFORM_TO_OBJECT, input).then(
-            (result) => {
-              this.allComponentRefs
-                .filter(compRef => compRef.instance.tables.column.includes(column.columnName))
-                .forEach(compRef => {
-                  compRef.instance.datas = result;
-                  compRef.instance.setView();
-                });
-            }
-          ).catch(console.error);
-
-          document.getElementById((indexOf + 1).toString()).setAttribute('class', 'chartContained');
+          if (++numberColumnFetched === this.data.length) {
+            this.transformAndSendData();
+          }
+          if (document.getElementById((indexOf).toString()) != null) {
+            document.getElementById((indexOf).toString()).setAttribute('class', 'chartContained');
+          }
         });
       }
 
@@ -93,8 +81,35 @@ export class ViewComponent implements OnInit {
     this.routeSub.unsubscribe();
   }
 
+  transformAndSendData() {
+    const tables = [];
+    this.data.forEach(dataColumn => {
+      if (!tables.includes(dataColumn.tableName)) {
+        tables.push(dataColumn.tableName);
+      }
+    });
+    for (const tableName of tables) {
+      const input = {
+        body: {
+          data: this.data,
+          table: tableName
+        }
+      };
+      this.workerService.run(DATA_TRANSFORM_TO_OBJECT, input).then(
+        (result) => {
+          this.allComponentRefs
+            .filter(compRef => compRef.instance.tables.name === tableName)
+            .forEach(compRef => {
+              compRef.instance.datas = result;
+              compRef.instance.setView();
+            });
+        }
+      ).catch(console.error);
+    }
+  }
+
   createDOMContainer() {
-    while (this.containerRepeat != this.allTemplates) {
+    while (this.containerRepeat !== this.allTemplates) {
       this.diviseChartsSegment();
     }
   }

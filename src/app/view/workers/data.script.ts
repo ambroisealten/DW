@@ -49,7 +49,6 @@ export const DATA_CALC_X_Y_COORDINATES = (input) => {
 };
 
 export const DATA_TRANSFORM_TO_OBJECT = (input) => {
-
     // Process the body data
     const data = input.body.data as DataColumn[];
     const table = input.body.table as string;
@@ -61,8 +60,9 @@ export const DATA_TRANSFORM_TO_OBJECT = (input) => {
     for (let j = 0; j < tableData.length; j++) {
         const column = tableData[j];
         for (let i = 0; i < values.length; i++) {
+            const value = column.values[i] === undefined ? '"' + column.values[i] + '"' : JSON.stringify(column.values[i]);
             // tslint:disable-next-line: forin
-            const json = '"' + column.columnName + '":"' + column.values[i] + '",';
+            const json = '"' + column.columnName + '":' + value + ',';
             values[i] += json;
         }
     }

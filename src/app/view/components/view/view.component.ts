@@ -5,6 +5,8 @@ import { DataColumn } from '../../models/DataColumn';
 import { DataService } from '../../services/data.service';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { WebworkerService } from '../../workers/webworker.service';
+import { DATA_TRANSFORM_TO_OBJECT } from '../../workers/data.script';
 
 @Component({
   selector: 'app-view',
@@ -32,7 +34,8 @@ export class ViewComponent implements OnInit {
     private loadEcranService: LoadEcranService,
     private componentFactoryResolver: ComponentFactoryResolver,
     private dataService: DataService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private workerService: WebworkerService
   ) { }
 
   ngOnInit() {
@@ -57,11 +60,21 @@ export class ViewComponent implements OnInit {
       for (const column of this.data) {
         this.dataService.fetchData(column.tableName, column.columnName).subscribe((dataFetched: any[]) => {
           column.values = dataFetched;
-          let indexOf = this.data.indexOf(column);
-          console.log(column);
-          this.allComponentRefs[indexOf].instance.datas = column.values;
-          this.allComponentRefs[indexOf].instance.setView();
-          document.getElementById((indexOf+1).toString()).setAttribute('class','chartContained');
+          const indexOf = this.data.indexOf(column);
+
+          const input = {
+            body: {
+              data: this.data
+            }
+          };
+          this.workerService.run(DATA_TRANSFORM_TO_OBJECT, input).then(
+            (result) => {
+              this.allComponentRefs[indexOf].instance.datas = result;
+              this.allComponentRefs[indexOf].instance.setView();
+            }
+          ).catch(console.error);
+
+          document.getElementById((indexOf + 1).toString()).setAttribute('class', 'chartContained');
         });
       }
 

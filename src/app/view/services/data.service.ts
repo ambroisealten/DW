@@ -16,6 +16,8 @@ export class DataService {
             environment.baseUrl
             + '/data/'
             + tableName
+            + '/'
+            + columnName
             , { headers });
     }
 }

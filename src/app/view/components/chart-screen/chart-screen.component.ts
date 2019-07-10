@@ -3,7 +3,7 @@ import { FilterList } from 'src/app/models/Filter';
 import * as Chart from 'chart.js';
 import { throwError } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { ChartDataSets } from 'chart.js';
+import { ChartDataSets, ChartData } from 'chart.js';
 import { WebworkerService } from '../../workers/webworker.service';
 import { DATA_CALC_FREQUENCIES } from '../../workers/data.script';
 
@@ -25,12 +25,31 @@ export class ChartScreenComponent implements OnInit {
 
   chart: Chart;
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
+  context: CanvasRenderingContext2D;
+  canvasFontSize: number;
 
   constructor(
     private workerService: WebworkerService,
     private toastr: ToastrService) { }
 
   ngOnInit() {
+    this.context = (this.myCanvas.nativeElement as HTMLCanvasElement).getContext('2d');
+    // Set la taille du texte selon la taille
+    switch (document.getElementsByClassName('chartContainerDouble').length) {
+      case 0:
+        this.canvasFontSize = 14;
+        break;
+      default:
+        this.canvasFontSize = 10;
+        break;
+    }
+    this.myCanvas.nativeElement.style = 'display : none';
+    this.resetCanvasHeightAndWidth();
+  }
+
+  resetCanvasHeightAndWidth() {
+    this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetWidth - 150).toString();
+    this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetHeight - 50).toString();
   }
 
   setView() {
@@ -54,16 +73,19 @@ export class ChartScreenComponent implements OnInit {
    *
    \*****************************************************************************************************************/
   createChart() {
-    const ctx = (this.myCanvas.nativeElement as HTMLCanvasElement).getContext('2d');
-    this.chart = new Chart(ctx, {});
-    const dataSets: ChartDataSets[] = [];
+    this.chart = new Chart(this.context, {});
     const labels: (string | string[])[] = [];
     let input;
-    const gradient = ctx.createLinearGradient(500, 0, 100, 0);
+    const gradient = this.context.createLinearGradient(500, 0, 100, 0);
     gradient.addColorStop(0, '#80b6f4');
     gradient.addColorStop(0.2, '#94d973');
     gradient.addColorStop(0.5, '#fad874');
     gradient.addColorStop(1, '#f49080');
+
+    const dataTransformed = this.datas
+      .filter(element => this.isNotExclude(element))
+      .map(val => val[this.displayedColumns[0]])
+      .map(val => this.transform(val, this.displayedColumns[0]));
 
 
     // Calculate labels and data for each graph type
@@ -71,7 +93,7 @@ export class ChartScreenComponent implements OnInit {
       case 'pie':
         input = {
           body: {
-            values: this.datas
+            values: dataTransformed
           }
         };
         this.workerService.run(DATA_CALC_FREQUENCIES, input).then(
@@ -84,20 +106,38 @@ export class ChartScreenComponent implements OnInit {
                 dataCalc.push(result[key]);
               }
             }
-            dataSets.push({
-              data: dataCalc as number[],
-              backgroundColor: gradient,
-              borderColor: '#00000',
-              fill: true
+            this.chart = new Chart(this.context, {
+              type: 'pie',
+              data: {
+                labels,
+                datasets: [
+                  {
+                    data: dataCalc as number[],
+                    backgroundColor: gradient,
+                    borderColor: '#00000',
+                    fill: true
+                  }]
+              },
+              options: {
+                legend: {
+                  display: false,
+                  position: 'bottom',
+                  labels: {
+                    fontSize: this.canvasFontSize
+                  }
+                },
+                responsive: false,
+                maintainAspectRatio: true,
+                'onClick': (event, item) => this.redirectTo(item),
+              }
             });
-
           }
         ).catch(console.error);
         break;
       case 'doughnut':
         input = {
           body: {
-            values: this.datas
+            values: dataTransformed
           }
         };
         this.workerService.run(DATA_CALC_FREQUENCIES, input).then(
@@ -110,37 +150,144 @@ export class ChartScreenComponent implements OnInit {
                 dataCalc.push(result[key]);
               }
             }
-            dataSets.push({
-              data: dataCalc as number[],
-              backgroundColor: gradient,
-              borderColor: '#00000',
-              fill: true
+            this.chart = new Chart(this.context, {
+              type: 'doughnut',
+              data: {
+                labels,
+                datasets: [
+                  {
+                    data: dataCalc as number[],
+                    backgroundColor: gradient,
+                    borderColor: '#00000',
+                    fill: true
+                  }]
+              },
+              options: {
+                legend: {
+                  display: false,
+                  position: 'bottom',
+                  labels: {
+                    fontSize: this.canvasFontSize
+                  }
+                },
+                responsive: false,
+                maintainAspectRatio: true,
+                'onClick': (event, item) => this.redirectTo(item),
+              }
             });
           }
         ).catch(console.error);
         break;
       case 'bar':
-        dataSets.push({
-          data: this.datas as number[],
-          backgroundColor: gradient,
-          borderColor: '#00000',
-          fill: true
+        this.chart = new Chart(this.context, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              {
+                data: dataTransformed as number[],
+                backgroundColor: gradient,
+                borderColor: '#00000',
+                fill: true
+              }]
+          },
+          options: {
+            legend: {
+              display: false,
+              position: 'bottom',
+              labels: {
+                fontSize: this.canvasFontSize
+              }
+            },
+            responsive: false,
+            maintainAspectRatio: true,
+            'onClick': (event, item) => this.redirectTo(item),
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                  fontColor: 'white'
+                },
+              }],
+              xAxes: [{
+                ticks: {
+                  fontColor: 'white'
+                }
+              }]
+            }
+          }
         });
         break;
       case 'boxplot':
-        dataSets.push({
-          data: this.datas as number[],
-          backgroundColor: gradient,
-          borderColor: '#00000',
-          fill: true
+        const boxplotData = {
+          // define label tree
+          labels,
+          datasets: [{
+            label: 'Dataset 1',
+            backgroundColor: gradient,
+            borderColor: 'red',
+            borderWidth: 1,
+            outlierColor: '#000000',
+            padding: 10,
+            itemRadius: 0,
+            data: [
+              dataTransformed
+            ]
+          }]
+        };
+        this.chart = new Chart(this.context, {
+          type: 'horizontalBoxplot',
+          data: boxplotData as ChartData,
+          options: {
+            responsive: true,
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: 'Chart.js Box Plot Chart'
+            }
+          }
         });
         break;
       case 'line':
-        dataSets.push({
-          data: this.datas as number[],
-          backgroundColor: gradient,
-          borderColor: '#00000',
-          fill: true
+        this.chart = new Chart(this.context, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                data: dataTransformed as number[],
+                backgroundColor: gradient,
+                borderColor: '#00000',
+                fill: true
+              }]
+          },
+          options: {
+            legend: {
+              display: false,
+              position: 'bottom',
+              labels: {
+                fontSize: this.canvasFontSize
+              }
+            },
+            responsive: false,
+            maintainAspectRatio: true,
+            'onClick': (event, item) => this.redirectTo(item),
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                  fontColor: 'white'
+                },
+              }],
+              xAxes: [{
+                ticks: {
+                  fontColor: 'white'
+                }
+              }]
+            }
+          }
         });
         break;
       default:
@@ -148,23 +295,14 @@ export class ChartScreenComponent implements OnInit {
         this.type = 'tab';
         this.setView();
         return;
-      }
-    this.addGeneralOptionToChart(dataSets, labels);
+    }
+    this.addGeneralOptionToChart();
   }
 
-  addGeneralOptionToChart(dataSets: ChartDataSets[], labels: (string | string[])[]) {
+  addGeneralOptionToChart() {
     this.chart.config.type = this.type;
-    
-    this.chart.config.options = {
-      responsive: true,
-      maintainAspectRatio: true,
-      onClick: (event, item) => this.redirectTo(item)
-    };
-    this.chart.config.options.animation = {
-      duration : 0
-    }
-    this.chart.data.datasets = dataSets;
-    this.chart.data.labels = labels;
+    this.chart.config.options.responsive = true;
+    this.chart.config.options.maintainAspectRatio = true;
     this.chart.update();
   }
 

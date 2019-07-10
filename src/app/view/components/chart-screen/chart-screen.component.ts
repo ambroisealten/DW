@@ -1,11 +1,11 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
-import { FilterList } from 'src/app/models/Filter';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import * as Chart from 'chart.js';
-import { throwError } from 'rxjs';
+import { ChartData } from 'chart.js';
 import { ToastrService } from 'ngx-toastr';
-import { ChartDataSets, ChartData } from 'chart.js';
-import { WebworkerService } from '../../workers/webworker.service';
+import { throwError } from 'rxjs';
+import { FilterList } from 'src/app/models/Filter';
 import { DATA_CALC_FREQUENCIES } from '../../workers/data.script';
+import { WebworkerService } from '../../workers/webworker.service';
 
 @Component({
   selector: 'app-chart-screen',
@@ -68,11 +68,6 @@ export class ChartScreenComponent implements OnInit {
     this.chart = new Chart(ctx, {});
     const labels: (string | string[])[] = [];
     let input;
-    const gradient = ctx.createLinearGradient(500, 0, 100, 0);
-    gradient.addColorStop(0, '#80b6f4');
-    gradient.addColorStop(0.2, '#94d973');
-    gradient.addColorStop(0.5, '#fad874');
-    gradient.addColorStop(1, '#f49080');
 
     const dataTransformed = this.datas
       .filter(element => this.isNotExclude(element))
@@ -105,7 +100,7 @@ export class ChartScreenComponent implements OnInit {
                 datasets: [
                   {
                     data: dataCalc as number[],
-                    backgroundColor: gradient,
+                    backgroundColor: this.randomColorList(dataCalc.length),
                     borderColor: '#00000',
                     fill: true
                   }]
@@ -149,7 +144,7 @@ export class ChartScreenComponent implements OnInit {
                 datasets: [
                   {
                     data: dataCalc as number[],
-                    backgroundColor: gradient,
+                    backgroundColor: this.randomColorList(dataCalc.length),
                     borderColor: '#00000',
                     fill: true
                   }]
@@ -178,7 +173,7 @@ export class ChartScreenComponent implements OnInit {
             datasets: [
               {
                 data: dataTransformed as number[],
-                backgroundColor: gradient,
+                backgroundColor: this.randomColorList(dataTransformed.length),
                 borderColor: '#00000',
                 fill: true
               }]
@@ -216,7 +211,7 @@ export class ChartScreenComponent implements OnInit {
           labels,
           datasets: [{
             label: 'Dataset 1',
-            backgroundColor: gradient,
+            backgroundColor: this.randomColorList(1),
             borderColor: 'red',
             borderWidth: 1,
             outlierColor: '#000000',
@@ -250,7 +245,7 @@ export class ChartScreenComponent implements OnInit {
             datasets: [
               {
                 data: dataTransformed as number[],
-                backgroundColor: gradient,
+                backgroundColor: this.randomColorList(dataTransformed.length),
                 borderColor: '#00000',
                 fill: true
               }]
@@ -289,6 +284,18 @@ export class ChartScreenComponent implements OnInit {
         return;
     }
     this.addGeneralOptionToChart();
+  }
+
+  randomColorList(length: number) {
+    const result = [];
+    for (let index = 0; index < length; index++) {
+      result.push('rgb('
+        + Math.floor(Math.random() * 255)
+        + ',' + Math.floor(Math.random() * 255)
+        + ',' + Math.floor(Math.random() * 255)
+        + ')');
+    }
+    return result;
   }
 
   addGeneralOptionToChart() {

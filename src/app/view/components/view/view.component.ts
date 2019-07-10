@@ -59,6 +59,7 @@ export class ViewComponent implements OnInit, OnDestroy {
 
       // Fetch data from all column stored
       let numberColumnFetched = 0;
+      console.log(this.data);
       for (const column of this.data) {
         this.dataService.fetchData(column.tableName, column.columnName).subscribe((dataFetched: any[]) => {
           column.values = dataFetched;
@@ -67,6 +68,9 @@ export class ViewComponent implements OnInit, OnDestroy {
             this.transformAndSendData();
           }
           if (document.getElementById((indexOf).toString()) != null) {
+            if(this.allTemplates > 1){
+              document.getElementById('chartContainerSimple').setAttribute('id', 'chartContainerDouble');
+            }
             document.getElementById((indexOf).toString()).setAttribute('class', 'chartContained');
           }
         });

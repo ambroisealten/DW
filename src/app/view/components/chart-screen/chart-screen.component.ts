@@ -59,7 +59,7 @@ export class ChartScreenComponent implements OnInit {
   resetCanvasHeightAndWidth() {
     this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.offsetWidth - 150).toString();
     this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.offsetHeight - 50).toString();
-    this.myCanvas.nativeElement.setAttribute('style','');
+    this.myCanvas.nativeElement.setAttribute('style', '');
   }
 
   /*****************************************************************************************************************\
@@ -72,7 +72,7 @@ export class ChartScreenComponent implements OnInit {
   createChart() {
     const ctx = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
     this.chart = new Chart(ctx, {});
-    const labels: (string | string[])[] = [];
+    const labels: (string | string[])[] = ["a"];
     let input;
 
     const dataTransformed = this.datas
@@ -112,13 +112,13 @@ export class ChartScreenComponent implements OnInit {
                   }]
               },
               options: {
-                title:{
-                  display : true,
-                  text : this.displayedColumns[0],
-                  fontColor : "#ffffff"
+                title: {
+                  display: true,
+                  text: this.displayedColumns[0],
+                  fontColor: '#ffffff'
                 },
                 legend: {
-                  display: false,
+                  display: true,
                   position: 'bottom',
                   labels: {
                     fontSize: this.canvasFontSize
@@ -161,13 +161,13 @@ export class ChartScreenComponent implements OnInit {
                   }]
               },
               options: {
-                title:{
-                  display : true,
-                  text : this.displayedColumns[0],
-                  fontColor : "#ffffff"
+                title: {
+                  display: true,
+                  text: this.displayedColumns[0],
+                  fontColor: '#ffffff'
                 },
                 legend: {
-                  display: false,
+                  display: true,
                   position: 'bottom',
                   labels: {
                     fontSize: this.canvasFontSize
@@ -182,49 +182,67 @@ export class ChartScreenComponent implements OnInit {
         ).catch(console.error);
         break;
       case 'bar':
-        this.chart = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels,
-            datasets: [
-              {
-                data: dataTransformed as number[],
-                backgroundColor: this.randomColorList(dataTransformed.length),
-                borderColor: '#00000',
-                fill: true
-              }]
-          },
-          options: {
-            title:{
-              display : true,
-              text : this.displayedColumns[0],
-              fontColor : "#ffffff"
-            },
-            legend: {
-              display: false,
-              position: 'bottom',
-              labels: {
-                fontSize: this.canvasFontSize
-              }
-            },
-            responsive: false,
-            maintainAspectRatio: true,
-            'onClick': (event, item) => this.redirectTo(item),
-            scales: {
-              yAxes: [{
-                ticks: {
-                  beginAtZero: true,
-                  fontColor: 'white'
-                },
-              }],
-              xAxes: [{
-                ticks: {
-                  fontColor: 'white'
-                }
-              }]
-            }
+        input = {
+          body: {
+            values: dataTransformed
           }
-        });
+        };
+        this.workerService.run(DATA_CALC_FREQUENCIES, input).then(
+          (result) => {
+
+            const data = result as unknown as any;
+            const dataCalc = [];
+
+            // tslint:disable-next-line: forin
+            for (const key in data.values) {
+              labels.push(key);
+              dataCalc.push(data.values[key]);
+            }
+            this.chart = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                labels,
+                datasets: [
+                  {
+                    data: dataCalc as number[],
+                    backgroundColor: this.randomColorList(dataTransformed.length),
+                    borderColor: '#00000',
+                    fill: true
+                  }]
+              },
+              options: {
+                title: {
+                  display: true,
+                  text: this.displayedColumns[0],
+                  fontColor: '#ffffff'
+                },
+                legend: {
+                  display: false,
+                  position: 'top',
+                  labels: {
+                    fontSize: this.canvasFontSize
+                  }
+                },
+                responsive: false,
+                maintainAspectRatio: true,
+                'onClick': (event, item) => this.redirectTo(item),
+                scales: {
+                  yAxes: [{
+                    ticks: {
+                      beginAtZero: true,
+                      fontColor: 'white'
+                    },
+                  }],
+                  xAxes: [{
+                    ticks: {
+                      fontColor: 'white'
+                    }
+                  }]
+                }
+              }
+            });
+          }
+        ).catch(console.error);
         break;
       case 'boxplot':
         const boxplotData = {
@@ -239,7 +257,7 @@ export class ChartScreenComponent implements OnInit {
             padding: 10,
             itemRadius: 0,
             data: [
-              dataTransformed
+              this.datas.map(val => val[this.displayedColumns[0]])
             ]
           }]
         };
@@ -247,62 +265,80 @@ export class ChartScreenComponent implements OnInit {
           type: 'horizontalBoxplot',
           data: boxplotData as ChartData,
           options: {
-            responsive: true,
+            responsive: false,
             legend: {
               position: 'top',
             },
-            title:{
-              display : true,
-              text : "Chart.Js Boxplot chart",
-              fontColor : "#ffffff"
+            title: {
+              display: true,
+              text: 'Chart.Js Boxplot chart',
+              fontColor: '#ffffff'
             },
           }
         });
         break;
       case 'line':
-        this.chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels,
-            datasets: [
-              {
-                data: dataTransformed as number[],
-                backgroundColor: this.randomColorList(dataTransformed.length),
-                borderColor: '#00000',
-                fill: true
-              }]
-          },
-          options: {
-            title:{
-              display : true,
-              text : this.displayedColumns[0],
-              fontColor : "#ffffff"
-            },
-            legend: {
-              display: false,
-              position: 'bottom',
-              labels: {
-                fontSize: this.canvasFontSize
-              }
-            },
-            responsive: false,
-            maintainAspectRatio: true,
-            'onClick': (event, item) => this.redirectTo(item),
-            scales: {
-              yAxes: [{
-                ticks: {
-                  beginAtZero: true,
-                  fontColor: 'white'
-                },
-              }],
-              xAxes: [{
-                ticks: {
-                  fontColor: 'white'
-                }
-              }]
-            }
+        input = {
+          body: {
+            values: dataTransformed
           }
-        });
+        };
+        this.workerService.run(DATA_CALC_FREQUENCIES, input).then(
+          (result) => {
+
+            const data = result as unknown as any;
+            const dataCalc = [];
+
+            // tslint:disable-next-line: forin
+            for (const key in data.values) {
+              labels.push(key);
+              dataCalc.push(data.values[key]);
+            }
+            this.chart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels,
+                datasets: [
+                  {
+                    data: dataCalc as number[],
+                    backgroundColor: this.randomColorList(dataTransformed.length),
+                    borderColor: '#00000',
+                    fill: true
+                  }]
+              },
+              options: {
+                title: {
+                  display: true,
+                  text: this.displayedColumns[0],
+                  fontColor: '#ffffff'
+                },
+                legend: {
+                  display: false,
+                  position: 'bottom',
+                  labels: {
+                    fontSize: this.canvasFontSize
+                  }
+                },
+                responsive: false,
+                maintainAspectRatio: true,
+                'onClick': (event, item) => this.redirectTo(item),
+                scales: {
+                  yAxes: [{
+                    ticks: {
+                      beginAtZero: true,
+                      fontColor: 'white'
+                    },
+                  }],
+                  xAxes: [{
+                    ticks: {
+                      fontColor: 'white'
+                    }
+                  }]
+                }
+              }
+            });
+          }
+        ).catch(console.error);
         break;
       default:
         throwError('Chart type << ' + this.type + ' >> unimplemented. Change to tab type');

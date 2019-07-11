@@ -419,7 +419,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
           type: 'horizontalBoxplot',
           data: boxplotData as ChartData,
           options: {
-            responsive: true,
+            responsive: false,
             legend: {
               position: 'top',
             },
@@ -429,7 +429,6 @@ export class ChartViewComponent implements OnInit, OnDestroy {
             }
           }
         });
-
         break;
       case 'pie':
       case 'doughnut':

@@ -140,13 +140,14 @@ export class ChartScreenComponent implements OnInit {
         };
         this.workerService.run(DATA_CALC_FREQUENCIES, input).then(
           (result) => {
-            const data = result as unknown as {};
+
+            const data = result as unknown as any;
             const dataCalc = [];
-            for (const key in data) {
-              if (data.hasOwnProperty(key)) {
-                labels.push(key);
-                dataCalc.push(result[key]);
-              }
+
+            // tslint:disable-next-line: forin
+            for (const key in data.values) {
+              labels.push(key);
+              dataCalc.push(data.values[key]);
             }
             this.chart = new Chart(ctx, {
               type: 'doughnut',

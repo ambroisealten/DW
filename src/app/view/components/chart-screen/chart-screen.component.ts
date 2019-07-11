@@ -72,7 +72,7 @@ export class ChartScreenComponent implements OnInit {
   createChart() {
     const ctx = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
     this.chart = new Chart(ctx, {});
-    const labels: (string | string[])[] = ["a"];
+    const labels: (string | string[])[] = [];
     let input;
 
     const dataTransformed = this.datas
@@ -370,15 +370,16 @@ export class ChartScreenComponent implements OnInit {
   }
 
   redirectTo(item) {
-    const clickedItemLabel = item[0]._view.label;
-    const dataChart = item[0]._chart.config.data;
-    const itemRank = dataChart.labels.indexOf(clickedItemLabel);
     if (item.length > 0) {
+      const clickedItemLabel = item[0]._view.label;
+      const dataChart = item[0]._chart.config.data;
+      const itemRank = dataChart.labels.indexOf(clickedItemLabel);
       this.toastr.info('We want to redirect to some URL. Column name : '
         + this.displayedColumns[0]
         + ' , clicked item :' + clickedItemLabel
         + ', value : ' + dataChart.datasets[0].data[itemRank]);
     }
+
   }
 
   /*****************************************************************************************************************\

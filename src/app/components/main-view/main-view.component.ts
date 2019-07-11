@@ -45,6 +45,7 @@ export class MainViewComponent implements OnInit {
   tableStored: string[] = [];
   activeTable = [];
   allInstance: boolean[] = [];
+  allDivs: number[] = [1] ; 
 
   //Instance active
   activeInstance: number;
@@ -166,23 +167,7 @@ export class MainViewComponent implements OnInit {
 
 
       //On détermine l'id de l'enfant 
-      let instanceNumber = this.allInstance.indexOf(false) + 1 ;
-      let c = 1 ; 
-      while(document.getElementById(instanceNumber.toString()) == null){
-        let count = 0 ; 
-        let indice ; 
-        for(let i = 0 ; i < this.allInstance.length ; i++){
-          if(!this.allInstance[i]){
-            count++ ; 
-            if(count == c){
-              indice = i ; 
-              break ; 
-            }
-          }
-        } 
-        instanceNumber = indice + 1 ; 
-        c++ ; 
-      }
+      let instanceNumber = target.id ;
 
       //On récupère l'entries de l'enfant
       let entryUsed = this.entries.toArray()[target.id - 1];
@@ -296,6 +281,7 @@ export class MainViewComponent implements OnInit {
         this.loading = false;
         this.activeTable = this.datas;
         this.allInstance[instance - 1] = false ; 
+        this.allDivs.splice(this.allDivs.indexOf(instance),1) ;
         if (document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
         break;
       case 'setActif':
@@ -376,6 +362,7 @@ export class MainViewComponent implements OnInit {
     while(document.getElementById(indice.toString()) != null){
       indice++ ; 
     }
+    this.allDivs.push(indice) ; 
     newDivForChart.setAttribute('id', indice.toString());
     const template = this.parseTemplateDiv((100 + indice).toString());
     newDivForChart.appendChild(template);
@@ -466,19 +453,35 @@ export class MainViewComponent implements OnInit {
   saveChartsTable() {
     let screenJSON: ChartsScreen = new ChartsScreen();
     screenJSON.charts = [];
-    for (let i = 0; i < this.allInstance.length; i++) {
-      if (this.allInstance[i]) {
+    let wasDuo = false ;
+    for (let i = 0; i < this.allDivs.length; i++) {
+      if (this.allInstance[this.allDivs[i] - 1]) {
         let chart = new SaveChart();
-        chart.type = this.allComponentRefs[i].instance.currentType;
-        chart.filters = this.allComponentRefs[i].instance.filters;
+        chart.type = this.allComponentRefs[this.allDivs[i] - 1].instance.currentType;
+        chart.filters = this.allComponentRefs[this.allDivs[i] - 1].instance.filters;
         let tmpSaveChartTable = new SaveChartTable();
-        tmpSaveChartTable.name = this.allComponentRefs[i].instance.tableInfo.name;
-        tmpSaveChartTable.column = this.allComponentRefs[i].instance.displayedColumns;
+        tmpSaveChartTable.name = this.allComponentRefs[this.allDivs[i] - 1].instance.tableInfo.name;
+        tmpSaveChartTable.column = this.allComponentRefs[this.allDivs[i] - 1].instance.displayedColumns;
         chart.table = tmpSaveChartTable;
+        if(!wasDuo && i == this.allDivs.length -1){
+          chart.display = "solo" ;
+        } else if (wasDuo && i == this.allDivs.length -1){
+          chart.display = "duo"
+        } else if(!wasDuo && this.allInstance[this.allDivs[i+1] - 1]){
+          chart.display = "duo" ; 
+          wasDuo = true ; 
+        } else if (!this.allInstance[this.allDivs[i+1] - 1]){
+          chart.display = "solo"
+          wasDuo = false ;
+        } else if (wasDuo){
+          chart.display = "duo" ; 
+          wasDuo = false ;
+        }
         screenJSON.charts.push(chart);
-      }
+      } 
     }
 
+    console.log(screenJSON)
     //appel web service sauvegarde JSON ; 
     this.saveChartService.saveChartConfig(screenJSON).subscribe(httpResponse => {
       const resultParams = httpResponse.link;

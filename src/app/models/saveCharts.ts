@@ -5,6 +5,7 @@ export class SaveChart {
     type: string;
     table: SaveChartTable;
     filters: FilterList;
+    display: string;
 }
 
 export class SaveChartTable {

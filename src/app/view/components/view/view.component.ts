@@ -63,16 +63,13 @@ export class ViewComponent implements OnInit, OnDestroy {
 
       // Fetch data from all column stored
       let numberColumnFetched = 0;
-      console.log(this.data);
       for (const column of this.data) {
         this.dataService.fetchData(column.tableName, column.columnName).subscribe((dataFetched: any[]) => {
           column.values = dataFetched;
           const indexOf = this.data.indexOf(column);
-          console.log(indexOf);
           if (++numberColumnFetched === this.data.length) {
             this.transformAndSendData();
           }
-          console.log(document.getElementById((indexOf+1).toString()));
           if (document.getElementById((indexOf+1).toString()) != null) {
 
             document.getElementById((indexOf+1).toString()).setAttribute('class', 'chartContained');

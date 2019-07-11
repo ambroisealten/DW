@@ -46,6 +46,10 @@ export class ViewComponent implements OnInit, OnDestroy {
       this.id = params.id;
     });
 
+    if (this.allTemplates > 1) {
+      document.getElementById('chartContainerSimple').setAttribute('id', 'chartContainerDouble');
+    }
+
     this.loadEcranService.loadEcran(this.id, this.displayedName).subscribe((data: any) => {
       const chartConfig = JSON.parse(data.chart_saved).charts;
       this.allTemplates = chartConfig.length;
@@ -66,11 +70,9 @@ export class ViewComponent implements OnInit, OnDestroy {
           if (++numberColumnFetched === this.data.length) {
             this.transformAndSendData();
           }
-          if (document.getElementById((indexOf).toString()) != null) {
-            if(this.allTemplates > 1){
-              document.getElementById('chartContainerSimple').setAttribute('id', 'chartContainerDouble');
-            }
-            document.getElementById((indexOf).toString()).setAttribute('class', 'chartContained');
+          if (document.getElementById((indexOf+1).toString()) != null) {
+
+            document.getElementById((indexOf+1).toString()).setAttribute('class', 'chartContained');
           }
         });
       }

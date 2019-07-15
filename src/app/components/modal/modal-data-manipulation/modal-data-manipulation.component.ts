@@ -245,3 +245,6 @@ export class ModalDataManipulationComponent implements OnInit {
     return name;
   }
 }
+
+
+

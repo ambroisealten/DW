@@ -9,6 +9,7 @@ import { DataScheme } from '../../models/dataScheme';
 import { DataService } from '../../services/dataService';
 import { SaveChart, SaveChartTable, ChartsScreen } from 'src/app/models/saveCharts';
 import { SaveJsonCharts } from 'src/app/services/saveJsonChart';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-main-view',
@@ -45,7 +46,7 @@ export class MainViewComponent implements OnInit {
   tableStored: string[] = [];
   activeTable = [];
   allInstance: boolean[] = [];
-  allDivs: number[] = [1] ; 
+  allDivs: number[] = [1];
 
   //Instance active
   activeInstance: number;
@@ -53,21 +54,27 @@ export class MainViewComponent implements OnInit {
   //spinner 
   loading = false;
 
+  //paramètres de récupération d'une configuration (existante ou non)
+  private routeSub: Subscription;
+  idConfig: number;
+  chartsConfig: any;
+
   constructor(
     private dataService: DataService,
-    private saveChartService: SaveJsonCharts, 
+    private saveChartService: SaveJsonCharts,
     private componentFactoryResolver: ComponentFactoryResolver,
-    private toastr: ToastrService) {
+    private toastr: ToastrService,
+    private route: ActivatedRoute) {
   }
 
 
   ngOnInit() {
-    for(let i = 0 ; i < environment.maxTemplates ; i++){
-      this.allInstance.push(false) ; 
+    for (let i = 0; i < environment.maxTemplates; i++) {
+      this.allInstance.push(false);
     }
     //Récupération des données sur les tables et les champs
     this.dataService.fetchDataScheme().subscribe(response => {
-      
+
       (response as any[]).forEach(element => {
         const fields = [];
         Object.keys(element.fields).forEach(field => {
@@ -83,6 +90,18 @@ export class MainViewComponent implements OnInit {
           this.loadDataAsync(0, table.name, 0, this.dataTable, this.allComponentRefs);
         }
       }, 30);
+    });
+  }
+
+  ngAfterViewInit() {
+    this.routeSub = this.route.params.subscribe(params => {
+      if (params.id != undefined) {
+        this.idConfig = params.id;
+        this.dataService.getConfiguration(this.idConfig).subscribe((response: any) => {
+          this.chartsConfig = JSON.parse(response.chart_saved);
+          this.configRecuperation();
+        });
+      }
     });
   }
 
@@ -149,7 +168,7 @@ export class MainViewComponent implements OnInit {
 
 
   /**
-   * Une fois la donnée drop, on initialise le tableau enfant avec les données et met en place le réseau de communication
+   * Une fois la donnée drop, on créé un nouveau fils 
    * @param ev 
    */
   onDrop(ev) {
@@ -158,70 +177,10 @@ export class MainViewComponent implements OnInit {
 
     //On vérifie que l'élément drag est bien celui qui initialise les données de l'enfant
     if (target.className == 'charts' || target.className == 'chartsFour') {
-
       //On récupère les données du drag
       const fieldName = ev.dataTransfer.getData('colName');
       const tableName = ev.dataTransfer.getData('tableName');
-      const tableInfo = this.datas.find(data => data.name == tableName);
-
-
-
-      //On détermine l'id de l'enfant 
-      let instanceNumber = target.id ;
-
-      //On récupère l'entries de l'enfant
-      let entryUsed = this.entries.toArray()[target.id - 1];
-      entryUsed.clear() ; 
-      //On crée le composant enfant
-      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
-      this.componentRef = entryUsed.createComponent(componentFactory);
-
-      this.componentRef.instance.setSpin();
-
-
-      //"Sauvegarde" de la ref
-      this.allComponentRefs[instanceNumber - 1] = this.componentRef;
-
-      //On Initialise les variables 
-      this.componentRef.instance.tableInfo = tableInfo;
-      this.componentRef.instance.instanceNumber = instanceNumber;
-      this.activeInstance = instanceNumber;
-      this.allInstance[instanceNumber - 1] = true;
-
-      //!\ INUTILE TO SUPPR 
-      this.componentRef.instance.droppedText = fieldName;
-
-
-      this.componentRef.instance.displayedColumns = [fieldName];
-      this.componentRef.instance.tableNames.push(tableName);
-      this.getData(tableName).subscribe(dataFetched => {
-        this.componentRef.instance.datas = dataFetched;
-        this.componentRef.instance.calculData();
-        this.paramView.data = dataFetched;
-        this.paramView.tableInfo = tableInfo;
-        this.paramView.actif = instanceNumber;
-        //On initialise les données à destination de param view
-        this.paramView.setColonnesAndFilters();
-      });
-
-      this.activeTable = [];
-      this.activeTable.push(this.datas.find(element => element.name === tableName));
-
-      //Initialisation de la communication Parent enfant
-      //Enfant vers Parent
-      const subChild: Subscription = this.componentRef.instance.toParent.subscribe(message => this.handleMessageFromChild(message));
-      this.componentRef.onDestroy(() => subChild.unsubscribe());
-
-
-      //Remove the border of the (potentially) latest active child
-      let latestActive = document.getElementsByClassName('containerActive')[0];
-      if (latestActive != null) {
-        let latestActiveClass = latestActive.getAttribute('class').split('containerActive')[1];
-        latestActive.setAttribute('class', latestActiveClass);
-      }
-
-      //On ré-initialise les tailles de l'instance créée
-      this.componentRef.instance.recheckValues();
+      this.createNewChild(fieldName, tableName, target.id);
 
       const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
 
@@ -231,14 +190,79 @@ export class MainViewComponent implements OnInit {
       } else {
         target.setAttribute('class', 'chartContained');
       }
-
-
-
-      //Set border of the active one
-      let activeOne = document.getElementById(instanceNumber.toString());
-      activeOne.setAttribute('class', 'containerActive ' + activeOne.getAttribute('class'));
     }
     ev.preventDefault();
+  }
+
+  /**
+   * Initialise le tableau enfant avec les données et met en place le réseau de communication
+   * @param fieldName 
+   * @param tableName 
+   * @param targetId 
+   */
+  createNewChild(fieldName, tableName, targetId) {
+    const tableInfo = this.datas.find(data => data.name == tableName);
+
+    //On détermine l'id de l'enfant 
+    let instanceNumber = targetId;
+
+    //On récupère l'entries de l'enfant
+    let entryUsed = this.entries.toArray()[targetId - 1];
+    entryUsed.clear();
+    //On crée le composant enfant
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ChartViewComponent);
+    this.componentRef = entryUsed.createComponent(componentFactory);
+
+    this.componentRef.instance.setSpin();
+
+
+    //"Sauvegarde" de la ref
+    this.allComponentRefs[instanceNumber - 1] = this.componentRef;
+
+    //On Initialise les variables 
+    this.componentRef.instance.tableInfo = tableInfo;
+    this.componentRef.instance.instanceNumber = instanceNumber;
+    this.activeInstance = instanceNumber;
+    this.allInstance[instanceNumber - 1] = true;
+
+    //!\ INUTILE TO SUPPR 
+    this.componentRef.instance.droppedText = fieldName;
+
+
+    this.componentRef.instance.displayedColumns = [fieldName];
+    this.componentRef.instance.tableNames.push(tableName);
+    this.getData(tableName).subscribe(dataFetched => {
+      this.componentRef.instance.datas = dataFetched;
+      this.componentRef.instance.calculData();
+      this.paramView.data = dataFetched;
+      this.paramView.tableInfo = tableInfo;
+      this.paramView.actif = instanceNumber;
+      //On initialise les données à destination de param view
+      this.paramView.setColonnesAndFilters();
+    });
+
+    this.activeTable = [];
+    this.activeTable.push(this.datas.find(element => element.name === tableName));
+
+    //Initialisation de la communication Parent enfant
+    //Enfant vers Parent
+    const subChild: Subscription = this.componentRef.instance.toParent.subscribe(message => this.handleMessageFromChild(message));
+    this.componentRef.onDestroy(() => subChild.unsubscribe());
+
+
+    //Remove the border of the (potentially) latest active child
+    let latestActive = document.getElementsByClassName('containerActive')[0];
+    if (latestActive != null) {
+      let latestActiveClass = latestActive.getAttribute('class').split('containerActive')[1];
+      latestActive.setAttribute('class', latestActiveClass);
+    }
+
+    //On ré-initialise les tailles de l'instance créée
+    this.componentRef.instance.recheckValues();
+
+    //Set border of the active one
+    let activeOne = document.getElementById(instanceNumber.toString());
+    activeOne.setAttribute('class', 'containerActive ' + activeOne.getAttribute('class'));
   }
 
 
@@ -280,8 +304,8 @@ export class MainViewComponent implements OnInit {
       case 'destroyed':
         this.loading = false;
         this.activeTable = this.datas;
-        this.allInstance[instance - 1] = false ; 
-        this.allDivs.splice(this.allDivs.indexOf(instance),1) ;
+        this.allInstance[instance - 1] = false;
+        this.allDivs.splice(this.allDivs.indexOf(instance), 1);
         if (document.getElementsByTagName('nav')[0].nextSibling.childNodes.length === 1) this.diviseChartsSegment();
         break;
       case 'setActif':
@@ -330,17 +354,55 @@ export class MainViewComponent implements OnInit {
   }
 
   /**
+   * Permet de re-créer l'environnement de création de la sauvegarde précédemment effectuée
+   */
+  configRecuperation() {
+    let acc = 0;
+    let allLength = this.chartsConfig.charts.length;
+    this.chartsConfig.charts.forEach(chartConfig => {
+      acc++;
+      if (acc > 1) this.diviseChartsSegment();
+      let tableName = chartConfig.table.name;
+      let i = 0;
+      chartConfig.table.column.forEach(columnName => {
+        i++;
+        if (i <= 1) {
+          this.createNewChild(columnName, tableName, acc);
+          let lastChild = <HTMLElement>document.getElementsByTagName('nav')[0].nextSibling.lastChild;
+          if(allLength > 2) {
+            lastChild.setAttribute("class","chartContainedFour");
+          }
+          else{
+            lastChild.setAttribute("class","chartContained");
+          }
+        }
+        else {
+          this.allComponentRefs[acc - 1].instance.addColumn(tableName, columnName);
+        }
+      });
+      setTimeout(() => {
+        this.modifyChartTypeChildren(acc-1,chartConfig.type);
+      },1000);
+      
+    });
+  }
+
+  modifyChartTypeChildren(idChildren,chartType){
+    this.allComponentRefs[idChildren].instance.changeChartView(chartType);
+  }
+
+  /**
    * Parcourt le div contenant les templates disponibles, et retourne la première contenue dans ce div
    * @param idNumber 
    */
   parseTemplateDiv(idNumber: string) {
     let container = document.getElementById('templates');
     let test = container.firstChild;
-    for(let i = 0 ; i < container.children.length ; i++){
-      if(container.children[i].id == idNumber){
-        test = container.children[i] ;
+    for (let i = 0; i < container.children.length; i++) {
+      if (container.children[i].id == idNumber) {
+        test = container.children[i];
       }
-    } 
+    }
     while (test.nodeName != "TEMPLATE") {
       test = test.nextSibling;
     }
@@ -358,11 +420,11 @@ export class MainViewComponent implements OnInit {
 
     this.containerRepeat += 1;
     const newDivForChart = document.createElement('div');
-    let indice = this.allInstance.indexOf(false) + 1; 
-    while(document.getElementById(indice.toString()) != null){
-      indice++ ; 
+    let indice = this.allInstance.indexOf(false) + 1;
+    while (document.getElementById(indice.toString()) != null) {
+      indice++;
     }
-    this.allDivs.push(indice) ; 
+    this.allDivs.push(indice);
     newDivForChart.setAttribute('id', indice.toString());
     const template = this.parseTemplateDiv((100 + indice).toString());
     newDivForChart.appendChild(template);
@@ -453,7 +515,7 @@ export class MainViewComponent implements OnInit {
   saveChartsTable() {
     let screenJSON: ChartsScreen = new ChartsScreen();
     screenJSON.charts = [];
-    let wasDuo = false ;
+    let wasDuo = false;
     for (let i = 0; i < this.allDivs.length; i++) {
       if (this.allInstance[this.allDivs[i] - 1]) {
         let chart = new SaveChart();
@@ -463,31 +525,30 @@ export class MainViewComponent implements OnInit {
         tmpSaveChartTable.name = this.allComponentRefs[this.allDivs[i] - 1].instance.tableInfo.name;
         tmpSaveChartTable.column = this.allComponentRefs[this.allDivs[i] - 1].instance.displayedColumns;
         chart.table = tmpSaveChartTable;
-        if(!wasDuo && i == this.allDivs.length -1){
-          chart.display = "solo" ;
-        } else if (wasDuo && i == this.allDivs.length -1){
+        if (!wasDuo && i == this.allDivs.length - 1) {
+          chart.display = "solo";
+        } else if (wasDuo && i == this.allDivs.length - 1) {
           chart.display = "duo"
-        } else if(!wasDuo && this.allInstance[this.allDivs[i+1] - 1]){
-          chart.display = "duo" ; 
-          wasDuo = true ; 
-        } else if (!this.allInstance[this.allDivs[i+1] - 1]){
+        } else if (!wasDuo && this.allInstance[this.allDivs[i + 1] - 1]) {
+          chart.display = "duo";
+          wasDuo = true;
+        } else if (!this.allInstance[this.allDivs[i + 1] - 1]) {
           chart.display = "solo"
-          wasDuo = false ;
-        } else if (wasDuo){
-          chart.display = "duo" ; 
-          wasDuo = false ;
+          wasDuo = false;
+        } else if (wasDuo) {
+          chart.display = "duo";
+          wasDuo = false;
         }
         screenJSON.charts.push(chart);
-      } 
+      }
     }
 
-    console.log(screenJSON)
     //appel web service sauvegarde JSON ; 
     this.saveChartService.saveChartConfig(screenJSON).subscribe(httpResponse => {
       const resultParams = httpResponse.link;
       let id = resultParams.split(':')[0];
       let displayedName = resultParams.split(':')[1];
-      this.toastr.info("You can see your charts via this link : localhost:4200/ecran/"+displayedName+"/"+id);
+      this.toastr.info("You can see your charts via this link : localhost:4200/ecran/" + displayedName + "/" + id);
     });
   }
 }

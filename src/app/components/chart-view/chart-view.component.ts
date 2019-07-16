@@ -108,20 +108,29 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Ajout d'une colonne de donnée, reset de l'affichage
+   * Drop d'une colonne sur l'élément
    * @param ev 
    */
   onDrop(ev) {
     const tableName = ev.dataTransfer.getData('tableName');
     //Récupération de la colonne 
     const colName = ev.dataTransfer.getData('colName');
+    this.addColumn(tableName, colName);
+    ev.preventDefault();
+  }
+
+  /**
+   * Ajout d'une colonne de donnée, reset de l'affichage
+   * @param tableName 
+   * @param colName 
+   */
+  addColumn(tableName, colName) {
     if (colName != '' && this.tableInfo.name == tableName && !this.displayedColumns.includes(colName)) {
       this.toParent.emit('askForData/' + this.instanceNumber + '/' + tableName);
       //On ajoute la colonne et on ajoute le span correspondant  
       this.displayedColumns.push(colName);
       this.calculData();
     }
-    ev.preventDefault();
   }
 
   /**
@@ -507,7 +516,7 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     const clickedItemLabel = item[0]._view.label;
     const dataChart = item[0]._chart.config.data;
     const itemRank = dataChart.labels.indexOf(clickedItemLabel);
-    if (item.length > 0) { this.toastr.info('We want to redirect to some URL. Column name : '+this.displayedColumns[0]+' , clicked item :'+clickedItemLabel+', value : '+dataChart.datasets[0].data[itemRank]); }
+    if (item.length > 0) { this.toastr.info('We want to redirect to some URL. Column name : ' + this.displayedColumns[0] + ' , clicked item :' + clickedItemLabel + ', value : ' + dataChart.datasets[0].data[itemRank]); }
   }
 
   frequencies(array: any[]) {

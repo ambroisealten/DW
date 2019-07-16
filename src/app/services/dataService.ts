@@ -29,4 +29,8 @@ export class DataService {
             + end
             , { headers });
     }
+
+    getConfiguration(id: number) {
+        return this.httpClient.get(environment.baseUrl + '/getChartConfig/' + id + '/displayedName');
+    }
 }

@@ -180,7 +180,7 @@ export class MainViewComponent implements OnInit {
       //On récupère les données du drag
       const fieldName = ev.dataTransfer.getData('colName');
       const tableName = ev.dataTransfer.getData('tableName');
-      this.createNewChild(fieldName, tableName, target.id);
+      this.createNewChild(fieldName, tableName, target.id,false);
 
       const allChartChilds = document.getElementsByTagName('nav')[0].nextSibling.childNodes.length;
 
@@ -200,7 +200,7 @@ export class MainViewComponent implements OnInit {
    * @param tableName 
    * @param targetId 
    */
-  createNewChild(fieldName, tableName, targetId) {
+  createNewChild(fieldName, tableName, targetId,hasFilter) {
     const tableInfo = this.datas.find(data => data.name == tableName);
 
     //On détermine l'id de l'enfant 
@@ -238,7 +238,8 @@ export class MainViewComponent implements OnInit {
       this.paramView.tableInfo = tableInfo;
       this.paramView.actif = instanceNumber;
       //On initialise les données à destination de param view
-      this.paramView.setColonnesAndFilters();
+      if(!hasFilter) this.paramView.setColonnesAndFilters();
+      this.paramView.filterList = this.componentRef.instance.filters;
     });
 
     this.activeTable = [];
@@ -362,12 +363,14 @@ export class MainViewComponent implements OnInit {
     this.chartsConfig.charts.forEach(chartConfig => {
       acc++;
       if (acc > 1) this.diviseChartsSegment();
+
       let tableName = chartConfig.table.name;
       let i = 0;
       chartConfig.table.column.forEach(columnName => {
         i++;
         if (i <= 1) {
-          this.createNewChild(columnName, tableName, acc);
+          
+          this.createNewChild(columnName, tableName, acc,true);
           let lastChild = <HTMLElement>document.getElementsByTagName('nav')[0].nextSibling.lastChild;
           if(allLength > 2) {
             lastChild.setAttribute("class","chartContainedFour");
@@ -379,10 +382,13 @@ export class MainViewComponent implements OnInit {
         else {
           this.allComponentRefs[acc - 1].instance.addColumn(tableName, columnName);
         }
+        this.paramView.filterList = chartConfig.filters;
+        this.allComponentRefs[acc - 1].instance.filters = chartConfig.filters;
+        this.allComponentRefs[acc - 1].instance.emitFiltersAndActive();
       });
       setTimeout(() => {
-        this.modifyChartTypeChildren(acc-1,chartConfig.type);
-      },1000);
+        this.modifyChartTypeChildren(this.chartsConfig.charts.indexOf(chartConfig),chartConfig.type);
+      },100);
       
     });
   }

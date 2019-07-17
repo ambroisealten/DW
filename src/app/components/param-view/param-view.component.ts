@@ -822,6 +822,7 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     }
     this.column = this.filterList[0].filterColumn;
     this.changeColumn();
+
     this.sendFilterList({ actif: actif, filter: tmpFilterList });
   }
 

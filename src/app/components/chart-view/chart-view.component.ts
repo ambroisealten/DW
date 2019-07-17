@@ -616,19 +616,26 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Say to the parents the active child
+   * Say to the parents the active child if the user click on it
    */
   emitActiveInstance(event) {
     if (event.target.tagName != 'I') {
-      this.toParent.emit('setActif/' + this.instanceNumber)
-      let filtre = 'filtres/' + this.instanceNumber;
-      this.toParent.emit(filtre);
-      let message = 'actif/' + this.instanceNumber + '/';
-      for (let i = 0; i < this.tableNames.length; i++) {
-        message += this.tableNames[i] + '/';
-      }
-      this.toParent.emit(message)
+      this.emitFiltersAndActive();
     }
+  }
+
+  /**
+  * Say to the parents the active
+  */
+  emitFiltersAndActive(){
+    this.toParent.emit('setActif/' + this.instanceNumber);
+    let filtre = 'filtres/' + this.instanceNumber;
+    this.toParent.emit(filtre);
+    let message = 'actif/' + this.instanceNumber + '/';
+    for (let i = 0; i < this.tableNames.length; i++) {
+      message += this.tableNames[i] + '/';
+    }
+    this.toParent.emit(message);
   }
 
   calculDataChart() {

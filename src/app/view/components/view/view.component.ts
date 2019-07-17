@@ -106,6 +106,7 @@ export class ViewComponent implements OnInit, OnDestroy {
             .filter(compRef => compRef.instance.tables.name === tableName)
             .forEach(compRef => {
               compRef.instance.datas = result;
+              compRef.instance.calculData();
               compRef.instance.setView();
             });
         }

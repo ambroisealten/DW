@@ -58,7 +58,10 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     return this.displayedColumns.length === 0;
   }
 
-  //Lors d'un changement de colonne reset les sélections et les données affichées
+  /**
+   * Lors d'un changement de colonne reset les sélections et les données affichées
+   * 
+  */
   changeColumn() {
     this.displayedColumns = ['select', this.column];
     this.setDatasourceGpmt();
@@ -561,6 +564,10 @@ export class ParamViewComponent implements OnInit, OnDestroy {
 
   }
 
+  /**
+   * Ouvre la modale de filtre sur les dates
+   * @param istri 
+   */
   AddFilterDate(istri) {
     const dialogConfig = new MatDialogConfig();
 
@@ -793,6 +800,9 @@ export class ParamViewComponent implements OnInit, OnDestroy {
   * 
   \**************************************************************************************************/
 
+  /**
+   * Lors de la création d'un composant, création des paramètres de groupement et de filtres
+   */
   setColonnesAndFilters() {
     //Initialise les filtres 
     this.columns = [];
@@ -826,6 +836,9 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     this.sendFilterList({ actif: actif, filter: tmpFilterList });
   }
 
+  /**
+   * Remise à zéro des valeurs de la vue 
+   */
   reset() {
     this.columns = [];
     this.filterList = [];
@@ -834,10 +847,16 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     this.dataSource = new MatTableDataSource();
   }
 
+  /**
+   * Mise à jour des données de groupement
+   */
   setDataSourceFilter() {
     this.dataSourceGpmt = new MatTableDataSource(this.filterList);
   }
 
+  /**
+   * Change la colonne active dans le select
+   */
   setColonnes() {
     this.columns = [];
     this.tableInfo['fields'].forEach(element => {
@@ -865,6 +884,9 @@ export class ParamViewComponent implements OnInit, OnDestroy {
     this.messageEvent.emit(filtreInfo);
   }
 
+  /**
+   * Produit un tableau comprenant uniquement des objets uniques
+   */
   uniqueArrayOfObject() {
     return Object.values(this.data.reduce((tmp, x) => {
       // You already get a value

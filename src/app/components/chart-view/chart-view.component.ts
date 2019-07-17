@@ -70,6 +70,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
   }
 
+  /**
+   * Initialisation
+   */
   ngAfterViewInit() {
     this.context = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
     //Set la taille du texte selon la taille 
@@ -85,6 +88,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.resetCanvasHeightAndWidth();
   }
 
+  /**
+   * Lancement de le fenêtre créeant un spinner (indice que l'on est en train de charger du contenu)
+   */
   setSpin() {
     this.entrySpinningComponent.clear();
     let factory = this.componentFactoryResolver.resolveComponentFactory(ModalLoadSpinnerComponent);
@@ -102,6 +108,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Mise à jour de la taille du Canvas en fonction de la taille de son élément père (container)
+   */
   resetCanvasHeightAndWidth() {
     this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetWidth - 150).toString();
     this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.parentNode.parentNode.offsetHeight - 50).toString();
@@ -512,6 +521,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
 
+  /**
+   * Définit l'action à effectuer lors du click sur un chart (e.g, redirection vers un écran particulier, avec des paramètres définis)
+   * @param item 
+   */
   redirectTo(item) {
     const clickedItemLabel = item[0]._view.label;
     const dataChart = item[0]._chart.config.data;
@@ -519,6 +532,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     if (item.length > 0) { this.toastr.info('We want to redirect to some URL. Column name : ' + this.displayedColumns[0] + ' , clicked item :' + clickedItemLabel + ', value : ' + dataChart.datasets[0].data[itemRank]); }
   }
 
+  /**
+   * Renvoie un tableau comprenant chaque item compris dans un array et sa fréquence d'apparition dans ce dernier
+   * @param array 
+   */
   frequencies(array: any[]) {
     const freqs = { values: {}, sum: 0 };
     array.map(function (a) {
@@ -534,10 +551,16 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     return freqs;
   }
 
+  /**
+   * Si le chart créé (que sa valeur soit différent d'undefined et que son type soit bien un Chart), détruit cette valeur
+   */
   resetChartView() {
     if (this.chart instanceof Chart) { this.chart.destroy(); }
   }
 
+  /**
+   * Lors de la destruction d'un écran d'analyse, enlève tous les composants liés à cet écran, remet la template utilisée dans la "réserve" de templates
+   */
   deleteChartView() {
     const allContainedFour = document.getElementsByClassName('chartContainedFour').length;
     const allContained = document.getElementsByClassName('chartContained').length;
@@ -562,12 +585,19 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     else if (chartsLength === 3) this.resizeContainers();
   }
 
+  /**
+   * Notifie au parent que le fils demande la donnée de la table prédéfini
+   * @param tableName 
+   */
   askForData(tableName) {
     if (this.tableNames.includes(tableName)) {
       this.toParent.emit('askForData/' + this.instanceNumber + '/' + tableName);
     }
   }
 
+  /**
+   * Si le type actuel de l'écran est différent d'un tableau, raffraîchit les données affichées
+   */
   refreshDataChart() {
     if (this.currentType !== 'tab') {
       this.calculDataChart();
@@ -575,6 +605,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
   }
 
 
+  /**
+   * Re-définit les attributs de classe du container principal (dans le but de re-dimensionner dynamiquement le composant)
+   */
   resizeContainers() {
     const allContained = Array.from(document.getElementsByClassName('chartContainedFour'));
 
@@ -638,6 +671,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.toParent.emit(message);
   }
 
+  /**
+   * Fournit la données à afficher pour le graphique (Chart) créé, les labels et options (légende, couleurs, titre), et lance la mise à jour du Chart
+   */
   calculDataChart() {
     const data = this.datas
       .filter(element => this.isNotExclude(element))
@@ -675,6 +711,9 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     this.chart.update();
   }
 
+  /**
+   * Lance les diverses méthodes de calcul des données présentes dans le composant
+   */
   calculData() {
     if (this.datas.length > 0) {
       try {
@@ -691,6 +730,10 @@ export class ChartViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Suppression d'une colonne dans un tableau (délétion du composant si la colonne supprimée était la dernière)
+   * @param id 
+   */
   row_clear(id) {
     if (this.displayedColumns.length.valueOf() == 1) {
       this.displayedColumns.splice(id, 1);

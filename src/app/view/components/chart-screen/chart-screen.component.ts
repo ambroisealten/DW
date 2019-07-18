@@ -14,15 +14,18 @@ import { WebworkerService } from '../../workers/webworker.service';
 })
 export class ChartScreenComponent implements OnInit {
 
+  //Input Parent vers ce composant
   @Input() type;
   @Input() tables;
   @Input() filters: FilterList[];
   @Input() datas;
 
+  //Données affichées dans l'écran
   spans: any[];
   datasourceTable: any[];
   displayedColumns: string[] = [];
 
+  //Paramètres correspondant au Chart et Canvas créé
   chart: Chart;
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
   canvasFontSize: number;
@@ -43,12 +46,14 @@ export class ChartScreenComponent implements OnInit {
     }
   }
 
+  /**
+   * Initialise la vue pour ce composant, en fonction de son type (tableau ou graphique)
+   */
   setView() {
     this.tables.column.forEach(element => {
       this.displayedColumns.push(element);
     });
     if (this.type == "tab") {
-      //Créer displayedColumns ICI ! 
       this.calculData();
     } else {
       this.createChart();
@@ -56,6 +61,9 @@ export class ChartScreenComponent implements OnInit {
     }
   }
 
+  /**
+   * Ré-initialise les valeurs de taille pour le canvas (et détruit les attributs de style existants)
+   */
   resetCanvasHeightAndWidth() {
     this.myCanvas.nativeElement.width = (this.myCanvas.nativeElement.parentNode.parentNode.offsetWidth - 150).toString();
     this.myCanvas.nativeElement.height = (this.myCanvas.nativeElement.parentNode.parentNode.offsetHeight - 50).toString();
@@ -69,6 +77,11 @@ export class ChartScreenComponent implements OnInit {
    * 
    *
    \*****************************************************************************************************************/
+
+  /**
+   * Créé le chart correspondant à ce composant en fonction des données comprises dans ce dernier
+   * Organnisé autour de workers pour faciliter la création des graphiques (écris en brut pour le moment, peuvent être optimisés)
+   */
   createChart() {
     const ctx = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
     this.chart = new Chart(ctx, {});
@@ -350,6 +363,9 @@ export class ChartScreenComponent implements OnInit {
     this.addGeneralOptionToChart();
   }
 
+  /**
+   * Construit une liste de couleurs (sous format rgb), d'une taille pré-définie
+   */
   randomColorList(length: number) {
     const result = [];
     for (let index = 0; index < length; index++) {
@@ -362,6 +378,9 @@ export class ChartScreenComponent implements OnInit {
     return result;
   }
 
+  /**
+   * Modifie les options du Chart actuel, et lance la mise à jour de ce dernier
+   */
   addGeneralOptionToChart() {
     this.chart.config.type = this.type;
     this.chart.config.options.responsive = false;
@@ -369,6 +388,9 @@ export class ChartScreenComponent implements OnInit {
     this.chart.update();
   }
 
+  /**
+   * Fonction de click sur un des éléments du Chart actuel (action à re-définir en fonction de ce que veut le client)
+   */
   redirectTo(item) {
     if (item.length > 0) {
       const clickedItemLabel = item[0]._view.label;
@@ -599,6 +621,9 @@ export class ChartScreenComponent implements OnInit {
     return true;
   }
 
+  /**
+   * Lance les diverses méthodes de calcul des données présentes dans le composant
+   */
   calculData() {
     this.datasourceTable = Object.assign([], this.datas.filter(element => this.isNotExclude(element)))
     this.multipleSort();

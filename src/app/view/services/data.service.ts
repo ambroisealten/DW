@@ -8,6 +8,11 @@ export class DataService {
 
     constructor(private httpClient: HttpClient) {}
 
+    /**
+     * Lance la récupération des données d'une colonne précise compris dans une table définie 
+     * @param tableName 
+     * @param columnName 
+     */
     fetchData(tableName: string, columnName: string) {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',

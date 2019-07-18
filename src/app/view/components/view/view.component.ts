@@ -16,14 +16,17 @@ import { environment } from 'src/environments/environment';
 })
 export class ViewComponent implements OnInit, OnDestroy {
 
+  //Paramètres globaux
   templatesTab = new Array(environment.maxTemplates);
   allTemplates: number;
   containerRepeat = 1;
   data: DataColumn[] = [];
 
+  //Nom et id de l'écran chargé
   displayedName: string;
   id: number;
 
+  //Paramètres d'abonnement à la route
   private routeSub: Subscription;
 
   //Tableau des refs vers les childs
@@ -76,7 +79,6 @@ export class ViewComponent implements OnInit, OnDestroy {
           }
         });
       }
-
       this.createDOMContainer();
       this.setDataChild(chartConfig);
     });
@@ -86,6 +88,9 @@ export class ViewComponent implements OnInit, OnDestroy {
     this.routeSub.unsubscribe();
   }
 
+  /**
+   * Prend les données demandées par le composant (dans un Web Worker), puis les envoies à chaque instance fils (et lance les fonctions de mises à jour de chaque fils)
+   */
   transformAndSendData() {
     const tables = [];
     this.data.forEach(dataColumn => {
@@ -114,6 +119,9 @@ export class ViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Lance autant de fois que nécessaire la fonction de création de templates qui contiendront les fils
+   */
   createDOMContainer() {
     while (this.containerRepeat !== this.allTemplates) {
       this.diviseChartsSegment();

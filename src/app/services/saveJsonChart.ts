@@ -9,6 +9,9 @@ export class SaveJsonCharts {
 
     constructor(private httpClient: HttpClient) { }
 
+    /**
+     * Sauvegarde la configuration créée par l'utilisateur 
+     */
     saveChartConfig(chartsSavedJson): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
@@ -18,6 +21,9 @@ export class SaveJsonCharts {
         .post<SaveChart>(environment.baseUrl+ '/saveChartConfig/displayedName', chartsSavedJson,  {headers})
     }
 
+    /**
+     * Retrouve une configuration sauvegardée précédemment
+     */
     getChartConfig(chartId: number, displayedName: string) {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',

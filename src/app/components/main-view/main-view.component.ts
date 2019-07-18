@@ -105,6 +105,14 @@ export class MainViewComponent implements OnInit {
     });
   }
 
+  /**
+   * Chargement de la donnée demandée en fonction de la charge maximale autorisée (du navigateur et de l'environnement)
+   * @param count 
+   * @param tableName 
+   * @param i première ligne à obtenir dans le fetching
+   * @param dataTable 
+   * @param allComponentsRefs 
+   */
   loadDataAsync(count: number, tableName: string, i: number, dataTable: DataTable[], allComponentsRefs) {
     const charge = window.performance['memory']['usedJSHeapSize'] / 1000000;
     this.percentageOfPreloadEnded = charge / environment.maxLoadDataCharge * 100;
@@ -134,6 +142,10 @@ export class MainViewComponent implements OnInit {
 
   }
 
+  /**
+   * Initialise le fetching des données d'une table, entre la première et la 10000ème ligne
+   * @param tableName 
+   */
   getData(tableName: string) {
     if (this.tableStored.includes(tableName)) {
       return of(this.dataTable.find(data => data.tableName === tableName).values);
@@ -318,6 +330,10 @@ export class MainViewComponent implements OnInit {
     }
   }
 
+  /**
+   * Set la table active dans le panel de droite s'occupant des groupements, afin de pouvoir effectuer des actions de groupement/filtrage
+   * @param message 
+   */
   setActiveTable(message) {
     this.activeTable = [];
     for (let i = 2; i < message.length - 1; i++) {
@@ -330,6 +346,10 @@ export class MainViewComponent implements OnInit {
     });
   }
 
+  /**
+   * Ré-initalise les valeurs pour le panel de droite
+   * @param event 
+   */
   resetActiveTable(event) {
     if (+event['srcElement']['id'] + "" != "NaN" && event['srcElement']['id'] != "" && !this.allInstance[+event['srcElement']['id'] - 1]) {
       this.activeTable = this.datas
@@ -393,6 +413,11 @@ export class MainViewComponent implements OnInit {
     });
   }
 
+  /**
+   * Modifie le type de graphique pour un composant fils particulier
+   * @param idChildren 
+   * @param chartType 
+   */
   modifyChartTypeChildren(idChildren,chartType){
     this.allComponentRefs[idChildren].instance.changeChartView(chartType);
   }
@@ -518,6 +543,10 @@ export class MainViewComponent implements OnInit {
     });
   }
 
+  /**
+   * Permets la sauvegarde des configurations de chaque écran composé (type, filtres, table et colonnes utilisées ..)
+   * Prend aussi en compte l'affichage de chaque écran (s'il est seul sur une ligne par exemple), afin de retranscrire véritablement la volonté du créateur
+   */
   saveChartsTable() {
     let screenJSON: ChartsScreen = new ChartsScreen();
     screenJSON.charts = [];

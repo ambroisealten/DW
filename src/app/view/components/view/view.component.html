@@ -1,0 +1,14 @@
+<header>
+  <figure>
+    <img src="assets/images/football.png" alt="Logo" />
+    <figcaption>DW</figcaption>
+  </figure>
+</header>
+<div id="chartContainerSimple">
+  <div class='chartContained' id='1'>
+    <template #chartHost></template>
+  </div>
+</div>
+<div id="templates" class="ecrans">
+  <template *ngFor="let el of templatesTab; let i = index" id='{{ i+102 }}' #chartHost></template>
+</div>

@@ -1,0 +1,77 @@
+mat-dialog-content {
+  width: 65vw;
+  max-width: 75vw;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-column-gap: 1px;
+  color: white;
+}
+
+.dialogTitle {
+  text-align: center;
+  border-bottom: 2px solid #888;
+  color: white;
+  text-decoration: bold;
+}
+
+.leftTab {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 60vh;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.rightTab {
+  margin-left: 5%;
+  height: fit-content;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.saveButton {
+  margin-top: 1%;
+  margin-left: 35% !important;
+}
+
+.closeButton {
+  margin-top: 1%;
+  margin-left: 2% !important;
+}
+
+.mat-elevation-z8 {
+  width: 100%;
+  text-align: center;
+}
+
+.mat-header-cell {
+  color: white;
+  background-color: #696969;
+  text-align: center;
+}
+
+.mat-cell {
+  color: white;
+}
+
+.mat-row:nth-child(even) {
+  background-color: #696969;
+}
+
+.mat-row:nth-child(odd) {
+  background-color: #808080;
+}
+
+.dialogContainer {
+  background: black !important;
+}
+
+.ban {
+  text-align: center;
+}
+
+.mat-radio-button {
+  padding-left: 1%;
+  padding-right: 1%;
+}

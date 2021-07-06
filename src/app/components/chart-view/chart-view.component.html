@@ -1,0 +1,82 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+<div class="container" (click)="emitActiveInstance($event)" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
+  <ng-container *ngIf="currentType == 'tab'">
+    <table cdkDropListGroup>
+      <tr>
+        <ng-container *ngFor="let column of displayedColumns ; let i = index">
+          <th class="header" cdkDropList cdkDropListLockAxis="x" cdkDropListOrientation="horizontal"
+            (cdkDropListDropped)="dropListDropped($event, i)" cdkDrag (cdkDragStarted)="dragStarted($event, i)"
+            [cdkDragData]="{name: column, columIndex: i}">
+            {{ column }}
+            <i (click)="row_clear(i)" class="material-icons clear row_clear">clear</i>
+          </th>
+        </ng-container>
+      </tr>
+
+      <ng-container *ngFor="let data of datasourceTable; let j = index">
+        <tr>
+          <ng-container *ngFor="let column of displayedColumns ; let i = index">
+            <ng-container *ngIf="getRowSpan(column,j)">
+              <td [attr.rowspan]="getRowSpan(column,j)">
+                {{ transform(data[column],column) }}</td>
+            </ng-container>
+          </ng-container>
+        </tr>
+      </ng-container>
+    </table>
+  </ng-container>
+  <div>
+    <canvas #myCanvas width="0" height="0">
+      {{chart}}
+    </canvas>
+  </div>
+  <div class="fabWrapper">
+    <div class="fab">
+      <span class="fab-action-button">
+        <i class="fab-action-button_icon icon-material_burger"></i>
+      </span>
+      <ul class="fab-buttons">
+        <li class="fab-buttons__item">
+          <a (click)="changeChartView('pie')" class="fab-buttons__link" data-tooltip="Pie">
+            <i class="icon-material icon-material_pie"></i>
+          </a>
+        </li>
+        <li class="fab-buttons__item">
+          <a (click)="changeChartView('doughnut')" class="fab-buttons__link" data-tooltip="Doughnut">
+            <i class="icon-material icon-material_doughnut"></i>
+          </a>
+        </li>
+        <li class="fab-buttons__item">
+          <a (click)="changeChartView('bar')" class="fab-buttons__link" data-tooltip="Bar">
+            <i class="icon-material icon-material_bar"></i>
+          </a>
+        </li>
+        <li class="fab-buttons__item">
+          <a (click)="changeChartView('line')" class="fab-buttons__link" data-tooltip="Line">
+            <i class="icon-material icon-material_line"></i>
+          </a>
+        </li>
+        <li class="fab-buttons__item">
+          <a (click)="changeChartView('boxplot')" class="fab-buttons__link" data-tooltip="Boxplot">
+            <i class="icon-material icon-material_boxplot"></i>
+          </a>
+        </li>
+        <li class="fab-buttons__item">
+          <a (click)="changeChartView('tab')" class="fab-buttons__link" data-tooltip="Tab">
+            <i class="icon-material icon-material_tab"></i>
+          </a>
+        </li>
+        <li class="fab-buttons__item">
+          <a (click)="deleteChartView()" class="fab-buttons__link closeIcon" data-tooltip="Close">
+            <i class="icon-material icon-material_close"></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="charts_spinner">
+    <template #spinningRecords></template>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+
+.accordion-headers-align .mat-expansion-panel-header-title {
+  flex-basis: 0;
+  color: ivory;
+}
+
+main-expansion-panel {
+  width: 100%;
+}
+
+.mat-expansion-panel {
+  background: unset;
+}
+
+.mat-expansion-panel hr {
+  color: lightgrey;
+}
+
+.mat-expansion-panel-header,
+.mat-expansion-panel-body {
+  padding-right: 5px;
+  padding-left: 10px;
+}
+
+main nav {
+  direction: rtl;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.data {
+  direction: ltr;
+}
+
+h4 {
+  font-size: 0.85em;
+}
+
+.fab {
+  position: fixed;
+  right: 25%;
+  bottom: 15px;
+  z-index: 100;
+}
+
+.right_panel {
+  height: 90vh !important;
+  max-height: 90vh !important;
+  overflow-y: auto;
+}
+
+
+.header-table{
+  display: flex; 
+  vertical-align: middle ; 
+}
+
+.spinner{
+  margin-left: 2%; 
+}
+
+.saveButton {
+  position: absolute;
+  bottom: 5%;
+  right: 5vw;
+}

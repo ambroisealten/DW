@@ -1,0 +1,57 @@
+<div class="dialogContainer">
+  <h2 mat-dialog-title class="dialogTitle">{{getTitle()}}</h2>
+
+
+  <mat-dialog-content class="contentdialog">
+
+    <div class="Panel">
+      <div class="matLabel">
+        <mat-selection-list class="floating" #type>
+          <mat-list-option class="text_check" checkboxPosition="before" value="inf. à">inf. à</mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="inf. égal à">inf. égal à
+          </mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="égal">égal</mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="sup. à">sup. à </mat-list-option>
+          <mat-list-option class="text_check" checkboxPosition="before" value="sup. égal à">sup. égal à
+          </mat-list-option>
+        </mat-selection-list>
+
+      </div>
+      <div class="input">
+        Valeur :
+        <mat-form-field>
+          <input matInput type="number" class="matInput" [(ngModel)]="valueSolo" >
+        </mat-form-field>
+      </div>
+
+    </div>
+
+
+    <div class="part2">
+
+      <mat-checkbox #compris (click)="unselectOther()">
+        Compris entre
+      </mat-checkbox>
+
+      <mat-form-field>
+        <input type="Number" matInput [(ngModel)]="valueMin">
+      </mat-form-field>
+      et
+      <mat-form-field>
+        <input type="Number" matInput [(ngModel)]="valueMax">
+      </mat-form-field>
+
+      <div class="ban" *ngIf="isTri">
+        <mat-radio-group [(ngModel)]="excludeOption" aria-label="Select an option" >
+          <mat-radio-button value="exclure" class="exclure">exclure </mat-radio-button>
+          <mat-radio-button value="inclure"> inclure</mat-radio-button>
+          <mat-radio-button value="n'inclure que"> n'inclure que</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-primary saveButton" color="primary" (click)="onSave()">Ajouter</button>
+    <button type="button" class="btn btn-danger closeButton" color="primary" (click)="close()">Fermer</button>
+
+  </mat-dialog-content>
+</div>
